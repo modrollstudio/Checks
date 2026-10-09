@@ -243,7 +243,7 @@ roll order: both advantage dice of one roll, then the next roll; the initiator b
 
 ## `/checks roll`
 
-`/checks roll <target> <ability|skill> [dc]` rolls a check through this API and prints it, for
+`/checks roll <target> <ability/skill> [dc]` rolls a check through this API and prints it, for
 example `Zombie rolls stealth vs DC 15: d20 13 (+5) = 18, success`. Under advantage or disadvantage
 it names the mode and shows both d20s: `Zombie rolls stealth vs DC 15: advantage, d20 17 and 4, keeps
 17 (+5) = 22, success`. Without a DC it is an open roll.
@@ -252,7 +252,7 @@ prints that it was canceled. Requires op (permission level 2).
 
 ## `/checks check`
 
-`/checks check <target> <ability|skill> <dc>` rolls a check through this API for datapacks. A
+`/checks check <target> <ability/skill> <dc>` rolls a check through this API for datapacks. A
 success prints the roll and returns 1. A failure fails the command with the roll as its error: in
 1.21, `execute store success` counts every command that does not fail as a success, whatever it
 returns, so failing is what lets both `store success` and `store result` record 0.

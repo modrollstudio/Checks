@@ -433,20 +433,20 @@ disadvantage takes away (see [bonus-sources.md](bonus-sources.md#passive-scores)
 Every command except `help` and `get` requires op (permission level 2).
 
 - `/checks help [command]` lists every `/checks` command you have permission for, each with its
-  syntax and a one-line description. Naming a command shows a longer description and an example
-  (`/checks help roll`).
+  syntax and a one-line description below it; clicking one puts that command in the chat box.
+  Naming a command shows a longer description and an example (`/checks help roll`).
 
-- `/checks get <target> [ability|skill]` shows an entity's effective scores and modifiers, its
+- `/checks get <target> [ability/skill]` shows an entity's effective scores and modifiers, its
   proficiency bonus and save modifiers, plus its skills, with the same values as the stat screen:
   skill and save modifiers and passive scores include [bonus sources](bonus-sources.md) (see [skills.md](skills.md#commands) and
   [proficiency.md](proficiency.md#commands)).
-- `/checks set <player> <ability|skill|proficiency> <value>` sets and persists a player's ability
+- `/checks set <player> <ability/skill/proficiency> <value>` sets and persists a player's ability
   score (`1..30`), skill bonus (`-30..30`) or proficiency bonus (`0..10`).
-- `/checks prof <player> <skill|ability> <none|proficient|expertise>` sets and persists a player's
+- `/checks prof <player> <skill/ability> <none/proficient/expertise>` sets and persists a player's
   skill or save proficiency (see [proficiency.md](proficiency.md#commands)).
-- `/checks roll <target> <ability|skill> [dc]` rolls a check, optionally against a DC, and prints
+- `/checks roll <target> <ability/skill> [dc]` rolls a check, optionally against a DC, and prints
   the roll (see [api.md](api.md#checks-roll)). Its result is the total, for `execute store result`.
-- `/checks check <target> <ability|skill> <dc>` rolls a check against a DC for datapacks: a success
+- `/checks check <target> <ability/skill> <dc>` rolls a check against a DC for datapacks: a success
   returns 1, a failure fails the command, so `execute store success` and `execute store result`
   record 1 or 0 (see [api.md](api.md#checks-check)).
 - `/checks reset <player>` clears a player's character, rolls included, and their level, XP and

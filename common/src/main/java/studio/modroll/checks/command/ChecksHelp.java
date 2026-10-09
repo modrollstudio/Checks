@@ -12,14 +12,17 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import studio.modroll.checks.text.FallbackText;
 
 /**
  * {@code /checks help [command]}. The commands listed are read from the registered command tree and
  * filtered by each one's own permission check, so a source only ever sees what it may run. Every text
  * comes from the lang file: {@code commands.checks.help.<command>.<part>} for each of {@link #PARTS}.
+ * Usages split their options with "/", as Minecraft's font draws "|" much like "l".
  */
 public final class ChecksHelp {
 
@@ -49,7 +52,13 @@ public final class ChecksHelp {
         List<String> commands = usable(ctx);
         reply(ctx, FallbackText.of(KEY + "header"));
         for (String command : commands) {
-            reply(ctx, FallbackText.of(KEY + "entry", syntax(command), text(command, "description")));
+            Style suggest = Style.EMPTY.withClickEvent(
+                    new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + ChecksCommands.ROOT + " " + command + " "));
+            reply(ctx, syntax(command).withStyle(suggest));
+            reply(
+                    ctx,
+                    FallbackText.of(KEY + "entry_description", text(command, "description"))
+                            .withStyle(suggest.withColor(ChatFormatting.GRAY)));
         }
         return commands.size();
     }
@@ -74,7 +83,7 @@ public final class ChecksHelp {
                 .toList();
     }
 
-    private static Component syntax(String command) {
+    private static MutableComponent syntax(String command) {
         return text(command, "syntax").withStyle(ChatFormatting.GOLD);
     }
 

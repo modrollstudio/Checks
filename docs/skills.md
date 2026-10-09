@@ -90,5 +90,5 @@ then its governing ability modifier plus any skill proficiency (which has its ow
   `stealth +7 (dex, expertise, passive 17)`.
 - `/checks get <target> <skill>` shows one skill. Its command result is the skill modifier.
 - `/checks set <player> <skill> <bonus>` sets and persists a player's skill bonus (`-30..30`).
-- `/checks prof <player> <skill> <none|proficient|expertise>` sets and persists a player's skill
+- `/checks prof <player> <skill> <none/proficient/expertise>` sets and persists a player's skill
   proficiency.

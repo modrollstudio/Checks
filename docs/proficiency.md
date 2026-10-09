@@ -51,7 +51,7 @@ A skill or save proficiency, highest first:
 Both require op (permission level 2).
 
 - `/checks set <player> proficiency <n>` sets and persists a player's proficiency bonus (`0..10`).
-- `/checks prof <player> <skill|ability> <none|proficient|expertise>` sets and persists a player's
+- `/checks prof <player> <skill/ability> <none/proficient/expertise>` sets and persists a player's
   skill proficiency or, for an ability id, saving-throw proficiency. `expertise` on an ability is
   rejected.
 
