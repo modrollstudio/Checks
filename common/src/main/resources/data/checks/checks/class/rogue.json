@@ -1,0 +1,32 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:tripwire_hook",
+  "hit_die": 8,
+  "saves": [
+    "dex",
+    "int"
+  ],
+  "skills": {
+    "choose": 4,
+    "from": [
+      "acrobatics",
+      "athletics",
+      "deception",
+      "insight",
+      "intimidation",
+      "investigation",
+      "perception",
+      "persuasion",
+      "sleight_of_hand",
+      "stealth"
+    ]
+  },
+  "suggested_order": [
+    "dex",
+    "int",
+    "con",
+    "wis",
+    "cha",
+    "str"
+  ]
+}

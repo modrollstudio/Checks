@@ -1,0 +1,28 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:shield",
+  "hit_die": 10,
+  "saves": [
+    "wis",
+    "cha"
+  ],
+  "skills": {
+    "choose": 2,
+    "from": [
+      "athletics",
+      "insight",
+      "intimidation",
+      "medicine",
+      "persuasion",
+      "religion"
+    ]
+  },
+  "suggested_order": [
+    "str",
+    "cha",
+    "con",
+    "wis",
+    "dex",
+    "int"
+  ]
+}

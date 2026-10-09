@@ -1,0 +1,11 @@
+{
+  "format_version": 1,
+  "effects": [
+    {
+      "type": "attribute",
+      "attribute": "minecraft:generic.attack_knockback",
+      "amount": 0.5,
+      "operation": "add_value"
+    }
+  ]
+}

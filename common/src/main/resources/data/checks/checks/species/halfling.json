@@ -1,0 +1,13 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:rabbit_foot",
+  "traits": [
+    "brave",
+    "halfling_nimbleness",
+    "luck",
+    "naturally_stealthy"
+  ],
+  "sizes": [
+    { "size": "small", "scale": 0.5 }
+  ]
+}

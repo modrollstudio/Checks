@@ -1,0 +1,21 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:note_block",
+  "hit_die": 8,
+  "saves": [
+    "dex",
+    "cha"
+  ],
+  "skills": {
+    "choose": 3,
+    "from": "any"
+  },
+  "suggested_order": [
+    "cha",
+    "dex",
+    "con",
+    "wis",
+    "int",
+    "str"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:wheat",
+  "abilities": [
+    "str",
+    "con",
+    "wis"
+  ],
+  "skills": [
+    "animal_handling",
+    "nature"
+  ],
+  "kit": [
+    {
+      "item": "minecraft:stone_hoe",
+      "count": 1
+    },
+    {
+      "item": "minecraft:wheat_seeds",
+      "count": 8
+    },
+    {
+      "item": "minecraft:bread",
+      "count": 5
+    }
+  ]
+}

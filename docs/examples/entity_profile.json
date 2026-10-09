@@ -1,0 +1,12 @@
+{
+  "format_version": 1,
+  "matches": ["minecraft:zombie", "#minecraft:skeletons", "alexsmobs:*"],
+  "priority": 0,
+  "abilities": { "str": 13, "dex": 8, "con": 14 },
+  "skills": { "athletics": 2, "checks:perception": 1 },
+  "proficiency": {
+    "bonus": 3,
+    "skills": { "athletics": "expertise", "perception": "proficient" },
+    "saves": { "str": "proficient", "con": "proficient" }
+  }
+}

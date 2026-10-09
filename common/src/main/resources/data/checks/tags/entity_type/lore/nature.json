@@ -1,0 +1,23 @@
+{
+  "values": [
+    "minecraft:bee",
+    "minecraft:cave_spider",
+    "minecraft:creeper",
+    "minecraft:dolphin",
+    "minecraft:goat",
+    "minecraft:hoglin",
+    "minecraft:llama",
+    "minecraft:panda",
+    "minecraft:piglin",
+    "minecraft:piglin_brute",
+    "minecraft:pillager",
+    "minecraft:polar_bear",
+    "minecraft:ravager",
+    "minecraft:silverfish",
+    "minecraft:spider",
+    "minecraft:trader_llama",
+    "minecraft:vindicator",
+    "minecraft:wolf",
+    "minecraft:bat"
+  ]
+}

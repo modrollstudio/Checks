@@ -1,0 +1,12 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:iron_axe",
+  "traits": [
+    "adrenaline_rush",
+    "darkvision",
+    "relentless_endurance"
+  ],
+  "sizes": [
+    { "size": "medium", "scale": 1.05 }
+  ]
+}

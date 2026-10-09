@@ -1,0 +1,11 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:stone_pickaxe",
+  "abilities": ["str", "con", "wis"],
+  "skills": ["athletics", "perception"],
+  "kit": [
+    { "item": "minecraft:stone_pickaxe", "count": 1 },
+    { "item": "minecraft:torch", "count": 16 },
+    { "item": "minecraft:bread", "count": 3 }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:lantern",
+  "traits": ["darkvision", "mypack:tunnel_sense"],
+  "sizes": [
+    { "size": "small", "scale": 0.6 },
+    { "size": "medium", "scale": 0.9 }
+  ]
+}

@@ -1,0 +1,363 @@
+{
+  "villager.angry": {
+    "subtitle": "subtitles.checks.villager.angry",
+    "sounds": [
+      {
+        "name": "minecraft:mob/villager/no1",
+        "pitch": 0.75
+      },
+      {
+        "name": "minecraft:mob/villager/no2",
+        "pitch": 0.75
+      },
+      {
+        "name": "minecraft:mob/villager/no3",
+        "pitch": 0.75
+      },
+      {
+        "name": "minecraft:mob/villager/hit1",
+        "pitch": 0.8
+      },
+      {
+        "name": "minecraft:mob/villager/hit2",
+        "pitch": 0.8
+      }
+    ]
+  },
+  "villager.happy": {
+    "subtitle": "subtitles.checks.villager.happy",
+    "sounds": [
+      {
+        "name": "minecraft:mob/villager/yes1",
+        "pitch": 1.25
+      },
+      {
+        "name": "minecraft:mob/villager/yes2",
+        "pitch": 1.25
+      },
+      {
+        "name": "minecraft:mob/villager/yes3",
+        "pitch": 1.25
+      }
+    ]
+  },
+  "villager.scared": {
+    "subtitle": "subtitles.checks.villager.scared",
+    "sounds": [
+      {
+        "name": "minecraft:mob/villager/hit1",
+        "pitch": 1.5
+      },
+      {
+        "name": "minecraft:mob/villager/hit2",
+        "pitch": 1.5
+      },
+      {
+        "name": "minecraft:mob/villager/hit3",
+        "pitch": 1.5
+      },
+      {
+        "name": "minecraft:mob/villager/hit4",
+        "pitch": 1.5
+      }
+    ]
+  },
+  "villager.suspicious": {
+    "subtitle": "subtitles.checks.villager.suspicious",
+    "sounds": [
+      {
+        "name": "minecraft:mob/villager/haggle1",
+        "pitch": 0.7
+      },
+      {
+        "name": "minecraft:mob/villager/haggle2",
+        "pitch": 0.7
+      },
+      {
+        "name": "minecraft:mob/villager/haggle3",
+        "pitch": 0.7
+      },
+      {
+        "name": "minecraft:mob/villager/idle1",
+        "pitch": 0.8
+      },
+      {
+        "name": "minecraft:mob/villager/idle2",
+        "pitch": 0.8
+      },
+      {
+        "name": "minecraft:mob/villager/idle3",
+        "pitch": 0.8
+      }
+    ]
+  },
+  "wandering_trader.angry": {
+    "subtitle": "subtitles.checks.wandering_trader.angry",
+    "sounds": [
+      {
+        "name": "minecraft:mob/wandering_trader/no1",
+        "pitch": 0.75
+      },
+      {
+        "name": "minecraft:mob/wandering_trader/no2",
+        "pitch": 0.75
+      },
+      {
+        "name": "minecraft:mob/wandering_trader/no3",
+        "pitch": 0.75
+      },
+      {
+        "name": "minecraft:mob/wandering_trader/no4",
+        "pitch": 0.75
+      },
+      {
+        "name": "minecraft:mob/wandering_trader/no5",
+        "pitch": 0.75
+      }
+    ]
+  },
+  "wandering_trader.happy": {
+    "subtitle": "subtitles.checks.wandering_trader.happy",
+    "sounds": [
+      {
+        "name": "minecraft:mob/wandering_trader/yes1",
+        "pitch": 1.25
+      },
+      {
+        "name": "minecraft:mob/wandering_trader/yes2",
+        "pitch": 1.25
+      },
+      {
+        "name": "minecraft:mob/wandering_trader/yes3",
+        "pitch": 1.25
+      },
+      {
+        "name": "minecraft:mob/wandering_trader/yes4",
+        "pitch": 1.25
+      }
+    ]
+  },
+  "wandering_trader.scared": {
+    "subtitle": "subtitles.checks.wandering_trader.scared",
+    "sounds": [
+      {
+        "name": "minecraft:mob/wandering_trader/hurt1",
+        "pitch": 1.5
+      },
+      {
+        "name": "minecraft:mob/wandering_trader/hurt2",
+        "pitch": 1.5
+      },
+      {
+        "name": "minecraft:mob/wandering_trader/hurt3",
+        "pitch": 1.5
+      },
+      {
+        "name": "minecraft:mob/wandering_trader/hurt4",
+        "pitch": 1.5
+      }
+    ]
+  },
+  "wandering_trader.suspicious": {
+    "subtitle": "subtitles.checks.wandering_trader.suspicious",
+    "sounds": [
+      {
+        "name": "minecraft:mob/wandering_trader/haggle1",
+        "pitch": 0.7
+      },
+      {
+        "name": "minecraft:mob/wandering_trader/haggle2",
+        "pitch": 0.7
+      },
+      {
+        "name": "minecraft:mob/wandering_trader/haggle3",
+        "pitch": 0.7
+      },
+      {
+        "name": "minecraft:mob/wandering_trader/idle1",
+        "pitch": 0.8
+      },
+      {
+        "name": "minecraft:mob/wandering_trader/idle2",
+        "pitch": 0.8
+      },
+      {
+        "name": "minecraft:mob/wandering_trader/idle3",
+        "pitch": 0.8
+      },
+      {
+        "name": "minecraft:mob/wandering_trader/idle4",
+        "pitch": 0.8
+      },
+      {
+        "name": "minecraft:mob/wandering_trader/idle5",
+        "pitch": 0.8
+      }
+    ]
+  },
+  "piglin.angry": {
+    "subtitle": "subtitles.checks.piglin.angry",
+    "sounds": [
+      {
+        "name": "minecraft:mob/piglin/angry1",
+        "pitch": 0.85,
+        "volume": 0.8
+      },
+      {
+        "name": "minecraft:mob/piglin/angry2",
+        "pitch": 0.85,
+        "volume": 0.8
+      },
+      {
+        "name": "minecraft:mob/piglin/angry3",
+        "pitch": 0.85,
+        "volume": 0.8
+      },
+      {
+        "name": "minecraft:mob/piglin/angry4",
+        "pitch": 0.85,
+        "volume": 0.8
+      },
+      {
+        "name": "minecraft:mob/piglin/jealous1",
+        "pitch": 0.8,
+        "volume": 0.8
+      },
+      {
+        "name": "minecraft:mob/piglin/jealous2",
+        "pitch": 0.8,
+        "volume": 0.8
+      },
+      {
+        "name": "minecraft:mob/piglin/jealous3",
+        "pitch": 0.8,
+        "volume": 0.8
+      }
+    ]
+  },
+  "piglin.happy": {
+    "subtitle": "subtitles.checks.piglin.happy",
+    "sounds": [
+      {
+        "name": "minecraft:mob/piglin/celebrate1",
+        "pitch": 1.15,
+        "volume": 0.8
+      },
+      {
+        "name": "minecraft:mob/piglin/celebrate2",
+        "pitch": 1.15,
+        "volume": 0.8
+      },
+      {
+        "name": "minecraft:mob/piglin/celebrate3",
+        "pitch": 1.15,
+        "volume": 0.8
+      },
+      {
+        "name": "minecraft:mob/piglin/celebrate4",
+        "pitch": 1.15,
+        "volume": 0.8
+      },
+      {
+        "name": "minecraft:mob/piglin/admire1",
+        "pitch": 1.15,
+        "volume": 0.8
+      },
+      {
+        "name": "minecraft:mob/piglin/admire2",
+        "pitch": 1.15,
+        "volume": 0.8
+      }
+    ]
+  },
+  "piglin.scared": {
+    "subtitle": "subtitles.checks.piglin.scared",
+    "sounds": [
+      {
+        "name": "minecraft:mob/piglin/retreat1",
+        "pitch": 1.35,
+        "volume": 0.7
+      },
+      {
+        "name": "minecraft:mob/piglin/retreat2",
+        "pitch": 1.35,
+        "volume": 0.7
+      },
+      {
+        "name": "minecraft:mob/piglin/retreat3",
+        "pitch": 1.35,
+        "volume": 0.7
+      },
+      {
+        "name": "minecraft:mob/piglin/retreat4",
+        "pitch": 1.35,
+        "volume": 0.7
+      }
+    ]
+  },
+  "piglin.suspicious": {
+    "subtitle": "subtitles.checks.piglin.suspicious",
+    "sounds": [
+      {
+        "name": "minecraft:mob/piglin/idle1",
+        "pitch": 0.75,
+        "volume": 0.7
+      },
+      {
+        "name": "minecraft:mob/piglin/idle2",
+        "pitch": 0.75,
+        "volume": 0.7
+      },
+      {
+        "name": "minecraft:mob/piglin/idle3",
+        "pitch": 0.75,
+        "volume": 0.7
+      },
+      {
+        "name": "minecraft:mob/piglin/idle4",
+        "pitch": 0.75,
+        "volume": 0.7
+      },
+      {
+        "name": "minecraft:mob/piglin/idle5",
+        "pitch": 0.75,
+        "volume": 0.7
+      },
+      {
+        "name": "minecraft:mob/piglin/jealous1",
+        "pitch": 0.9,
+        "volume": 0.7
+      },
+      {
+        "name": "minecraft:mob/piglin/jealous2",
+        "pitch": 0.9,
+        "volume": 0.7
+      },
+      {
+        "name": "minecraft:mob/piglin/jealous3",
+        "pitch": 0.9,
+        "volume": 0.7
+      },
+      {
+        "name": "minecraft:mob/piglin/jealous4",
+        "pitch": 0.9,
+        "volume": 0.7
+      },
+      {
+        "name": "minecraft:mob/piglin/jealous5",
+        "pitch": 0.9,
+        "volume": 0.7
+      }
+    ]
+  },
+  "insight.warning": {
+    "subtitle": "subtitles.checks.insight.warning",
+    "sounds": [
+      {
+        "name": "minecraft:note/bell",
+        "pitch": 0.5,
+        "volume": 0.6
+      }
+    ]
+  }
+}

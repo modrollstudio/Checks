@@ -1,0 +1,12 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:clock",
+  "traits": [
+    "darkvision",
+    "gnomish_cunning",
+    "gnomish_lineage"
+  ],
+  "sizes": [
+    { "size": "small", "scale": 0.55 }
+  ]
+}

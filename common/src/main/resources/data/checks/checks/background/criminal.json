@@ -1,0 +1,27 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:gold_nugget",
+  "abilities": [
+    "dex",
+    "con",
+    "int"
+  ],
+  "skills": [
+    "sleight_of_hand",
+    "stealth"
+  ],
+  "kit": [
+    {
+      "item": "minecraft:stone_sword",
+      "count": 1
+    },
+    {
+      "item": "minecraft:gold_nugget",
+      "count": 6
+    },
+    {
+      "item": "minecraft:bread",
+      "count": 3
+    }
+  ]
+}

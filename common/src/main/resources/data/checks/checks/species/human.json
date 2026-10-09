@@ -1,0 +1,13 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:player_head",
+  "traits": [
+    "resourceful",
+    "skillful",
+    "versatile"
+  ],
+  "sizes": [
+    { "size": "medium", "scale": 1.0 },
+    { "size": "small", "scale": 0.6 }
+  ]
+}

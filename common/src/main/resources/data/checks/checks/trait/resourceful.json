@@ -1,0 +1,10 @@
+{
+  "format_version": 1,
+  "effects": [
+    {
+      "type": "reroll",
+      "on": "failure",
+      "daily": true
+    }
+  ]
+}

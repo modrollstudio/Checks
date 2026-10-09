@@ -1,0 +1,27 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:anvil",
+  "abilities": [
+    "str",
+    "con",
+    "int"
+  ],
+  "skills": [
+    "history",
+    "persuasion"
+  ],
+  "kit": [
+    {
+      "item": "minecraft:iron_ingot",
+      "count": 3
+    },
+    {
+      "item": "minecraft:coal",
+      "count": 8
+    },
+    {
+      "item": "minecraft:bread",
+      "count": 3
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:golden_axe",
+  "hit_die": 12,
+  "saves": [
+    "str",
+    "con"
+  ],
+  "skills": {
+    "choose": 2,
+    "from": [
+      "animal_handling",
+      "athletics",
+      "intimidation",
+      "nature",
+      "perception",
+      "survival"
+    ]
+  },
+  "suggested_order": [
+    "str",
+    "con",
+    "dex",
+    "wis",
+    "cha",
+    "int"
+  ]
+}

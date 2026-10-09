@@ -1,0 +1,45 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.eclipse/
+bin/
+.classpath
+.project
+.settings/
+
+# Minecraft dev runs
+run/
+run2/
+run-gametest/
+run-uishots/
+runs/
+run-data/
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local env
+.env
+local.properties
+
+# Local working notes and tooling
+CLAUDE.md
+PLAN.md
+*[Pp][Rr][Oo][Mm][Pp][Tt]*.md
+.claude/
+.superpowers/
+docs/superpowers/
+
+# Reference images and runUiShots output
+design/
+
+# Store listing copy
+docs/listing.md

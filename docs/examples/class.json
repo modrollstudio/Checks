@@ -1,0 +1,11 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:crossbow",
+  "hit_die": 10,
+  "saves": ["str", "con"],
+  "skills": {
+    "choose": 2,
+    "from": ["acrobatics", "animal_handling", "athletics", "history", "insight", "intimidation", "persuasion", "perception", "survival"]
+  },
+  "suggested_order": ["str", "con", "dex", "wis", "int", "cha"]
+}

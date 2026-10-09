@@ -1,0 +1,27 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:totem_of_undying",
+  "hit_die": 8,
+  "saves": [
+    "wis",
+    "cha"
+  ],
+  "skills": {
+    "choose": 2,
+    "from": [
+      "history",
+      "insight",
+      "medicine",
+      "persuasion",
+      "religion"
+    ]
+  },
+  "suggested_order": [
+    "wis",
+    "con",
+    "str",
+    "cha",
+    "dex",
+    "int"
+  ]
+}

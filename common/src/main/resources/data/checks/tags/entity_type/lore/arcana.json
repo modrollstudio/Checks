@@ -1,0 +1,19 @@
+{
+  "values": [
+    "minecraft:blaze",
+    "minecraft:breeze",
+    "minecraft:elder_guardian",
+    "minecraft:ender_dragon",
+    "minecraft:enderman",
+    "minecraft:endermite",
+    "minecraft:evoker",
+    "minecraft:guardian",
+    "minecraft:illusioner",
+    "minecraft:iron_golem",
+    "minecraft:magma_cube",
+    "minecraft:shulker",
+    "minecraft:slime",
+    "minecraft:warden",
+    "minecraft:witch"
+  ]
+}

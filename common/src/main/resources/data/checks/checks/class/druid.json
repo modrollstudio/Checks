@@ -1,0 +1,30 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:oak_sapling",
+  "hit_die": 8,
+  "saves": [
+    "int",
+    "wis"
+  ],
+  "skills": {
+    "choose": 2,
+    "from": [
+      "arcana",
+      "animal_handling",
+      "insight",
+      "medicine",
+      "nature",
+      "perception",
+      "religion",
+      "survival"
+    ]
+  },
+  "suggested_order": [
+    "wis",
+    "con",
+    "dex",
+    "int",
+    "cha",
+    "str"
+  ]
+}

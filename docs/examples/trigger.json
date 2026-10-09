@@ -1,0 +1,13 @@
+{
+  "format_version": 1,
+  "on": "use_block",
+  "block": "minecraft:cracked_stone_bricks",
+  "stat": "athletics",
+  "dc": 15,
+  "cooldown": { "player": 20, "target": 100 },
+  "outcomes": {
+    "success": { "function": "mypack:cracked_wall/break" },
+    "failure": { "function": "mypack:cracked_wall/strain" },
+    "natural_1": { "function": "mypack:cracked_wall/collapse" }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "format_version": 1,
+  "effects": [
+    {
+      "type": "roll_bonus",
+      "applies_to": {
+        "skills": [
+          "stealth"
+        ]
+      },
+      "mode": "advantage"
+    }
+  ]
+}

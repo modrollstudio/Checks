@@ -1,0 +1,17 @@
+{
+  "format_version": 1,
+  "effects": [
+    {
+      "type": "attribute",
+      "attribute": "minecraft:player.entity_interaction_range",
+      "amount": 0.5,
+      "operation": "add_value"
+    },
+    {
+      "type": "attribute",
+      "attribute": "minecraft:player.block_interaction_range",
+      "amount": 0.5,
+      "operation": "add_value"
+    }
+  ]
+}

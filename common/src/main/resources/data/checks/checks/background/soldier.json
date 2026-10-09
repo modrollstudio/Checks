@@ -1,0 +1,27 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:iron_chestplate",
+  "abilities": [
+    "str",
+    "dex",
+    "con"
+  ],
+  "skills": [
+    "athletics",
+    "intimidation"
+  ],
+  "kit": [
+    {
+      "item": "minecraft:stone_sword",
+      "count": 1
+    },
+    {
+      "item": "minecraft:shield",
+      "count": 1
+    },
+    {
+      "item": "minecraft:bread",
+      "count": 3
+    }
+  ]
+}

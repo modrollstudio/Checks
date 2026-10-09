@@ -1,0 +1,241 @@
+{
+  "format_version": 1,
+  "player_defaults": { "str": 10, "dex": 10, "con": 10, "int": 10, "wis": 10, "cha": 10 },
+  "derivation": {
+    "enabled": true,
+    "strength_base": 8,
+    "strength_per_attack_damage": 1.0,
+    "dexterity_base": 6,
+    "dexterity_per_speed": 24.0,
+    "constitution_base": 8,
+    "constitution_per_health": 0.2,
+    "default_mental_score": 10
+  },
+  "profiles": { "enabled": true },
+  "skills": { "enabled": true },
+  "proficiency": { "enabled": true, "default_bonus": 2 },
+  "critfall": {
+    "enabled": true,
+    "unprofiled_mobs": false,
+    "save_abilities": { "critfall:spell": "dex" }
+  },
+  "stat_screen": { "enabled": true },
+  "creation": {
+    "enabled": true,
+    "methods": ["standard_array", "point_buy", "roll", "hardcore"],
+    "skill_choices": 2,
+    "standard_array": [15, 14, 13, 12, 10, 8],
+    "point_buy": {
+      "budget": 27,
+      "costs": { "8": 0, "9": 1, "10": 2, "11": 3, "12": 4, "13": 5, "14": 7, "15": 9 }
+    },
+    "roll_dice": "4d6kh3",
+    "hardcore_dice": "3d6",
+    "presets": {
+      "enabled": true,
+      "include_shipped": true,
+      "bonus_options": [[2, 1], [1, 1, 1]],
+      "bonus_max_score": 20
+    }
+  },
+  "levelling": {
+    "enabled": true,
+    "xp_thresholds": [
+      0, 30, 90, 270, 650, 1400, 2300, 3400, 4800, 6400,
+      8500, 10000, 12000, 14000, 16500, 19500, 22500, 26500, 30500, 35500
+    ],
+    "proficiency_bonus": [2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6],
+    "vanilla_xp": { "enabled": true, "xp_per_point": 1 },
+    "advancements": { "enabled": true, "xp": 25 },
+    "ability_improvements": {
+      "levels": [4, 8, 12, 16, 19],
+      "options": [[2], [1, 1]],
+      "max_score": 20
+    }
+  },
+  "events": { "enabled": true },
+  "bonus_sources": { "enabled": true, "passive_advantage": 5 },
+  "triggers": { "enabled": true },
+  "check_command": { "enabled": true },
+  "stat_screen_sections": { "enabled": true },
+  "health": {
+    "enabled": true,
+    "per_con_point": 2,
+    "per_level": { "enabled": false, "multiplier": 0.2 }
+  },
+  "armor_class": { "enabled": true, "medium_max_dex": 2 },
+  "size": { "enabled": true },
+  "attribute_extras": {
+    "knockback": { "enabled": true, "per_point": 0.1 },
+    "mining_speed": { "enabled": true, "per_point": 0.05 },
+    "bow_draw": { "enabled": true, "per_point": 0.1 },
+    "crossbow_reload": { "enabled": true, "per_point": 0.1 },
+    "breath": { "enabled": true, "per_point": 0.2 },
+    "exhaustion": { "enabled": true, "per_point": 0.05 }
+  },
+  "vanilla_saves": {
+    "profiled_mobs": false,
+    "cooldown_ticks": 20,
+    "explosion": { "enabled": true, "dc": 13, "success_multiplier": 0.5 },
+    "poison": { "enabled": true, "dc": 12, "success_multiplier": 0.5 },
+    "knockback": { "enabled": true, "dc": 13, "success_multiplier": 0.5, "min_strength": 0.7 },
+    "fire": { "enabled": true, "dc": 12, "success_multiplier": 0.0 },
+    "darkness": { "enabled": true, "dc": 13, "success_multiplier": 0.5 }
+  },
+  "traits": {
+    "enabled": true,
+    "recharge_ticks": 24000,
+    "vanilla_save_advantage": { "enabled": true },
+    "roll_bonus": { "enabled": true },
+    "damage_resistance": { "enabled": true },
+    "extra_health": { "enabled": true },
+    "darkvision": { "enabled": true, "strength": 0.4 },
+    "reroll": { "enabled": true },
+    "last_stand": { "enabled": true },
+    "ignored_by": { "enabled": true },
+    "skill_choices": { "enabled": true },
+    "attribute": { "enabled": true }
+  },
+  "social": {
+    "enabled": true,
+    "nearby_radius": 16,
+    "gossip_radius": 32,
+    "persuade": {
+      "enabled": true,
+      "dc": 12,
+      "cooldown_ticks": 24000,
+      "barely_margin": 2,
+      "critical_failure": {
+        "price_percent": 30,
+        "price_ticks": 48000,
+        "gossip": { "type": "minor_negative", "amount": 25, "nearby": true }
+      },
+      "failure": { "price_percent": 15, "price_ticks": 12000 },
+      "barely": { "price_percent": -10, "price_ticks": 12000 },
+      "success": { "price_percent": -20, "price_ticks": 12000 },
+      "critical_success": {
+        "price_percent": -35,
+        "price_ticks": 24000,
+        "gossip": { "type": "minor_positive", "amount": 10 }
+      }
+    },
+    "deceive": {
+      "enabled": true,
+      "cooldown_ticks": 24000,
+      "barely_margin": 2,
+      "critical_failure": {
+        "price_percent": 30,
+        "price_ticks": 48000,
+        "gossip": { "type": "minor_negative", "amount": 25, "nearby": true }
+      },
+      "failure": { "price_percent": 15, "price_ticks": 12000 },
+      "barely": { "price_percent": -10, "price_ticks": 12000 },
+      "success": { "price_percent": -20, "price_ticks": 12000 },
+      "critical_success": {
+        "price_percent": -35,
+        "price_ticks": 24000,
+        "gossip": { "type": "minor_positive", "amount": 10 }
+      },
+      "piglin": { "disguise_ticks": 2400, "critical_disguise_ticks": 6000, "anger_ticks": 600 },
+      "wandering_trader": { "refuse_ticks": 12000, "llamas_spit": true }
+    },
+    "intimidate": {
+      "enabled": true,
+      "dc": 13,
+      "cooldown_ticks": 72000,
+      "success": {
+        "price_percent": 15,
+        "price_ticks": 24000,
+        "gossip": { "type": "minor_negative", "amount": 20 }
+      },
+      "failure": {
+        "refuse_ticks": 48000,
+        "angers_golems": true,
+        "gossip": { "type": "major_negative", "amount": 19, "nearby": true }
+      },
+      "piglin_anger_ticks": 600
+    },
+    "pickpocket": {
+      "enabled": true,
+      "cooldown_ticks": 72000,
+      "behind_degrees": 60,
+      "failure": {
+        "refuse_ticks": 48000,
+        "angers_golems": true,
+        "gossip": { "type": "major_negative", "amount": 19, "nearby": true }
+      }
+    },
+    "passive_prices": {
+      "enabled": true,
+      "charisma_percent_per_point": 2,
+      "professions": {
+        "minecraft:cleric": { "skill": "checks:religion", "percent_per_point": 2 },
+        "minecraft:librarian": { "skill": "checks:history", "percent_per_point": 2 },
+        "minecraft:cartographer": { "skill": "checks:history", "percent_per_point": 2 }
+      }
+    },
+    "reactions": {
+      "enabled": true,
+      "flee_distance": 12,
+      "flee_ticks": 100,
+      "flee_speed": 0.75
+    },
+    "witnesses": { "enabled": true, "refuse_fraction": 0.5, "flee_distance": 6 },
+    "golem_alarm": { "enabled": true, "radius": 48, "duration_ticks": 2400 },
+    "on_guard": {
+      "enabled": true,
+      "plead": { "enabled": true, "dc": 15 },
+      "lie": { "enabled": true, "dc": 15 }
+    },
+    "wary": { "enabled": true, "max_reputation": -95 },
+    "feel": {
+      "radius": 32,
+      "pickpocket_animation": { "enabled": true },
+      "speech_bubbles": { "enabled": true, "duration_ticks": 200 },
+      "voices": { "enabled": true }
+    },
+    "intimidate_mob": {
+      "enabled": true,
+      "dc": 12,
+      "cooldown_ticks": 1200,
+      "max_health": 20,
+      "exclude_tag": "checks:intimidation_immune",
+      "flee_ticks": 200,
+      "flee_distance": 16,
+      "flee_speed": 1.25,
+      "speed_boost_ticks": 100,
+      "speed_boost_amplifier": 1
+    },
+    "calm": { "enabled": true, "dc": 13, "cooldown_ticks": 1200, "tag": "checks:calmable" },
+    "insight": {
+      "sense_hostility": { "enabled": true, "dc": 12, "range": 16 },
+      "creeper_warning": { "enabled": true, "dc": 12, "range": 16 }
+    },
+    "performance": {
+      "enabled": true,
+      "dc": 12,
+      "cooldown_ticks": 12000,
+      "range": 16,
+      "success": { "gossip": { "type": "minor_positive", "amount": 5 }, "piglin_ticks": 1200 },
+      "critical_success": { "gossip": { "type": "minor_positive", "amount": 10 }, "piglin_ticks": 3600 },
+      "critical_failure": { "gossip": { "type": "minor_negative", "amount": 5 } }
+    }
+  },
+  "roll_messages": { "enabled": true, "duration_ticks": 240 },
+  "death_messages": { "enabled": true, "window_ticks": 1200 },
+  "exploration": {
+    "leap": { "enabled": true, "dc": 12, "cooldown_ticks": 40, "boost": 0.15, "min_drop": 3 },
+    "landing": { "enabled": true, "base_dc": 10, "dc_per_damage": 0.5, "success_multiplier": 0.5 },
+    "cobwebs": { "enabled": true, "dc": 12, "retry_ticks": 60 },
+    "climbing": { "enabled": true, "per_point": 0.1, "max_bonus": 0.5 },
+    "sneak": { "enabled": true, "per_point": 0.05, "min_visibility": 0.25 },
+    "spot_tripwires": { "enabled": true, "dc": 13, "range": 8, "interval_ticks": 20 },
+    "disarm_tripwires": { "enabled": true, "dc": 13 },
+    "search_chests": { "enabled": true, "dc": 13 },
+    "monster_lore": { "enabled": true, "dc": 12, "range": 16, "retry_ticks": 6000, "interval_ticks": 20 },
+    "structure_lore": { "enabled": true, "dc": 12, "retry_ticks": 6000, "interval_ticks": 20 },
+    "taming": { "enabled": true, "dc": 12 },
+    "hunger": { "enabled": true, "per_point": 0.05, "max_reduction": 0.25 },
+    "ailments": { "enabled": true, "per_point": 0.05, "max_reduction": 0.25 }
+  }
+}

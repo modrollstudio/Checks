@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "id": "checks_gametest",
+  "version": "1.0.0",
+  "name": "Checks GameTests",
+  "description": "Dev-only GameTest registration for Checks; never shipped.",
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": [
+      "studio.modroll.checks.fabric.gametest.BodyGameTests",
+      "studio.modroll.checks.fabric.gametest.BonusSourceGameTests",
+      "studio.modroll.checks.fabric.gametest.CheckGameTests",
+      "studio.modroll.checks.fabric.gametest.CreationGameTests",
+      "studio.modroll.checks.fabric.gametest.CritfallGameTests",
+      "studio.modroll.checks.fabric.gametest.DeathStoryGameTests",
+      "studio.modroll.checks.fabric.gametest.EventGameTests",
+      "studio.modroll.checks.fabric.gametest.ExplorationGameTests",
+      "studio.modroll.checks.fabric.gametest.GolemAlarmGameTests",
+      "studio.modroll.checks.fabric.gametest.InsightGameTests",
+      "studio.modroll.checks.fabric.gametest.LevelGameTests",
+      "studio.modroll.checks.fabric.gametest.LoreGameTests",
+      "studio.modroll.checks.fabric.gametest.MobSocialGameTests",
+      "studio.modroll.checks.fabric.gametest.OnGuardGameTests",
+      "studio.modroll.checks.fabric.gametest.PerformanceGameTests",
+      "studio.modroll.checks.fabric.gametest.PresetGameTests",
+      "studio.modroll.checks.fabric.gametest.ProficiencyGameTests",
+      "studio.modroll.checks.fabric.gametest.RollMessageGameTests",
+      "studio.modroll.checks.fabric.gametest.SaveGameTests",
+      "studio.modroll.checks.fabric.gametest.ScoreGameTests",
+      "studio.modroll.checks.fabric.gametest.SkillGameTests",
+      "studio.modroll.checks.fabric.gametest.SocialFeelGameTests",
+      "studio.modroll.checks.fabric.gametest.SocialGameTests",
+      "studio.modroll.checks.fabric.gametest.StatSheetGameTests",
+      "studio.modroll.checks.fabric.gametest.TraitGameTests",
+      "studio.modroll.checks.fabric.gametest.TriggerGameTests",
+      "studio.modroll.checks.fabric.gametest.WildGameTests",
+      "studio.modroll.checks.fabric.gametest.WitnessGameTests"
+    ]
+  },
+  "depends": {
+    "checks": "*"
+  }
+}

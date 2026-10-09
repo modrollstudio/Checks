@@ -1,0 +1,14 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:dragon_breath",
+  "traits": [
+    "draconic_ancestry",
+    "breath_weapon",
+    "damage_resistance",
+    "darkvision",
+    "draconic_flight"
+  ],
+  "sizes": [
+    { "size": "medium", "scale": 1.05 }
+  ]
+}

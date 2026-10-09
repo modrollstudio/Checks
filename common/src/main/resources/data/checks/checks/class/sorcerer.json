@@ -1,0 +1,28 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:blaze_powder",
+  "hit_die": 6,
+  "saves": [
+    "con",
+    "cha"
+  ],
+  "skills": {
+    "choose": 2,
+    "from": [
+      "arcana",
+      "deception",
+      "insight",
+      "intimidation",
+      "persuasion",
+      "religion"
+    ]
+  },
+  "suggested_order": [
+    "cha",
+    "con",
+    "dex",
+    "wis",
+    "int",
+    "str"
+  ]
+}

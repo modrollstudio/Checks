@@ -1,0 +1,6 @@
+{
+  "format_version": 1,
+  "source": { "item": "minecraft:leather_boots", "slot": "armor" },
+  "applies_to": { "skills": ["stealth"] },
+  "mode": "advantage"
+}

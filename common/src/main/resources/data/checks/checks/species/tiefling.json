@@ -1,0 +1,13 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:fire_charge",
+  "traits": [
+    "darkvision",
+    "fiendish_legacy",
+    "otherworldly_presence"
+  ],
+  "sizes": [
+    { "size": "medium", "scale": 1.0 },
+    { "size": "small", "scale": 0.6 }
+  ]
+}

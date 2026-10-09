@@ -1,0 +1,11 @@
+{
+  "format_version": 1,
+  "effects": [
+    {
+      "type": "ignored_by",
+      "entities": [
+        "#checks:gnome_friends"
+      ]
+    }
+  ]
+}

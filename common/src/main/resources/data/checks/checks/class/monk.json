@@ -1,0 +1,28 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:bamboo",
+  "hit_die": 8,
+  "saves": [
+    "str",
+    "dex"
+  ],
+  "skills": {
+    "choose": 2,
+    "from": [
+      "acrobatics",
+      "athletics",
+      "history",
+      "insight",
+      "religion",
+      "stealth"
+    ]
+  },
+  "suggested_order": [
+    "dex",
+    "wis",
+    "con",
+    "str",
+    "int",
+    "cha"
+  ]
+}

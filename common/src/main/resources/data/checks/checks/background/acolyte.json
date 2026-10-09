@@ -1,0 +1,27 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:candle",
+  "abilities": [
+    "int",
+    "wis",
+    "cha"
+  ],
+  "skills": [
+    "insight",
+    "religion"
+  ],
+  "kit": [
+    {
+      "item": "minecraft:book",
+      "count": 1
+    },
+    {
+      "item": "minecraft:candle",
+      "count": 2
+    },
+    {
+      "item": "minecraft:bread",
+      "count": 3
+    }
+  ]
+}

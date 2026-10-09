@@ -1,0 +1,14 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:allium",
+  "traits": [
+    "darkvision",
+    "elven_lineage",
+    "fey_ancestry",
+    "keen_senses",
+    "trance"
+  ],
+  "sizes": [
+    { "size": "medium", "scale": 0.95 }
+  ]
+}

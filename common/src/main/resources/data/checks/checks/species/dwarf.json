@@ -1,0 +1,13 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:raw_gold",
+  "traits": [
+    "darkvision",
+    "dwarven_resilience",
+    "dwarven_toughness",
+    "stonecunning"
+  ],
+  "sizes": [
+    { "size": "medium", "scale": 0.75 }
+  ]
+}

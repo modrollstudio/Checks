@@ -1,0 +1,30 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:bow",
+  "hit_die": 10,
+  "saves": [
+    "str",
+    "dex"
+  ],
+  "skills": {
+    "choose": 3,
+    "from": [
+      "animal_handling",
+      "athletics",
+      "insight",
+      "investigation",
+      "nature",
+      "perception",
+      "stealth",
+      "survival"
+    ]
+  },
+  "suggested_order": [
+    "dex",
+    "wis",
+    "con",
+    "str",
+    "int",
+    "cha"
+  ]
+}

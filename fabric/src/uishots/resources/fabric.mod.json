@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "checks_uishots",
+  "version": "1.0.0",
+  "name": "Checks UI Shots",
+  "description": "Dev-only screenshot run for Checks; never shipped.",
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["studio.modroll.checks.fabric.uishots.FabricUiShots"]
+  },
+  "depends": {
+    "checks": "*"
+  }
+}

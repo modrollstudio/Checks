@@ -1,0 +1,27 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:writable_book",
+  "abilities": [
+    "con",
+    "int",
+    "wis"
+  ],
+  "skills": [
+    "arcana",
+    "history"
+  ],
+  "kit": [
+    {
+      "item": "minecraft:writable_book",
+      "count": 1
+    },
+    {
+      "item": "minecraft:book",
+      "count": 2
+    },
+    {
+      "item": "minecraft:bread",
+      "count": 3
+    }
+  ]
+}

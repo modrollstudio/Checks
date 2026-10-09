@@ -1,0 +1,29 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:ender_eye",
+  "hit_die": 8,
+  "saves": [
+    "wis",
+    "cha"
+  ],
+  "skills": {
+    "choose": 2,
+    "from": [
+      "arcana",
+      "deception",
+      "history",
+      "intimidation",
+      "investigation",
+      "nature",
+      "religion"
+    ]
+  },
+  "suggested_order": [
+    "cha",
+    "con",
+    "dex",
+    "wis",
+    "int",
+    "str"
+  ]
+}

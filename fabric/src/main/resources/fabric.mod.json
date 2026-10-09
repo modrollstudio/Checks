@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${mod_version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "license": "${mod_license}",
+  "icon": "logo.png",
+  "authors": ["Modroll Studio"],
+  "contributors": ["NightsHigh"],
+  "contact": {
+    "homepage": "https://modroll.studio",
+    "sources": "https://github.com/modrollstudio/Checks",
+    "issues": "${mod_issue_tracker}"
+  },
+  "environment": "*",
+  "mixins": ["checks.mixins.json"],
+  "entrypoints": {
+    "main": ["studio.modroll.checks.fabric.ChecksFabric"],
+    "client": ["studio.modroll.checks.fabric.client.ChecksFabricClient"]
+  },
+  "depends": {
+    "fabricloader": ">=${fabric_loader_version}",
+    "minecraft": "${minecraft_version}",
+    "java": ">=21",
+    "fabric-api": "*",
+    "critfall": ">=${critfall_min_version}"
+  }
+}

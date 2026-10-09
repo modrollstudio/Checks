@@ -1,0 +1,27 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:compass",
+  "abilities": [
+    "dex",
+    "con",
+    "wis"
+  ],
+  "skills": [
+    "investigation",
+    "survival"
+  ],
+  "kit": [
+    {
+      "item": "minecraft:map",
+      "count": 1
+    },
+    {
+      "item": "minecraft:torch",
+      "count": 8
+    },
+    {
+      "item": "minecraft:bread",
+      "count": 3
+    }
+  ]
+}

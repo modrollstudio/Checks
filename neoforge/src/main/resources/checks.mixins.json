@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "studio.modroll.checks.neoforge.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": ["AbstractVillagerMixin", "CatMixin", "CrossbowItemMixin", "EffectCommandsMixin", "EntityMixin", "ExperienceOrbMixin", "LivingEntityMixin", "ParrotMixin", "PiglinAiMixin", "PlayerMixin", "RunAroundLikeCrazyGoalMixin", "ServerPlayerMixin", "WolfMixin"],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": ["client.ChatComponentAccessor", "client.GuiAccessor", "client.LightTextureMixin", "client.LivingEntityClimbingMixin"]
+}

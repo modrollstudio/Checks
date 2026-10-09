@@ -1,0 +1,7 @@
+{
+  "format_version": 1,
+  "effects": [
+    { "type": "vanilla_save_advantage", "against": ["poison"] },
+    { "type": "roll_bonus", "applies_to": { "skills": ["perception"] }, "bonus": 2 }
+  ]
+}

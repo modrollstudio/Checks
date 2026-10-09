@@ -1,0 +1,29 @@
+{
+  "format_version": 1,
+  "icon": "minecraft:enchanted_book",
+  "hit_die": 6,
+  "saves": [
+    "int",
+    "wis"
+  ],
+  "skills": {
+    "choose": 2,
+    "from": [
+      "arcana",
+      "history",
+      "insight",
+      "investigation",
+      "medicine",
+      "nature",
+      "religion"
+    ]
+  },
+  "suggested_order": [
+    "int",
+    "con",
+    "dex",
+    "wis",
+    "cha",
+    "str"
+  ]
+}

@@ -1,0 +1,109 @@
+plugins {
+    id 'com.diffplug.spotless' version '8.8.0' apply false
+    id 'net.neoforged.moddev' version '2.0.141' apply false
+}
+
+subprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'com.diffplug.spotless'
+    apply plugin: 'maven-publish'
+
+    group = mod_group
+    version = mod_version
+    base.archivesName = "${mod_id}-${project.name}"
+
+    java {
+        toolchain.languageVersion = JavaLanguageVersion.of(java_version as int)
+    }
+
+    repositories {
+        mavenCentral()
+        maven {
+            name = 'NeoForged'
+            url = 'https://maven.neoforged.net/releases'
+        }
+        maven {
+            name = 'Modrinth'
+            url = 'https://api.modrinth.com/maven'
+            content { includeGroup 'maven.modrinth' }
+        }
+    }
+
+    dependencies {
+        testImplementation platform("org.junit:junit-bom:${junit_version}")
+        testImplementation 'org.junit.jupiter:junit-jupiter'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    }
+
+    // The SRD 5.2 material ships in the jar, so its CC-BY-4.0 attribution has to travel with it.
+    tasks.named('jar') {
+        from(rootProject.files('LICENSE', 'NOTICE')) {
+            rename { "${it}_${mod_id}" }
+        }
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+    }
+
+    test {
+        useJUnitPlatform()
+        testLogging {
+            events 'passed', 'skipped', 'failed'
+            exceptionFormat = 'full'
+        }
+    }
+
+    spotless {
+        java {
+            target 'src/*/java/**/*.java'
+            palantirJavaFormat()
+            removeUnusedImports()
+            importOrder()
+            trimTrailingWhitespace()
+            endWithNewline()
+        }
+    }
+
+    // Local-Maven publishing for external consumers until the Modrinth maven artifact exists. Fabric
+    // publishes the remapped (intermediary) jar, as Modrinth would.
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                artifactId = "${mod_id}-${project.name}"
+            }
+        }
+    }
+    afterEvaluate {
+        def releaseJar = plugins.hasPlugin('fabric-loom') ? tasks.remapJar : tasks.jar
+        publishing.publications.mavenJava.artifact(releaseJar)
+
+        // A shipped gametest entrypoint whose *Scenarios body is not in the jar breaks every
+        // consumer's gametest run, and the screenshot driver would take over a player's client —
+        // this guard fails the build if gametest or uishots code reaches a release jar.
+        def guard = tasks.register('verifyNoGametestInReleaseJar') {
+            dependsOn releaseJar
+            def jarFile = releaseJar.archiveFile
+            def devOnly = ['gametest', 'uishots']
+            doLast {
+                def offenders = []
+                new java.util.zip.ZipFile(jarFile.get().asFile).withCloseable { zip ->
+                    zip.entries().each { entry ->
+                        if (devOnly.any { entry.name.toLowerCase().contains(it) }) {
+                            offenders << entry.name
+                        }
+                    }
+                    def modJson = zip.getEntry('fabric.mod.json')
+                    def modJsonText = modJson == null ? '' : zip.getInputStream(modJson).getText('UTF-8')
+                    devOnly.findAll { modJsonText.contains(it) }.each {
+                        offenders << "fabric.mod.json declares a ${it} entrypoint"
+                    }
+                }
+                if (!offenders.isEmpty()) {
+                    throw new GradleException("dev-only code leaked into ${jarFile.get().asFile.name}: ${offenders}")
+                }
+            }
+        }
+        tasks.named('check') { it.dependsOn(guard) }
+    }
+}
