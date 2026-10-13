@@ -160,7 +160,7 @@
   "checks.trait.checks.draconic_flight": "Draconic Flight",
   "checks.trait.checks.draconic_flight.desc": "Spectral wings break your fall: you take half damage from falling.",
   "checks.trait.checks.dwarven_resilience": "Dwarven Resilience",
-  "checks.trait.checks.dwarven_resilience.desc": "Poison has a hard time getting to you: advantage on the Constitution save against poison, wither and hunger.",
+  "checks.trait.checks.dwarven_resilience.desc": "Poison has a hard time getting to you: advantage on the Constitution save against poison, wither and hunger, and on saves against poison traps.",
   "checks.trait.checks.dwarven_toughness": "Dwarven Toughness",
   "checks.trait.checks.dwarven_toughness.desc": "You are sturdier than most: half a hit point more max health for each character level.",
   "checks.trait.checks.stonecunning": "Stonecunning",

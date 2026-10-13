@@ -11,7 +11,7 @@ without it.
 ## Requirements
 
 - Minecraft 1.21.1 with NeoForge 21.1+, or Fabric Loader 0.16.9+ with Fabric API
-- [Critfall](https://github.com/modrollstudio/Critfall) 0.2.10 or newer
+- [Critfall](https://github.com/modrollstudio/Critfall) 0.2.13 or newer
 - The Checks jar for your loader, on the server and every client
 
 ## Features

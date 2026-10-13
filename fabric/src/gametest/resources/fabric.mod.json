@@ -16,6 +16,7 @@
       "studio.modroll.checks.fabric.gametest.DeathStoryGameTests",
       "studio.modroll.checks.fabric.gametest.EventGameTests",
       "studio.modroll.checks.fabric.gametest.ExplorationGameTests",
+      "studio.modroll.checks.fabric.gametest.HazardGameTests",
       "studio.modroll.checks.fabric.gametest.GolemAlarmGameTests",
       "studio.modroll.checks.fabric.gametest.InsightGameTests",
       "studio.modroll.checks.fabric.gametest.LevelGameTests",

@@ -29,6 +29,7 @@ import studio.modroll.checks.score.ScoresRuntime;
 import studio.modroll.checks.sheet.SheetText;
 import studio.modroll.checks.text.FallbackText;
 import studio.modroll.checks.trait.TraitHooks;
+import studio.modroll.critfall.api.RollService;
 import studio.modroll.critfall.api.combat.SaveResult;
 
 /**
@@ -66,10 +67,11 @@ public final class VanillaSaves {
         return FROM_COMMAND.get();
     }
 
-    /** DEX: explosion damage. */
+    /** DEX: explosion damage, unless Critfall already rolled for it (an attack roll or a hazard save). */
     public static float explosionDamage(LivingEntity entity, DamageSource source, float amount) {
         if (amount <= 0
                 || !source.is(DamageTypeTags.IS_EXPLOSION)
+                || RollService.isDrivenDamage(entity)
                 || entity.isInvulnerableTo(source)
                 || entity.isDeadOrDying()) {
             return amount;

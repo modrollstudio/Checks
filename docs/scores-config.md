@@ -23,7 +23,15 @@
   "critfall": {
     "enabled": true,
     "unprofiled_mobs": false,
-    "save_abilities": { "critfall:spell": "dex" }
+    "save_abilities": {
+      "critfall:spell": "dex",
+      "critfall:strength": "str",
+      "critfall:dexterity": "dex",
+      "critfall:constitution": "con",
+      "critfall:intelligence": "int",
+      "critfall:wisdom": "wis",
+      "critfall:charisma": "cha"
+    }
   },
   "stat_screen": { "enabled": true },
   "creation": {
@@ -306,8 +314,8 @@ and ability score improvements. See [levelling.md](levelling.md#config).
 ## Critfall
 
 `critfall` controls the modifiers Checks supplies to Critfall's attack, damage and save rolls:
-`enabled`, `unprofiled_mobs` (default `false`) and `save_abilities` (default
-`{ "critfall:spell": "dex" }`). See [critfall.md](critfall.md).
+`enabled`, `unprofiled_mobs` (default `false`) and `save_abilities` (default `critfall:spell` to
+`dex`, and each of the six `critfall:<ability>` keys to its ability). See [critfall.md](critfall.md).
 
 ## Body
 

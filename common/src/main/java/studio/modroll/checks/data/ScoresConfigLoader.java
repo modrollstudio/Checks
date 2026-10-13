@@ -55,7 +55,15 @@ public final class ScoresConfigLoader {
               "critfall": {
                 "enabled": true,
                 "unprofiled_mobs": false,
-                "save_abilities": { "critfall:spell": "dex" }
+                "save_abilities": {
+                  "critfall:spell": "dex",
+                  "critfall:strength": "str",
+                  "critfall:dexterity": "dex",
+                  "critfall:constitution": "con",
+                  "critfall:intelligence": "int",
+                  "critfall:wisdom": "wis",
+                  "critfall:charisma": "cha"
+                }
               },
               "stat_screen": { "enabled": true },
               "creation": {

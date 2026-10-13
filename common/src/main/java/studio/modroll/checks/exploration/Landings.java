@@ -8,11 +8,13 @@ import net.minecraft.world.entity.LivingEntity;
 import studio.modroll.checks.Checks;
 import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.score.ScoresRuntime;
+import studio.modroll.critfall.api.RollService;
 
 /**
  * Acrobatics: fall damage to a player in survival or adventure rolls Acrobatics through the API against a DC
  * that grows with the damage, and a made check multiplies the damage by the success multiplier. A fall that
- * does no damage rolls nothing.
+ * does no damage rolls nothing, and neither does fall damage Critfall already rolled for (an attack roll or a
+ * hazard save).
  */
 public final class Landings {
 
@@ -26,6 +28,7 @@ public final class Landings {
         if (!settings.enabled()
                 || amount <= 0
                 || !source.is(DamageTypeTags.IS_FALL)
+                || RollService.isDrivenDamage(entity)
                 || !(entity instanceof ServerPlayer player)
                 || !ExplorationChecks.rollsFor(player)
                 || player.isInvulnerableTo(source)

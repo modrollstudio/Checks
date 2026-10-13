@@ -8,7 +8,15 @@ and AC use Checks scores. Critfall still rolls every die. Configured by the
 "critfall": {
   "enabled": true,
   "unprofiled_mobs": false,
-  "save_abilities": { "critfall:spell": "dex" }
+  "save_abilities": {
+    "critfall:spell": "dex",
+    "critfall:strength": "str",
+    "critfall:dexterity": "dex",
+    "critfall:constitution": "con",
+    "critfall:intelligence": "int",
+    "critfall:wisdom": "wis",
+    "critfall:charisma": "cha"
+  }
 }
 ```
 
@@ -40,8 +48,33 @@ or in light armor, up to +2 in medium, none in heavy (see [body.md](body.md#armo
 
 **Saves**: `save_abilities` maps a Critfall save key to the ability whose save modifier (with save
 proficiency) Checks supplies. `critfall:spell`, the save against a Critfall save spell, defaults to
-`dex`. Listed keys override the defaults; a key with an unknown ability is skipped with a warning.
-Save keys not in the map keep Critfall's own bonus.
+`dex`, and the six ability keys (`critfall:strength`, `critfall:dexterity`, `critfall:constitution`,
+`critfall:intelligence`, `critfall:wisdom`, `critfall:charisma`) default to their own ability. Listed
+keys override the defaults, and keys a file leaves out keep theirs, so a config written before 0.1.1
+still gets the six. A key with an unknown ability is skipped with a warning. Save keys not in the map
+keep Critfall's own bonus.
+
+## Hazards
+
+Critfall 0.2.13 rolls saves and attacks for hazards with no living attacker, such as Dungeon Crawl's
+traps. A hazard save asks for its save key like any other Critfall save, so a DEX trap saves with the
+DEX modifier, plus the proficiency bonus when proficient in DEX saves. A hazard attack rolls against the
+AC Checks adds DEX to.
+
+[Species traits](traits.md) add their advantage or disadvantage to hazard saves:
+
+- **Poison**: a hazard whose damage type is in `#c:is_poison` counts as a save against poison, so
+  `vanilla_save_advantage` against `poison` (Dwarven Resilience) applies, whatever the save's ability.
+  The tag is the loaders' conventional one, so a mod's poison counts once it tags its damage type.
+- **Roll bonuses**: a trait `roll_bonus` on saves of an ability (Gnomish Cunning on INT, WIS and CHA)
+  applies its `mode` to hazard saves that `save_abilities` maps to that ability.
+- Damage resistance and last stand apply to a hazard's damage as to any other.
+
+Critfall's event takes only advantage and disadvantage, so a hazard save gets no trait reroll (Luck,
+Resourceful), no flat `bonus` from a trait `roll_bonus`, and no [bonus source](bonus-sources.md);
+`BeforeCheckEvent` and `AfterCheckEvent` do not fire for it. The readout is Critfall's, such as
+`Spike trap: save d20 8+2=10 vs DC 13 — FAILED 2d6 = 7`, with both dice under advantage.
+`enabled: false` also stops traits from changing hazard rolls.
 
 ## Toggle
 

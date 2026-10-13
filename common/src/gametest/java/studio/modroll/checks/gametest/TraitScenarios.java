@@ -496,7 +496,7 @@ public final class TraitScenarios {
                 DEFAULTS.enabled(), DEFAULTS.rechargeTicks(), DEFAULTS.darkvisionStrength(), effects);
     }
 
-    private static ServerPlayer character(GameTestHelper helper, String name, String species) {
+    static ServerPlayer character(GameTestHelper helper, String name, String species) {
         return character(helper, newProfile(name), species);
     }
 

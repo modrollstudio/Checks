@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.1 — 2026-10-13 (alpha)
+
+Requires Critfall 0.2.13 or newer.
+
+- Checks now counts against Critfall hazards, such as Dungeon Crawl's traps and other mods' hazards.
+- A hazard save uses your ability modifier, plus your proficiency bonus if you're proficient in that save.
+- The six `critfall:<ability>` save keys are mapped by default. Existing configs get them without changes.
+- Dwarven Resilience gives advantage on saves against any hazard whose damage type is tagged `c:is_poison`.
+- Gnomish Cunning gives advantage on INT, WIS and CHA hazard saves.
+- One roll per hit: if a Critfall attack roll or hazard save already decided the damage, it no longer also triggers Checks' DEX save against explosions or Acrobatics landing check.
+
 ## 0.1.0 — 2026-10-09 (alpha)
 
 First release. Requires Critfall 0.2.10 or newer on NeoForge or Fabric, Minecraft 1.21.1.

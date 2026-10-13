@@ -513,7 +513,17 @@ public record ScoresConfig(
             true,
             true,
             new ProficiencySettings(true, 2),
-            new CritfallSettings(true, false, Map.of(ModifierProvider.SPELL_SAVE, Ability.DEXTERITY)),
+            new CritfallSettings(
+                    true,
+                    false,
+                    Map.of(
+                            ModifierProvider.SPELL_SAVE, Ability.DEXTERITY,
+                            ModifierProvider.STRENGTH_SAVE, Ability.STRENGTH,
+                            ModifierProvider.DEXTERITY_SAVE, Ability.DEXTERITY,
+                            ModifierProvider.CONSTITUTION_SAVE, Ability.CONSTITUTION,
+                            ModifierProvider.INTELLIGENCE_SAVE, Ability.INTELLIGENCE,
+                            ModifierProvider.WISDOM_SAVE, Ability.WISDOM,
+                            ModifierProvider.CHARISMA_SAVE, Ability.CHARISMA)),
             true,
             new CreationSettings(
                     true,

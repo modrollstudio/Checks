@@ -44,9 +44,13 @@ in the lang file as `checks.trait.<namespace>.<path>` and `.desc`.
 
 Notes:
 
+- **Hazards**: Critfall's hazard saves (traps from Dungeon Crawl or another mod) get the advantage and
+  disadvantage of `vanilla_save_advantage` against `poison`, when the hazard's damage type is in
+  `#c:is_poison`, and of `roll_bonus`, but not its flat `bonus`. See
+  [critfall.md](critfall.md#hazards).
 - **Rerolls** only cover checks and saves rolled through `ChecksApi` (`/checks roll`, triggers,
   vanilla saves, other mods' checks). Contests are never rerolled, since Critfall rolls both sides at
-  once, and neither are Critfall's own attack rolls and spell saves. An unlimited reroll is used
+  once, and neither are Critfall's own attack rolls, spell saves and hazard saves. An unlimited reroll is used
   before a daily one; a roll is rerolled at most once. The player is told in chat.
 - **Darkvision** is decided on the server and sent to the client, which only draws it: the lightmap
   brightens darkness as night vision does, at the configured strength, so dark places look dim, not
@@ -64,12 +68,12 @@ Notes:
 | Dragonborn, Dwarf, Elf, Gnome, Orc, Tiefling | Darkvision | darkvision |
 | Dragonborn | Damage Resistance | fire and lava damage halved |
 | Dragonborn | Draconic Flight | fall damage halved |
-| Dwarf | Dwarven Resilience | advantage on the CON save against poison, wither and hunger |
+| Dwarf | Dwarven Resilience | advantage on the CON save against poison, wither and hunger, and on saves against poison hazards |
 | Dwarf | Dwarven Toughness | +0.5 max health per level |
 | Elf | Fey Ancestry | advantage on the WIS save against darkness |
 | Elf | Keen Senses | one skill pick from Insight, Perception or Survival |
 | Elf | Trance | phantoms ignore you |
-| Gnome | Gnomish Cunning | advantage on INT, WIS and CHA saves |
+| Gnome | Gnomish Cunning | advantage on INT, WIS and CHA saves, hazard saves included |
 | Gnome | Gnomish Lineage | bees, wolves, polar bears, llamas and pandas (`#checks:gnome_friends`) ignore you |
 | Goliath | Giant Ancestry | +0.5 attack knockback |
 | Goliath | Large Form | +0.5 block and entity reach |

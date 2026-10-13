@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -134,17 +135,37 @@ class ScoresConfigLoaderTest {
                 .critfall();
         assertFalse(critfall.enabled());
         assertTrue(critfall.unprofiledMobs());
-        assertEquals(
-                Map.of(ModifierProvider.SPELL_SAVE, Ability.WISDOM, "mymod:poison", Ability.CONSTITUTION),
-                critfall.saveAbilities());
+        assertEquals(Ability.WISDOM, critfall.saveAbilities().get(ModifierProvider.SPELL_SAVE));
+        assertEquals(Ability.CONSTITUTION, critfall.saveAbilities().get("mymod:poison"));
+        assertEquals(Ability.DEXTERITY, critfall.saveAbilities().get(ModifierProvider.DEXTERITY_SAVE));
         assertEquals(List.of(), warnings);
     }
 
     @Test
-    void spellSaveDefaultsToDexterity() {
+    void saveKeysDefaultToTheirAbilities() {
         assertEquals(
-                Map.of(ModifierProvider.SPELL_SAVE, Ability.DEXTERITY),
+                Map.of(
+                        ModifierProvider.SPELL_SAVE, Ability.DEXTERITY,
+                        ModifierProvider.STRENGTH_SAVE, Ability.STRENGTH,
+                        ModifierProvider.DEXTERITY_SAVE, Ability.DEXTERITY,
+                        ModifierProvider.CONSTITUTION_SAVE, Ability.CONSTITUTION,
+                        ModifierProvider.INTELLIGENCE_SAVE, Ability.INTELLIGENCE,
+                        ModifierProvider.WISDOM_SAVE, Ability.WISDOM,
+                        ModifierProvider.CHARISMA_SAVE, Ability.CHARISMA),
                 parse("{\"critfall\": {\"save_abilities\": {}}}").critfall().saveAbilities());
+    }
+
+    /** A 0.1.0 file listed only the spell save; the ability keys added since come from the defaults. */
+    @Test
+    void oldConfigGetsTheAbilitySaveKeys() {
+        ScoresConfig.CritfallSettings critfall = parse("{\"format_version\": 1, \"critfall\": {\"enabled\": true,"
+                        + " \"unprofiled_mobs\": false, \"save_abilities\": {\"critfall:spell\": \"wis\"}}}")
+                .critfall();
+        Map<String, Ability> expected =
+                new HashMap<>(ScoresConfig.DEFAULTS.critfall().saveAbilities());
+        expected.put(ModifierProvider.SPELL_SAVE, Ability.WISDOM);
+        assertEquals(expected, critfall.saveAbilities());
+        assertEquals(List.of(), warnings);
     }
 
     @Test
@@ -152,7 +173,7 @@ class ScoresConfigLoaderTest {
         ScoresConfig.CritfallSettings critfall = parse(
                         "{\"critfall\": {\"save_abilities\": {\"critfall:spell\": \"luck\"}}}")
                 .critfall();
-        assertEquals(Map.of(ModifierProvider.SPELL_SAVE, Ability.DEXTERITY), critfall.saveAbilities());
+        assertEquals(ScoresConfig.DEFAULTS.critfall().saveAbilities(), critfall.saveAbilities());
         assertTrue(warnings.stream().anyMatch(w -> w.contains("luck")));
     }
 
