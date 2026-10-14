@@ -83,4 +83,9 @@ public class TraitGameTests {
     public void masterSwitchTurnsEveryTraitOff(GameTestHelper helper) {
         TraitScenarios.masterSwitchTurnsEveryTraitOff(helper);
     }
+
+    @GameTest(template = TEMPLATE)
+    public void luckRerollsNaturalOnesOnAttacks(GameTestHelper helper) {
+        TraitScenarios.luckRerollsNaturalOnesOnAttacks(helper);
+    }
 }

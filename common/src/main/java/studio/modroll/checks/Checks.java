@@ -3,6 +3,7 @@ package studio.modroll.checks;
 import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import studio.modroll.checks.critfall.AttackRolls;
 import studio.modroll.checks.critfall.HazardRolls;
 
 /** Loader-agnostic entrypoint. Each loader module calls {@link #init} once at mod construction. */
@@ -15,6 +16,7 @@ public final class Checks {
     private Checks() {}
 
     public static void init() {
+        AttackRolls.register();
         HazardRolls.register();
         LOG.info("{} initialized", MOD_NAME);
     }
