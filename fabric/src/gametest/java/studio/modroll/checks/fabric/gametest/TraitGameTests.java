@@ -77,4 +77,9 @@ public class TraitGameTests implements FabricGameTest {
     public void masterSwitchTurnsEveryTraitOff(GameTestHelper helper) {
         TraitScenarios.masterSwitchTurnsEveryTraitOff(helper);
     }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void luckRerollsNaturalOnesOnAttacks(GameTestHelper helper) {
+        TraitScenarios.luckRerollsNaturalOnesOnAttacks(helper);
+    }
 }

@@ -134,6 +134,15 @@ public final class TraitHooks {
         return trait;
     }
 
+    /**
+     * Whether a trait rerolls every natural 1 the entity rolls, as Luck does: the reroll Critfall can make
+     * itself. A failure reroll or a once-a-day one needs Checks to see the roll, so it is not counted.
+     */
+    public static boolean rerollsOnes(LivingEntity entity) {
+        return Traits.effects(entity, TraitEffect.Reroll.class).stream()
+                .anyMatch(reroll -> reroll.on() == TraitEffect.When.NATURAL_1 && !reroll.daily());
+    }
+
     private static boolean applies(TraitEffect.When on, int natural, Optional<Boolean> failed) {
         return switch (on) {
             case NATURAL_1 -> natural == NATURAL_ONE;

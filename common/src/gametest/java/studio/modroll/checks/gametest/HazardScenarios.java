@@ -1,5 +1,6 @@
 package studio.modroll.checks.gametest;
 
+import static studio.modroll.checks.gametest.ScenarioSupport.bonusSources;
 import static studio.modroll.checks.gametest.ScenarioSupport.expect;
 import static studio.modroll.checks.gametest.ScenarioSupport.expectEquals;
 import static studio.modroll.checks.gametest.ScenarioSupport.login;
@@ -8,27 +9,38 @@ import static studio.modroll.checks.gametest.ScenarioSupport.newProfile;
 import static studio.modroll.checks.gametest.ScenarioSupport.provider;
 import static studio.modroll.checks.gametest.ScenarioSupport.run;
 import static studio.modroll.checks.gametest.ScenarioSupport.waitOutSpawnProtection;
+import static studio.modroll.checks.gametest.ScenarioSupport.withBonusSources;
 import static studio.modroll.checks.gametest.ScenarioSupport.withCritfallSettings;
 import static studio.modroll.checks.gametest.ScenarioSupport.withD20s;
 import static studio.modroll.checks.gametest.ScenarioSupport.withListeners;
 import static studio.modroll.checks.gametest.ScenarioSupport.withoutModifierProvider;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.GameType;
 import studio.modroll.checks.Checks;
 import studio.modroll.checks.api.Ability;
+import studio.modroll.checks.bonus.BonusTargets;
 import studio.modroll.checks.critfall.HazardRolls;
 import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.score.ScoresRuntime;
+import studio.modroll.checks.trait.Trait;
+import studio.modroll.checks.trait.TraitEffect;
+import studio.modroll.checks.trait.Traits;
 import studio.modroll.critfall.api.HazardSave;
 import studio.modroll.critfall.api.ModifierProvider;
 import studio.modroll.critfall.api.RollService;
@@ -54,6 +66,17 @@ public final class HazardScenarios {
     private static final String MOD_TRAP_SAVE = "mymod:trap";
     private static final String UNMAPPED_SAVE = "mymod:unmapped";
     private static final float WORLD_DAMAGE = 4f;
+    private static final int EFFECT_TICKS = 200;
+    private static final int TRAIT_BONUS = 2;
+    private static final int SOURCE_BONUS = 3;
+    private static final ResourceLocation GNOMISH_CUNNING = Checks.id("gnomish_cunning");
+
+    private static final String WARDED = "{\"source\": {\"effect\": \"minecraft:resistance\"},"
+            + " \"applies_to\": {\"saves\": [\"wis\"]}, \"bonus\": " + SOURCE_BONUS + "}";
+    private static final String NIMBLE = "{\"source\": {\"effect\": \"minecraft:speed\"},"
+            + " \"applies_to\": {\"saves\": [\"dex\"]}, \"mode\": \"advantage\"}";
+    private static final String SLOWED = "{\"source\": {\"effect\": \"minecraft:slowness\"},"
+            + " \"applies_to\": {\"saves\": [\"dex\"]}, \"mode\": \"disadvantage\"}";
 
     private HazardScenarios() {}
 
@@ -153,6 +176,84 @@ public final class HazardScenarios {
         helper.succeed();
     }
 
+    /** Luck: a halfling's natural 1 on a hazard save is rolled again; a dwarf keeps it. */
+    public static void halflingRerollsNaturalOneOnHazardSave(GameTestHelper helper) {
+        ServerPlayer halfling = TraitScenarios.character(helper, "hazard-halfling", "halfling");
+        ServerPlayer dwarf = TraitScenarios.character(helper, "hazard-halfling-dwarf", "dwarf");
+        try {
+            HazardSave spikes = hazard(DamageTypes.CACTUS, ModifierProvider.DEXTERITY_SAVE);
+            SaveResult lucky = save(halfling, spikes, 1, SAVE);
+            expectEquals(helper, SAVE, lucky.natural(), "a halfling's rerolled natural 1 on a hazard save");
+            expect(helper, lucky.saved(), "a halfling's reroll of 19 must save, got " + lucky);
+            expectEquals(helper, 1, save(dwarf, spikes, 1, SAVE).natural(), "a dwarf's natural 1 on a hazard save");
+        } finally {
+            logout(helper, halfling);
+            logout(helper, dwarf);
+        }
+        helper.succeed();
+    }
+
+    /**
+     * A gnome's WIS hazard save adds a trait roll_bonus (Gnomish Cunning patched to a flat +2) and a datapack
+     * bonus source (+3 while under Resistance) on top of the save modifier.
+     */
+    public static void traitAndSourceBonusesAddToHazardSave(GameTestHelper helper) {
+        ServerPlayer gnome = TraitScenarios.character(helper, "hazard-bonus-gnome", "gnome");
+        try {
+            HazardSave whispers = hazard(DamageTypes.MAGIC, ModifierProvider.WISDOM_SAVE);
+            int modifier =
+                    provider().saveModifier(gnome, ModifierProvider.WISDOM_SAVE).getAsInt();
+            TraitEffect flat = new TraitEffect.RollBonus(
+                    new BonusTargets(Set.of(), Set.of(), Set.of(Ability.WISDOM), false, false),
+                    TRAIT_BONUS,
+                    RollMode.NORMAL);
+
+            withTrait(new Trait(GNOMISH_CUNNING, List.of(flat)), () -> {
+                expectEquals(helper, modifier + TRAIT_BONUS, bonusOf(save(gnome, whispers, FAIL)), "trait bonus");
+                gnome.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, EFFECT_TICKS));
+                withBonusSources(bonusSources(WARDED), () -> {
+                    expectEquals(
+                            helper,
+                            modifier + TRAIT_BONUS + SOURCE_BONUS,
+                            bonusOf(save(gnome, whispers, FAIL)),
+                            "trait and bonus source");
+                    return null;
+                });
+                return null;
+            });
+        } finally {
+            logout(helper, gnome);
+        }
+        helper.succeed();
+    }
+
+    /** A datapack source's advantage keeps the 19 of 2 and 19; its disadvantage keeps the 2 of 19 and 2. */
+    public static void sourceModesApplyToHazardSave(GameTestHelper helper) {
+        ServerPlayer player = survivor(helper, "hazard-source-mode");
+        try {
+            HazardSave spikes = hazard(DamageTypes.CACTUS, ModifierProvider.DEXTERITY_SAVE);
+            withBonusSources(bonusSources(NIMBLE, SLOWED), () -> {
+                expect(helper, save(player, spikes, FAIL).roll().mode() == RollMode.NORMAL, "no effect, no mode");
+
+                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, EFFECT_TICKS));
+                SaveResult nimble = save(player, spikes, FAIL, SAVE);
+                expect(helper, nimble.roll().mode() == RollMode.ADVANTAGE, "a source's advantage, got " + nimble);
+                expect(helper, nimble.saved(), "advantage must keep the 19, got " + nimble);
+                player.removeAllEffects();
+
+                player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, EFFECT_TICKS));
+                SaveResult slowed = save(player, spikes, SAVE, FAIL);
+                expect(helper, slowed.roll().mode() == RollMode.DISADVANTAGE, "a source's disadvantage, got " + slowed);
+                expect(helper, !slowed.saved(), "disadvantage must keep the 2, got " + slowed);
+                player.removeAllEffects();
+                return null;
+            });
+        } finally {
+            logout(helper, player);
+        }
+        helper.succeed();
+    }
+
     /** With Checks' Critfall integration off, a dwarf rolls a poison hazard once, as without Checks. */
     public static void disabledIntegrationGrantsNoAdvantage(GameTestHelper helper) {
         ServerPlayer dwarf = TraitScenarios.character(helper, "hazard-off-dwarf", "dwarf");
@@ -209,6 +310,24 @@ public final class HazardScenarios {
         player.setHealth(player.getMaxHealth());
         return withD20s(() -> RollService.performHazardSave(player, hazard), faces)
                 .save();
+    }
+
+    /** What the save added to its d20: the modifier and every bonus. */
+    private static int bonusOf(SaveResult result) {
+        return result.saveTotal() - result.natural();
+    }
+
+    /** Runs {@code body} with {@code trait} in place of the loaded trait of the same id. */
+    private static <T> T withTrait(Trait trait, Supplier<T> body) {
+        Map<ResourceLocation, Trait> before = Traits.all();
+        Map<ResourceLocation, Trait> patched = new HashMap<>(before);
+        patched.put(trait.id(), trait);
+        Traits.set(patched);
+        try {
+            return body.get();
+        } finally {
+            Traits.set(before);
+        }
     }
 
     private static boolean poisonTagged(GameTestHelper helper, ResourceKey<DamageType> type) {
