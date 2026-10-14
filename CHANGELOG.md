@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.2 — 2026-10-14 (alpha)
+
+Requires Critfall 0.2.14 or newer.
+
+- Luck (halfling) now rerolls a natural 1 on Critfall hazard saves and attack rolls too.
+- A trait `roll_bonus` now adds its flat bonus to hazard saves, not just its advantage or disadvantage.
+- Datapack bonus sources on saves now apply to hazard saves: their bonus, advantage and disadvantage.
+
 ## 0.1.1 — 2026-10-13 (alpha)
 
 Requires Critfall 0.2.13 or newer.

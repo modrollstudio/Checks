@@ -56,25 +56,34 @@ keep Critfall's own bonus.
 
 ## Hazards
 
-Critfall 0.2.13 rolls saves and attacks for hazards with no living attacker, such as Dungeon Crawl's
+Critfall (0.2.13 and newer) rolls saves and attacks for hazards with no living attacker, such as Dungeon Crawl's
 traps. A hazard save asks for its save key like any other Critfall save, so a DEX trap saves with the
 DEX modifier, plus the proficiency bonus when proficient in DEX saves. A hazard attack rolls against the
 AC Checks adds DEX to.
 
-[Species traits](traits.md) add their advantage or disadvantage to hazard saves:
+[Species traits](traits.md) and [bonus sources](bonus-sources.md) count on hazard saves:
 
 - **Poison**: a hazard whose damage type is in `#c:is_poison` counts as a save against poison, so
   `vanilla_save_advantage` against `poison` (Dwarven Resilience) applies, whatever the save's ability.
   The tag is the loaders' conventional one, so a mod's poison counts once it tags its damage type.
-- **Roll bonuses**: a trait `roll_bonus` on saves of an ability (Gnomish Cunning on INT, WIS and CHA)
-  applies its `mode` to hazard saves that `save_abilities` maps to that ability.
+- **Roll bonuses and bonus sources**: a trait `roll_bonus` or a datapack bonus source on saves of an
+  ability (Gnomish Cunning on INT, WIS and CHA) adds its flat `bonus` and its `mode` to hazard saves
+  that `save_abilities` maps to that ability. Advantage and disadvantage combine the 5e way.
+- **Luck**: an unlimited `natural_1` reroll rerolls a natural 1 on the save once. Critfall rerolls it,
+  so there is no chat line for it.
 - Damage resistance and last stand apply to a hazard's damage as to any other.
 
-Critfall's event takes only advantage and disadvantage, so a hazard save gets no trait reroll (Luck,
-Resourceful), no flat `bonus` from a trait `roll_bonus`, and no [bonus source](bonus-sources.md);
-`BeforeCheckEvent` and `AfterCheckEvent` do not fire for it. The readout is Critfall's, such as
-`Spike trap: save d20 8+2=10 vs DC 13 — FAILED 2d6 = 7`, with both dice under advantage.
-`enabled: false` also stops traits from changing hazard rolls.
+A hazard save gets no `failure` or `daily` reroll (Resourceful): Critfall rerolls only natural 1s, and
+only when told before the roll. `BeforeCheckEvent` and `AfterCheckEvent` do not fire for a hazard
+save. The readout is Critfall's, such as `Spike trap: DEX save d20 8+2=10 vs DC 13 — FAILED 2d6 = 7`,
+with both dice under advantage. A hazard attack is the hazard's roll, so no trait or bonus source
+changes it. `enabled: false` also stops traits and bonus sources from changing hazard rolls.
+
+## Attack rolls
+
+An unlimited `natural_1` reroll (Luck) rerolls a natural 1 on the player's Critfall attack rolls once,
+melee, ranged and spell. Bonus sources and other traits don't change attack rolls. `enabled: false`
+turns this off too.
 
 ## Toggle
 

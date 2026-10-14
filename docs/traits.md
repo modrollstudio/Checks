@@ -44,14 +44,15 @@ in the lang file as `checks.trait.<namespace>.<path>` and `.desc`.
 
 Notes:
 
-- **Hazards**: Critfall's hazard saves (traps from Dungeon Crawl or another mod) get the advantage and
-  disadvantage of `vanilla_save_advantage` against `poison`, when the hazard's damage type is in
-  `#c:is_poison`, and of `roll_bonus`, but not its flat `bonus`. See
-  [critfall.md](critfall.md#hazards).
-- **Rerolls** only cover checks and saves rolled through `ChecksApi` (`/checks roll`, triggers,
-  vanilla saves, other mods' checks). Contests are never rerolled, since Critfall rolls both sides at
-  once, and neither are Critfall's own attack rolls, spell saves and hazard saves. An unlimited reroll is used
-  before a daily one; a roll is rerolled at most once. The player is told in chat.
+- **Hazards**: Critfall's hazard saves (traps from Dungeon Crawl or another mod) get the advantage of
+  `vanilla_save_advantage` against `poison`, when the hazard's damage type is in `#c:is_poison`, and a
+  `roll_bonus`'s flat `bonus` and `mode`. See [critfall.md](critfall.md#hazards).
+- **Rerolls** cover checks and saves rolled through `ChecksApi` (`/checks roll`, triggers, vanilla
+  saves, other mods' checks). An unlimited `natural_1` reroll (Luck) also covers the player's Critfall
+  attack rolls and hazard saves; Critfall rerolls those itself, so the player is not told in chat. A
+  `failure` or `daily` reroll never covers Critfall's own rolls, and contests are never rerolled, since
+  Critfall rolls both sides at once. An unlimited reroll is used before a daily one; a roll is rerolled
+  at most once. The player is told in chat.
 - **Darkvision** is decided on the server and sent to the client, which only draws it: the lightmap
   brightens darkness as night vision does, at the configured strength, so dark places look dim, not
   lit, and torches still matter. Night vision, when stronger, wins.
@@ -79,7 +80,7 @@ Notes:
 | Goliath | Large Form | +0.5 block and entity reach |
 | Goliath | Powerful Build | advantage on the STR save against big knockback |
 | Halfling | Brave | advantage on the WIS save against darkness |
-| Halfling | Luck | natural 1s rerolled |
+| Halfling | Luck | natural 1s rerolled, Critfall attack rolls and hazard saves included |
 | Halfling | Naturally Stealthy | advantage on Stealth checks |
 | Human | Resourceful | one failed check or save rerolled a day |
 | Human | Skillful, Versatile | one skill pick of any skill each |

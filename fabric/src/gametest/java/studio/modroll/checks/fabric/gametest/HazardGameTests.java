@@ -37,4 +37,19 @@ public class HazardGameTests implements FabricGameTest {
     public void hazardDamageCallsForNoSecondRoll(GameTestHelper helper) {
         HazardScenarios.hazardDamageCallsForNoSecondRoll(helper);
     }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void halflingRerollsNaturalOneOnHazardSave(GameTestHelper helper) {
+        HazardScenarios.halflingRerollsNaturalOneOnHazardSave(helper);
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void traitAndSourceBonusesAddToHazardSave(GameTestHelper helper) {
+        HazardScenarios.traitAndSourceBonusesAddToHazardSave(helper);
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void sourceModesApplyToHazardSave(GameTestHelper helper) {
+        HazardScenarios.sourceModesApplyToHazardSave(helper);
+    }
 }

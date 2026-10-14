@@ -58,6 +58,9 @@ import studio.modroll.checks.trait.Darkvision;
 import studio.modroll.checks.trait.DarkvisionPayload;
 import studio.modroll.checks.trait.TraitEffectType;
 import studio.modroll.checks.trait.TraitUses;
+import studio.modroll.critfall.api.AttackContext;
+import studio.modroll.critfall.api.RollService;
+import studio.modroll.critfall.api.combat.AttackResult;
 import studio.modroll.critfall.api.combat.ContestResult;
 import studio.modroll.critfall.api.combat.SaveResult;
 
@@ -221,6 +224,27 @@ public final class TraitScenarios {
             logout(helper, dwarf);
         }
         helper.succeed();
+    }
+
+    /** Luck rerolls a natural 1 on a Critfall attack roll too; a dwarf's natural 1 stays. */
+    public static void luckRerollsNaturalOnesOnAttacks(GameTestHelper helper) {
+        ServerPlayer halfling = character(helper, "trait-lucky-attacker", "halfling");
+        ServerPlayer dwarf = character(helper, "trait-unlucky-attacker", "dwarf");
+        Mob target = spawnCalm(helper, EntityType.ZOMBIE);
+        try {
+            expectEquals(helper, SAVE, swing(halfling, target, 1, SAVE).natural(), "a halfling's rerolled attack");
+            expectEquals(helper, 1, swing(dwarf, target, 1, SAVE).natural(), "a dwarf's natural 1 on an attack");
+        } finally {
+            logout(helper, halfling);
+            logout(helper, dwarf);
+        }
+        helper.succeed();
+    }
+
+    private static AttackResult swing(ServerPlayer attacker, Mob target, int... faces) {
+        AttackContext sword =
+                AttackContext.melee(attacker.damageSources().playerAttack(attacker), new ItemStack(Items.IRON_SWORD));
+        return withD20s(() -> RollService.attackRoll(attacker, target, sword), faces);
     }
 
     /** Resourceful rerolls one failed check a day, and the spent use survives a relog and the world save. */

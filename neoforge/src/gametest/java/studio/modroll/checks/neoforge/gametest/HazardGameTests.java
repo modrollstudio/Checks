@@ -43,4 +43,19 @@ public class HazardGameTests {
     public void hazardDamageCallsForNoSecondRoll(GameTestHelper helper) {
         HazardScenarios.hazardDamageCallsForNoSecondRoll(helper);
     }
+
+    @GameTest(template = TEMPLATE)
+    public void halflingRerollsNaturalOneOnHazardSave(GameTestHelper helper) {
+        HazardScenarios.halflingRerollsNaturalOneOnHazardSave(helper);
+    }
+
+    @GameTest(template = TEMPLATE)
+    public void traitAndSourceBonusesAddToHazardSave(GameTestHelper helper) {
+        HazardScenarios.traitAndSourceBonusesAddToHazardSave(helper);
+    }
+
+    @GameTest(template = TEMPLATE)
+    public void sourceModesApplyToHazardSave(GameTestHelper helper) {
+        HazardScenarios.sourceModesApplyToHazardSave(helper);
+    }
 }

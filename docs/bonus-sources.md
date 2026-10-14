@@ -4,7 +4,8 @@ A bonus source gives a flat bonus, advantage or disadvantage to some checks or s
 condition holds: an item held or worn, or a mob effect. Boots of elvenkind, a lucky charm, a curse.
 They apply to every living entity, players and mobs alike, and to every roll made through `ChecksApi`:
 checks, saves, contests, checks against a passive score, `/checks roll`, `/checks check` and
-[check triggers](check-triggers.md).
+[check triggers](check-triggers.md). Sources on saves also apply to Critfall's
+[hazard saves](critfall.md#hazards), by the ability `save_abilities` maps the save key to.
 
 ## Files
 
@@ -74,7 +75,8 @@ negative).
 
 The plain modifier reads (`ChecksApi.abilityModifier`, `skillModifier`, `saveModifier`, `modifier`)
 leave bonus sources out, since a roll adds them itself. Critfall's attack and damage modifiers, and
-its spell-save modifier, never include them.
+its spell-save modifier, never include them. Hazard saves are the exception: Checks adds the sources
+to the roll itself, not to the modifier.
 
 ## Stat screen
 
