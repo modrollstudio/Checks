@@ -10,15 +10,31 @@ public final class BodyRules {
     /** Keeps a very low modifier from stopping a bow or crossbow altogether. */
     static final double MIN_SPEED = 0.1;
 
+    /** Critfall's AC before armor: an entity without an entity profile has {@code 10 + armorPart + toughnessPart}. */
+    public static final int BASE_ARMOR_CLASS = 10;
+
     private BodyRules() {}
 
-    /** What DEX adds to AC: all of it unarmored or in light armor, up to {@code mediumMaxDex} in medium, none in heavy. */
+    /**
+     * What DEX adds to AC by the body armor's category: all of it without body armor or in light armor, up
+     * to {@code mediumMaxDex} in medium, none in heavy.
+     */
     public static int armorClassBonus(int dexModifier, ArmorCategory category, int mediumMaxDex) {
         return switch (category) {
             case NONE, LIGHT -> dexModifier;
             case MEDIUM -> Math.min(dexModifier, mediumMaxDex);
             case HEAVY -> 0;
         };
+    }
+
+    /** What Critfall adds to AC for armor points: half of them, rounded down, so an odd point adds nothing. */
+    public static int armorPart(double armor) {
+        return (int) Math.floor(armor / 2.0);
+    }
+
+    /** What Critfall adds to AC for armor toughness: a quarter of it, rounded down. */
+    public static int toughnessPart(double toughness) {
+        return (int) Math.floor(toughness / 4.0);
     }
 
     public static double conHealth(int conModifier, ScoresConfig.HealthSettings settings) {

@@ -55,6 +55,11 @@ public class SaveGameTests {
     }
 
     @GameTest(template = TEMPLATE)
+    public void aFireAspectHitRollsOnce(GameTestHelper helper) {
+        SaveScenarios.aFireAspectHitRollsOnce(helper);
+    }
+
+    @GameTest(template = TEMPLATE)
     public void eachSaveSwitchesOff(GameTestHelper helper) {
         SaveScenarios.eachSaveSwitchesOff(helper);
     }

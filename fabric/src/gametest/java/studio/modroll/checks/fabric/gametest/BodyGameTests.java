@@ -39,8 +39,13 @@ public class BodyGameTests implements FabricGameTest {
     }
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
-    public void armorClassFollowsTheHeaviestArmor(GameTestHelper helper) {
-        BodyScenarios.armorClassFollowsTheHeaviestArmor(helper);
+    public void armorClassFollowsTheBodyArmor(GameTestHelper helper) {
+        BodyScenarios.armorClassFollowsTheBodyArmor(helper);
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void helmetsLeggingsAndBootsNeverLowerArmorClass(GameTestHelper helper) {
+        BodyScenarios.helmetsLeggingsAndBootsNeverLowerArmorClass(helper);
     }
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)

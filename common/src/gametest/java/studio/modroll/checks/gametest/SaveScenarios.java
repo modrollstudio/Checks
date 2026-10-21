@@ -24,14 +24,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -48,6 +53,9 @@ public final class SaveScenarios {
 
     private static final int FAIL = 2;
     private static final int SAVE = 19;
+    /** Hits a player's AC 10 without a crit. */
+    private static final int CRITFALL_HIT = 15;
+
     private static final float HIT = 8f;
     private static final float FULL_HEALTH = 20f;
     private static final int POISON_TICKS = 200;
@@ -226,6 +234,31 @@ public final class SaveScenarios {
         helper.succeed();
     }
 
+    /**
+     * One roll per hit: a zombie's Fire Aspect hit, which Critfall rolled for, sets the player alight with no
+     * DEX save. The hit stands in for one save only: the next fire in the same tick still calls for one.
+     */
+    public static void aFireAspectHitRollsOnce(GameTestHelper helper) {
+        ServerPlayer player = survivor(helper, "save-fire-aspect");
+        Mob zombie = spawnCalm(helper, EntityType.ZOMBIE);
+        zombie.setItemSlot(EquipmentSlot.MAINHAND, fireAspectSword(helper));
+        try {
+            noCooldown(() -> {
+                int rolled = rolls(() -> withD20s(() -> zombie.doHurtTarget(player), CRITFALL_HIT));
+                expectEquals(helper, 0, rolled, "Checks rolls for a Fire Aspect hit Critfall rolled");
+                expect(helper, player.getHealth() < FULL_HEALTH, "the Critfall hit must land");
+                expect(helper, player.getRemainingFireTicks() > 0, "Fire Aspect must set the player alight");
+
+                expectEquals(
+                        helper, 1, rolls(() -> withD20s(() -> ignite(player), FAIL)), "Checks rolls for the next fire");
+                return null;
+            });
+        } finally {
+            logout(helper, player);
+        }
+        helper.succeed();
+    }
+
     /** Each save switched off alone rolls nothing and leaves vanilla's outcome. */
     public static void eachSaveSwitchesOff(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "save-off");
@@ -297,6 +330,17 @@ public final class SaveScenarios {
         player.setDeltaMovement(Vec3.ZERO);
         player.knockback(strength, 1, 0);
         return player.getDeltaMovement().horizontalDistance();
+    }
+
+    private static ItemStack fireAspectSword(GameTestHelper helper) {
+        ItemStack sword = new ItemStack(Items.WOODEN_SWORD);
+        sword.enchant(
+                helper.getLevel()
+                        .registryAccess()
+                        .registryOrThrow(Registries.ENCHANTMENT)
+                        .getHolderOrThrow(Enchantments.FIRE_ASPECT),
+                1);
+        return sword;
     }
 
     private static int ignite(ServerPlayer player) {

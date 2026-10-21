@@ -28,21 +28,28 @@ End keeps their health.
 Critfall computes AC from armor and toughness (or an entity profile's `armor_class`); Checks adds DEX
 through Critfall's `acModifier`:
 
-| Heaviest worn piece | DEX added |
+| Body armor (the chest slot) | DEX added |
 | --- | --- |
 | None, or untagged | all of it |
 | Light | all of it |
 | Medium | up to `armor_class.medium_max_dex` (default `+2`) |
 | Heavy | none |
 
-The heaviest piece decides, as in 5e: leather boots with an iron chestplate count as heavy. A DEX
-penalty applies unarmored and in light or medium armor, never in heavy. Who gets it follows the same
-rule as Critfall attack modifiers (see [critfall.md](critfall.md#who-gets-checks-values)): players
-always, mobs with a Checks profile, and other mobs only with `critfall.unprofiled_mobs`.
+Only body armor limits DEX, as in 5e, where armor is what covers the body: a helmet, leggings or boots
+never do, whatever their weight. Iron leggings with a leather chestplate keep all of DEX; a chainmail
+chestplate caps it at +2 whatever else is worn. A DEX penalty applies without body armor and in light
+or medium armor, never in heavy. Who gets it follows the same rule as Critfall attack modifiers (see
+[critfall.md](critfall.md#who-gets-checks-values)): players always, mobs with a Checks profile, and
+other mobs only with `critfall.unprofiled_mobs`.
+
+Every piece's armor points add up, and Critfall turns the total into AC: 10, plus half the armor points
+and a quarter of the toughness, each rounded down. So an odd point adds nothing until the next one
+joins it: chainmail boots (1 armor) over 12 points leave AC where it was. That rounding is Critfall's.
 
 ### Armor categories
 
-Categories are item tags, so packs and mods can add their armor:
+Categories are item tags, so packs and mods can add their armor. Only the piece worn on the chest is
+looked up; the shipped tags list every piece of a set, so a mod's chestplate is covered either way:
 
 | Tag | Shipped |
 | --- | --- |
@@ -122,7 +129,7 @@ saved data, and health above the vanilla max is capped as usual.
 ## Stat screen
 
 The stat screen shows a **Body** section, under the passive scores, with hit points, armor class and
-size, each explaining where it comes from on hover, e.g. `CON +3: +6 max health` or `DEX +2 (medium armor, max +2)`. The AC row
+size, each explaining where it comes from on hover, e.g. `CON +3: +6 max health` or `DEX +2 (medium body armor, max +2)`. The AC row
 appears while Checks supplies Critfall's modifiers. Each ability box lists its extras, e.g.
 `Mining speed +15%`. See [stat-screen.md](stat-screen.md).
 

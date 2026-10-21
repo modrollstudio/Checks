@@ -34,6 +34,15 @@ class BodyRulesTest {
     }
 
     @Test
+    void critfallCountsHalfTheArmorAndAQuarterOfTheToughnessRoundedDown() {
+        assertEquals(0, BodyRules.armorPart(1));
+        assertEquals(1, BodyRules.armorPart(2));
+        assertEquals(6, BodyRules.armorPart(13), "an odd point adds nothing");
+        assertEquals(0, BodyRules.toughnessPart(3));
+        assertEquals(2, BodyRules.toughnessPart(8));
+    }
+
+    @Test
     void conHealthIsTheModifierTimesHitPointsPerPoint() {
         assertEquals(6.0, BodyRules.conHealth(3, HEALTH));
         assertEquals(-2.0, BodyRules.conHealth(-1, HEALTH));

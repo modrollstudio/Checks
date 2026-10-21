@@ -28,10 +28,11 @@ final class ExplorationConfigParser {
     }
 
     private static ScoresConfig.LeapSettings parseLeap(LenientJson json, ScoresConfig.LeapSettings defaults) {
+        // Leaps had a cooldown before 0.1.3; the key is still read, and ignored, so an older file loads quietly.
+        json.getInt("cooldown_ticks", 0);
         return new ScoresConfig.LeapSettings(
                 json.getBool("enabled", defaults.enabled()),
                 json.getInt("dc", defaults.dc()),
-                nonNegative(json, "cooldown_ticks", defaults.cooldownTicks()),
                 nonNegative(json, "boost", defaults.boost()),
                 atLeastOne(json, "min_drop", defaults.minDrop()));
     }

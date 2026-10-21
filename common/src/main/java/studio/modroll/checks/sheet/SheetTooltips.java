@@ -10,6 +10,7 @@ import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.api.Proficiency;
 import studio.modroll.checks.api.SheetRow;
 import studio.modroll.checks.api.SheetSection;
+import studio.modroll.checks.body.BodyRules;
 import studio.modroll.checks.body.Extra;
 import studio.modroll.checks.body.SizeOption;
 import studio.modroll.checks.bonus.BonusPart;
@@ -81,16 +82,38 @@ public final class SheetTooltips {
         return lines;
     }
 
-    /** E.g. {@code DEX +2 (medium armor, max +2)}. */
+    /**
+     * Critfall's base 10 and what the armor and toughness points add, e.g. {@code Armor 13: +6 (half, rounded
+     * down)}, then the DEX part and the body armor rule that limits it, e.g. {@code DEX +2 (medium body armor, max
+     * +2)}. An AC Critfall did not derive from the armor, such as an entity profile's, shows as one line.
+     */
     static List<Component> armorClass(StatSheet.ArmorLine armor) {
-        return List.of(
-                Component.translatable(KEY + "armor_class"),
-                Component.translatable(KEY + "armor_class.armor", armor.baseArmorClass()),
-                Component.translatable(
-                        KEY + "armor_class.dex." + armor.category().id(),
-                        SheetText.abilityAbbreviation(Ability.DEXTERITY),
-                        SheetText.signed(armor.dexBonus()),
-                        SheetText.signed(armor.mediumMaxDex())));
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.translatable(KEY + "armor_class"));
+        armor.worn()
+                .ifPresentOrElse(
+                        worn -> {
+                            lines.add(Component.translatable(KEY + "armor_class.base", BodyRules.BASE_ARMOR_CLASS));
+                            if (worn.armor() != 0) {
+                                lines.add(Component.translatable(
+                                        KEY + "armor_class.armor",
+                                        SheetText.decimal(worn.armor()),
+                                        SheetText.signed(BodyRules.armorPart(worn.armor()))));
+                            }
+                            if (worn.toughness() != 0) {
+                                lines.add(Component.translatable(
+                                        KEY + "armor_class.toughness",
+                                        SheetText.decimal(worn.toughness()),
+                                        SheetText.signed(BodyRules.toughnessPart(worn.toughness()))));
+                            }
+                        },
+                        () -> lines.add(Component.translatable(KEY + "armor_class.set", armor.baseArmorClass())));
+        lines.add(Component.translatable(
+                KEY + "armor_class.dex." + armor.category().id(),
+                SheetText.abilityAbbreviation(Ability.DEXTERITY),
+                SheetText.signed(armor.dexBonus()),
+                SheetText.signed(armor.mediumMaxDex())));
+        return lines;
     }
 
     static List<Component> size(SizeOption size) {

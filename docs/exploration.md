@@ -33,13 +33,19 @@ Only players use these. Players in creative or spectator never roll, and spectat
 
 Only a jump that matters rolls: a sprinting jump where the ground one block ahead, where a plain jump
 would land, drops `leap.min_drop` (3) or more blocks, a gap or a pit edge. That rolls Athletics against
-`leap.dc` (12). A made check adds `leap.boost` (0.15) blocks per tick to the jump along the way the
-player faces: about one block further. A failed check is a plain jump. Every other jump is a plain jump
-and rolls nothing: onto flat ground, down a step or a drop of one or two blocks, a standing jump, and a
-jump in water, while gliding, flying or riding.
+`leap.dc` (12). A made check adds `leap.boost` (0.15) blocks per tick to the leap along the way the
+player faces: up to about one block further. A failed check is a plain jump. Every other jump is a
+plain jump and rolls nothing: onto flat ground, down a step or a drop of one or two blocks, a standing
+jump, and a jump in water, while gliding, flying or riding.
 
-Within `leap.cooldown_ticks` (40, two seconds) of a roll, another leap reuses its result without
-rolling, so a run across several gaps rolls once.
+The check only ever adds to a jump; it never stops or shortens one. The jump is your client's, as in
+vanilla, and the server never sets your speed. On a made check it sends your client the push, which
+your client adds to the speed it already has while you are still in the air; one that arrives after you
+land is dropped. A client without Checks leaps as in vanilla.
+
+Every leap rolls once, however soon it follows the last: a run across several gaps rolls for each gap,
+and each roll's readout replaces the one before. Only a jump from the ground rolls, so the next roll
+comes once you land, never twice for one jump. There is no cooldown.
 
 ## Athletics: cobwebs
 
@@ -250,7 +256,7 @@ In `config/checks/scores.json`, under `exploration` (see [scores-config.md](scor
 
 ```json
 "exploration": {
-  "leap": { "enabled": true, "dc": 12, "cooldown_ticks": 40, "boost": 0.15, "min_drop": 3 },
+  "leap": { "enabled": true, "dc": 12, "boost": 0.15, "min_drop": 3 },
   "landing": { "enabled": true, "base_dc": 10, "dc_per_damage": 0.5, "success_multiplier": 0.5 },
   "cobwebs": { "enabled": true, "dc": 12, "retry_ticks": 60 },
   "climbing": { "enabled": true, "per_point": 0.1, "max_bonus": 0.5 },
@@ -275,7 +281,6 @@ In `config/checks/scores.json`, under `exploration` (see [scores-config.md](scor
 | `monster_lore.interval_ticks`, `structure_lore.interval_ticks` | ticks between looks, at least 1 |
 | `hunger.per_point`, `ailments.per_point` | the share less per point of a positive Survival or Medicine modifier, not negative |
 | `hunger.max_reduction`, `ailments.max_reduction` | the largest share less, `0..1` |
-| `leap.cooldown_ticks` | ticks a leap's result is reused, not negative; `0` rolls every leap |
 | `leap.boost` | blocks per tick a made leap adds along the facing, not negative |
 | `leap.min_drop` | how many blocks the ground ahead must drop for a leap to roll, at least 1 |
 | `cobwebs.retry_ticks` | ticks after a failed roll before a player still caught rolls again, not negative |

@@ -32,7 +32,7 @@ public final class BodyValues {
         }
     }
 
-    /** What DEX adds to AC in the armor worn: {@code bonus} out of {@code dexModifier}. */
+    /** What DEX adds to AC in the body armor worn: {@code bonus} out of {@code dexModifier}. */
     public record ArmorBonus(int dexModifier, ArmorCategory category, int bonus) {}
 
     public static Optional<HealthBonus> health(ServerPlayer player) {
@@ -83,7 +83,7 @@ public final class BodyValues {
             return Optional.empty();
         }
         int dexModifier = ScoreService.modifier(entity, Ability.DEXTERITY);
-        ArmorCategory category = ArmorCategory.heaviest(entity.getArmorSlots());
+        ArmorCategory category = ArmorCategory.worn(entity);
         return Optional.of(new ArmorBonus(
                 dexModifier, category, BodyRules.armorClassBonus(dexModifier, category, settings.mediumMaxDex())));
     }

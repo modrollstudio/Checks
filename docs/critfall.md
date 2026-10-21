@@ -35,16 +35,17 @@ and AC use Checks scores. Critfall still rolls every die. Configured by the
 | --- | --- | --- | --- |
 | Attack | STR modifier + proficiency bonus | DEX modifier + proficiency bonus | Critfall's own |
 | Damage | STR modifier | DEX modifier | Critfall's own |
-| Defender's AC | + DEX by armor weight | + DEX by armor weight | + DEX by armor weight |
+| Defender's AC | + DEX by body armor | + DEX by body armor | + DEX by body armor |
 
 The damage modifier is added to Critfall's own damage dice: `1d8+2` with STR +3 rolls `1d8+5`.
 Everything Critfall already counts stays, such as weapon material, Sharpness and the other damage
 enchantments, bow draw and Power, and the Strength and Weakness effects. Critfall leaves a dice-less
 amount (its derived flat `1`) as is.
 
-**AC**: Checks adds the defender's DEX to Critfall's AC by the 5e armor rules: all of it unarmored
-or in light armor, up to +2 in medium, none in heavy (see [body.md](body.md#armor-class)).
-`armor_class.enabled: false` keeps Critfall's own AC.
+**AC**: Checks adds the defender's DEX to Critfall's AC by the 5e armor rules, by the body armor alone:
+all of it without body armor or in light armor, up to +2 in medium, none in heavy. A helmet, leggings
+or boots never limit it (see [body.md](body.md#armor-class)). The armor points themselves are
+Critfall's to count. `armor_class.enabled: false` keeps Critfall's own AC.
 
 **Saves**: `save_abilities` maps a Critfall save key to the ability whose save modifier (with save
 proficiency) Checks supplies. `critfall:spell`, the save against a Critfall save spell, defaults to
@@ -56,7 +57,7 @@ keep Critfall's own bonus.
 
 ## Hazards
 
-Critfall (0.2.13 and newer) rolls saves and attacks for hazards with no living attacker, such as Dungeon Crawl's
+Critfall (0.2.13 and newer) rolls saves and attacks for hazards with no living attacker, such as Critfall: Depths'
 traps. A hazard save asks for its save key like any other Critfall save, so a DEX trap saves with the
 DEX modifier, plus the proficiency bonus when proficient in DEX saves. A hazard attack rolls against the
 AC Checks adds DEX to.

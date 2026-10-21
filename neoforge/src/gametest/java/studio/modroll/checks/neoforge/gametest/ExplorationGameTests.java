@@ -20,13 +20,18 @@ public class ExplorationGameTests {
     }
 
     @GameTest(template = TEMPLATE)
+    public void anOrdinaryJumpAlwaysHappens(GameTestHelper helper) {
+        ExplorationScenarios.anOrdinaryJumpAlwaysHappens(helper);
+    }
+
+    @GameTest(template = TEMPLATE)
     public void aLeapRollsOnlyWhenItCouldMatter(GameTestHelper helper) {
         ExplorationScenarios.aLeapRollsOnlyWhenItCouldMatter(helper);
     }
 
     @GameTest(template = TEMPLATE)
-    public void aLeapWithinTheCooldownReusesTheLastResult(GameTestHelper helper) {
-        ExplorationScenarios.aLeapWithinTheCooldownReusesTheLastResult(helper);
+    public void twoLeapsInQuickSuccessionEachRollOnce(GameTestHelper helper) {
+        ExplorationScenarios.twoLeapsInQuickSuccessionEachRollOnce(helper);
     }
 
     @GameTest(template = TEMPLATE)

@@ -49,7 +49,7 @@ import studio.modroll.critfall.api.dice.DiceExpression;
 import studio.modroll.critfall.api.dice.RollMode;
 
 /**
- * GameTest bodies for Critfall hazard saves (a trap from Dungeon Crawl or any other mod): the save key's
+ * GameTest bodies for Critfall hazard saves (a trap from Critfall: Depths or any other mod): the save key's
  * ability supplies the modifier, and species traits add their advantage. The gametest data tags {@link
  * #POISON_DART} {@code c:is_poison}; cactus is not. A d20 of 2 fails DC 13 with any modifier here, 19 makes
  * it.

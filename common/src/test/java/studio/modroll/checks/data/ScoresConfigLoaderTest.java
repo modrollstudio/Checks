@@ -673,9 +673,19 @@ class ScoresConfigLoaderTest {
     }
 
     @Test
+    void anOlderFilesLeapCooldownIsIgnoredWithoutAWarning() {
+        assertEquals(
+                ScoresConfig.DEFAULTS.exploration().leap(),
+                parse("{\"exploration\": {\"leap\": {\"cooldown_ticks\": 40}}}")
+                        .exploration()
+                        .leap());
+        assertEquals(List.of(), warnings);
+    }
+
+    @Test
     void readsTheExplorationSettings() {
         ScoresConfig.ExplorationSettings exploration = parse("{\"exploration\": {"
-                        + " \"leap\": {\"enabled\": false, \"dc\": 14, \"cooldown_ticks\": 0, \"boost\": 0.3,"
+                        + " \"leap\": {\"enabled\": false, \"dc\": 14, \"boost\": 0.3,"
                         + " \"min_drop\": 5},"
                         + " \"landing\": {\"base_dc\": 8, \"dc_per_damage\": 1, \"success_multiplier\": 0.25},"
                         + " \"cobwebs\": {\"enabled\": false, \"dc\": 15, \"retry_ticks\": 20},"
@@ -691,7 +701,7 @@ class ScoresConfigLoaderTest {
                         + " \"ailments\": {\"enabled\": false, \"per_point\": 0.02, \"max_reduction\": 1}}}")
                 .exploration();
         assertEquals(List.of(), warnings);
-        assertEquals(new ScoresConfig.LeapSettings(false, 14, 0, 0.3, 5), exploration.leap());
+        assertEquals(new ScoresConfig.LeapSettings(false, 14, 0.3, 5), exploration.leap());
         assertEquals(new ScoresConfig.LandingSettings(true, 8, 1, 0.25), exploration.landing());
         assertEquals(new ScoresConfig.CobwebSettings(false, 15, 20), exploration.cobwebs());
         assertEquals(new ScoresConfig.ClimbingSettings(true, 0.2, 1), exploration.climbing());

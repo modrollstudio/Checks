@@ -110,16 +110,25 @@ public record StatSheet(
     public record HealthLine(float maxHealth, int conModifier, double conHealth, double levelHealth) {}
 
     /**
-     * {@code armorClass} is what attacks roll against: Critfall's {@code baseArmorClass} plus {@code dexBonus},
-     * the part of {@code dexModifier} the heaviest worn {@code category} allows.
+     * {@link #armorClass} is what attacks roll against: Critfall's {@code baseArmorClass} plus {@code dexBonus},
+     * the part of {@code dexModifier} the body armor's {@code category} allows. {@code worn} is the armor and
+     * toughness Critfall derived its AC from; empty when something else, such as an entity profile, set it.
      */
     public record ArmorLine(
-            int armorClass,
             int baseArmorClass,
+            Optional<ArmorPoints> worn,
             int dexModifier,
             ArmorCategory category,
             int dexBonus,
-            int mediumMaxDex) {}
+            int mediumMaxDex) {
+
+        public int armorClass() {
+            return baseArmorClass + dexBonus;
+        }
+    }
+
+    /** The player's armor and armor toughness attributes: every worn piece's points, summed. */
+    public record ArmorPoints(double armor, double toughness) {}
 
     public record ExtraLine(Extra extra, double amount) {}
 
@@ -210,11 +219,14 @@ public record StatSheet(
             HealthLine::levelHealth,
             HealthLine::new);
 
+    private static final StreamCodec<ByteBuf, ArmorPoints> ARMOR_POINTS = StreamCodec.composite(
+            ByteBufCodecs.DOUBLE, ArmorPoints::armor, ByteBufCodecs.DOUBLE, ArmorPoints::toughness, ArmorPoints::new);
+
     private static final StreamCodec<ByteBuf, ArmorLine> ARMOR_LINE = StreamCodec.composite(
             ByteBufCodecs.VAR_INT,
-            ArmorLine::armorClass,
-            ByteBufCodecs.VAR_INT,
             ArmorLine::baseArmorClass,
+            ByteBufCodecs.optional(ARMOR_POINTS),
+            ArmorLine::worn,
             ByteBufCodecs.VAR_INT,
             ArmorLine::dexModifier,
             ArmorCategory.STREAM_CODEC,

@@ -14,13 +14,18 @@ public class ExplorationGameTests implements FabricGameTest {
     }
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void anOrdinaryJumpAlwaysHappens(GameTestHelper helper) {
+        ExplorationScenarios.anOrdinaryJumpAlwaysHappens(helper);
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
     public void aLeapRollsOnlyWhenItCouldMatter(GameTestHelper helper) {
         ExplorationScenarios.aLeapRollsOnlyWhenItCouldMatter(helper);
     }
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
-    public void aLeapWithinTheCooldownReusesTheLastResult(GameTestHelper helper) {
-        ExplorationScenarios.aLeapWithinTheCooldownReusesTheLastResult(helper);
+    public void twoLeapsInQuickSuccessionEachRollOnce(GameTestHelper helper) {
+        ExplorationScenarios.twoLeapsInQuickSuccessionEachRollOnce(helper);
     }
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)

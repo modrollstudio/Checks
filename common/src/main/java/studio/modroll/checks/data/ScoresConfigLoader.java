@@ -270,7 +270,7 @@ public final class ScoresConfigLoader {
               "roll_messages": { "enabled": true, "duration_ticks": 240 },
               "death_messages": { "enabled": true, "window_ticks": 1200 },
               "exploration": {
-                "leap": { "enabled": true, "dc": 12, "cooldown_ticks": 40, "boost": 0.15, "min_drop": 3 },
+                "leap": { "enabled": true, "dc": 12, "boost": 0.15, "min_drop": 3 },
                 "landing": { "enabled": true, "base_dc": 10, "dc_per_damage": 0.5, "success_multiplier": 0.5 },
                 "cobwebs": { "enabled": true, "dc": 12, "retry_ticks": 60 },
                 "climbing": { "enabled": true, "per_point": 0.1, "max_bonus": 0.5 },

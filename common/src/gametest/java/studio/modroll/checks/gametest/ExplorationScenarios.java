@@ -45,6 +45,7 @@ import studio.modroll.checks.exploration.Climbing;
 import studio.modroll.checks.exploration.ClimbingPayload;
 import studio.modroll.checks.exploration.Cobwebs;
 import studio.modroll.checks.exploration.Landings;
+import studio.modroll.checks.exploration.LeapPayload;
 import studio.modroll.checks.exploration.Tripwires;
 
 /**
@@ -56,11 +57,11 @@ import studio.modroll.checks.exploration.Tripwires;
 public final class ExplorationScenarios {
 
     private static final int MADE = 15;
+    private static final int D20_FACES = 20;
     private static final int FAILED = 2;
     private static final int DC = 12;
     private static final int PASSIVE = 10;
     private static final double BOOST = 0.15;
-    private static final double SPRINT_JUMP_IMPULSE = 0.2;
 
     private static final ScoresConfig.ExplorationSettings DEFAULTS = ScoresConfig.DEFAULTS.exploration();
 
@@ -118,23 +119,52 @@ public final class ExplorationScenarios {
     private ExplorationScenarios() {}
 
     /**
-     * A sprinting jump toward a drop of three blocks rolls Athletics: a made check speeds the leap along the
-     * facing, a failed one leaves it.
+     * A sprinting jump toward a drop of three blocks rolls Athletics: a made check sends the client a push
+     * along the facing to add to its leap, a failed one sends nothing. Neither touches the jump itself.
      */
     public static void aMadeAthleticsCheckCarriesALeapFurther(GameTestHelper helper) {
         ServerPlayer player = sprinter(helper, "leap-made", MIN_DROP);
-        List<CustomPacketPayload> lines = new ArrayList<>();
+        List<CustomPacketPayload> sent = new ArrayList<>();
         try {
-            exploring(leap(true, 0), lines, () -> withD20s(() -> jump(player), MADE));
-            expect(helper, player.hurtMarked, "a made leap must send the player their new speed");
-            expectClose(
-                    helper, GROUND_SPEED.z + SPRINT_JUMP_IMPULSE + BOOST, player.getDeltaMovement().z, "leap speed");
-            expectLine(helper, lines, "checks.exploration.leap.success.");
+            Vec3 vanilla = vanillaJump(player);
+            Vec3 made = leaping(leap(true), sent, () -> withD20s(() -> jump(player), MADE));
+            expectVanillaJump(helper, player, vanilla, made, "a made leap");
+            List<LeapPayload> pushes = pushes(sent);
+            expectEquals(helper, 1, pushes.size(), "pushes sent for a made leap");
+            expectClose(helper, 0, pushes.getFirst().x(), "push across the facing");
+            expectClose(helper, BOOST, pushes.getFirst().z(), "push along the facing");
+            expectLine(helper, sent, "checks.exploration.leap.success.");
 
-            lines.clear();
-            exploring(leap(true, 0), lines, () -> withD20s(() -> jump(player), FAILED));
-            expect(helper, !player.hurtMarked, "a failed leap must leave the jump alone");
-            expectLine(helper, lines, "checks.exploration.leap.failure.");
+            sent.clear();
+            Vec3 failed = leaping(leap(true), sent, () -> withD20s(() -> jump(player), FAILED));
+            expectVanillaJump(helper, player, vanilla, failed, "a failed leap");
+            expect(helper, pushes(sent).isEmpty(), "a failed leap must send no push");
+            expectLine(helper, sent, "checks.exploration.leap.failure.");
+        } finally {
+            logout(helper, player);
+        }
+        helper.succeed();
+    }
+
+    /**
+     * An ordinary jump always happens: whatever the roll, and whether one is rolled at all, the server leaves
+     * the jump exactly as vanilla made it and never sends the player a new speed. Only a push may be added.
+     */
+    public static void anOrdinaryJumpAlwaysHappens(GameTestHelper helper) {
+        ServerPlayer player = sprinter(helper, "leap-ordinary", FLAT);
+        try {
+            Vec3 sprinting = vanillaJump(player);
+            expectOrdinaryJump(helper, player, sprinting, leap(true), "a jump onto flat ground");
+            dropAhead(helper, SHALLOW);
+            expectOrdinaryJump(helper, player, sprinting, leap(true), "a jump toward a two-block drop");
+            dropAhead(helper, MIN_DROP);
+            for (int face = 1; face <= D20_FACES; face++) {
+                expectOrdinaryJump(helper, player, sprinting, leap(true), "a leap, d20 " + face, face);
+            }
+            expectOrdinaryJump(helper, player, sprinting, leap(false), "a leap while leaps are off");
+            player.setSprinting(false);
+            Vec3 standing = vanillaJump(player);
+            expectOrdinaryJump(helper, player, standing, leap(true), "a standing jump toward a deep drop");
         } finally {
             logout(helper, player);
         }
@@ -148,29 +178,38 @@ public final class ExplorationScenarios {
     public static void aLeapRollsOnlyWhenItCouldMatter(GameTestHelper helper) {
         ServerPlayer player = sprinter(helper, "leap-plain", FLAT);
         try {
-            expectPlainJump(helper, player, leap(true, 0), "a jump onto flat ground");
+            expectPlainJump(helper, player, leap(true), "a jump onto flat ground");
             dropAhead(helper, SHALLOW);
-            expectPlainJump(helper, player, leap(true, 0), "a jump toward a two-block drop");
+            expectPlainJump(helper, player, leap(true), "a jump toward a two-block drop");
             dropAhead(helper, MIN_DROP);
             player.setSprinting(false);
-            expectPlainJump(helper, player, leap(true, 0), "a standing jump");
+            expectPlainJump(helper, player, leap(true), "a standing jump");
             player.setSprinting(true);
-            expectPlainJump(helper, player, leap(false, 0), "a jump while leaps are off");
+            expectPlainJump(helper, player, leap(false), "a jump while leaps are off");
         } finally {
             logout(helper, player);
         }
         helper.succeed();
     }
 
-    /** Within the cooldown a leap reuses the last result without rolling. */
-    public static void aLeapWithinTheCooldownReusesTheLastResult(GameTestHelper helper) {
-        ServerPlayer player = sprinter(helper, "leap-cooldown", MIN_DROP);
-        List<CustomPacketPayload> lines = new ArrayList<>();
+    /**
+     * Two leaps in quick succession, in the same tick, each roll once: the second rolls as soon as the player
+     * is back on the ground, with no cooldown carrying the first result over, and shows its own readout. A
+     * second call for a jump still in the air rolls nothing.
+     */
+    public static void twoLeapsInQuickSuccessionEachRollOnce(GameTestHelper helper) {
+        ServerPlayer player = sprinter(helper, "leap-twice", MIN_DROP);
+        List<CustomPacketPayload> sent = new ArrayList<>();
         try {
-            exploring(leap(true, Integer.MAX_VALUE), lines, () -> withD20s(() -> jump(player), MADE));
-            exploring(leap(true, Integer.MAX_VALUE), lines, () -> withD20s(() -> jump(player)));
-            expect(helper, player.hurtMarked, "the second leap must reuse the made check");
-            expectEquals(helper, 1, lines.size(), "roll lines for two leaps in one cooldown");
+            leaping(leap(true), sent, () -> withD20s(() -> jump(player), MADE));
+            leaping(leap(true), sent, () -> withD20s(() -> jumpInMidAir(player)));
+            expectEquals(helper, 1, rollLines(sent).size(), "roll lines before the player lands");
+            leaping(leap(true), sent, () -> withD20s(() -> jump(player), FAILED));
+            List<RollLinePayload> lines = rollLines(sent);
+            expectEquals(helper, 2, lines.size(), "roll lines for two leaps");
+            expectLine(helper, List.of(lines.get(0)), "checks.exploration.leap.success.");
+            expectLine(helper, List.of(lines.get(1)), "checks.exploration.leap.failure.");
+            expectEquals(helper, 1, pushes(sent).size(), "pushes for a made leap and a failed one");
         } finally {
             logout(helper, player);
         }
@@ -448,10 +487,64 @@ public final class ExplorationScenarios {
         }
     }
 
+    /** A jump that must roll nothing and send nothing; a test fails if anything rolls a d20. */
     private static void expectPlainJump(
             GameTestHelper helper, ServerPlayer player, ScoresConfig.ExplorationSettings settings, String what) {
-        exploring(settings, new ArrayList<>(), () -> withD20s(() -> jump(player)));
-        expect(helper, !player.hurtMarked, what + " must be a plain jump");
+        List<CustomPacketPayload> sent = new ArrayList<>();
+        leaping(settings, sent, () -> withD20s(() -> jump(player)));
+        expect(helper, sent.isEmpty(), what + " must be a plain jump, sent " + sent);
+    }
+
+    /** The jump with {@code d20s} forced: the speed vanilla gave it, kept, and no new speed sent to the client. */
+    private static void expectOrdinaryJump(
+            GameTestHelper helper,
+            ServerPlayer player,
+            Vec3 vanilla,
+            ScoresConfig.ExplorationSettings settings,
+            String what,
+            int... d20s) {
+        Vec3 jumped = leaping(settings, new ArrayList<>(), () -> withD20s(() -> jump(player), d20s));
+        expectVanillaJump(helper, player, vanilla, jumped, what);
+    }
+
+    private static void expectVanillaJump(
+            GameTestHelper helper, ServerPlayer player, Vec3 vanilla, Vec3 jumped, String what) {
+        expect(helper, jumped.y > 0, what + " must rise, was " + jumped);
+        expect(
+                helper,
+                jumped.distanceToSqr(vanilla) < EPSILON_SPEED,
+                what + " must keep vanilla's jump " + vanilla + ", was " + jumped);
+        expect(helper, !player.hurtMarked, what + " must send the client no new speed");
+    }
+
+    /** The speed vanilla gives this jump, with leaps off so nothing can change it. */
+    private static Vec3 vanillaJump(ServerPlayer player) {
+        return leaping(leap(false), new ArrayList<>(), () -> withD20s(() -> jump(player)));
+    }
+
+    /** As {@link #exploring}, also collecting the leap pushes sent. */
+    private static <T> T leaping(
+            ScoresConfig.ExplorationSettings settings, List<CustomPacketPayload> sent, Supplier<T> body) {
+        return withExploration(
+                settings,
+                () -> unprofiled(() -> withSender(
+                        (to, payload) -> (payload instanceof RollLinePayload || payload instanceof LeapPayload)
+                                && sent.add(payload),
+                        body)));
+    }
+
+    private static List<RollLinePayload> rollLines(List<CustomPacketPayload> sent) {
+        return sent.stream()
+                .filter(RollLinePayload.class::isInstance)
+                .map(RollLinePayload.class::cast)
+                .toList();
+    }
+
+    private static List<LeapPayload> pushes(List<CustomPacketPayload> sent) {
+        return sent.stream()
+                .filter(LeapPayload.class::isInstance)
+                .map(LeapPayload.class::cast)
+                .toList();
     }
 
     private static Void struggle(ServerPlayer player) {
@@ -476,11 +569,22 @@ public final class ExplorationScenarios {
                 });
     }
 
-    /** As the server sees a jump: from the speed the client last reported, with nothing marked to send yet. */
-    private static Void jump(ServerPlayer player) {
+    /**
+     * As the server sees a jump: from the ground, at the speed the client last reported, with nothing marked to
+     * send yet, through each loader's own hook. The speed it leaves the player with.
+     */
+    private static Vec3 jump(ServerPlayer player) {
+        player.setOnGround(true);
         player.setDeltaMovement(Vec3.ZERO);
         player.setKnownMovement(GROUND_SPEED);
         player.hurtMarked = false;
+        player.jumpFromGround();
+        return player.getDeltaMovement();
+    }
+
+    /** The jump hook called again for a jump already in the air, as a second call for the same jump would be. */
+    private static Void jumpInMidAir(ServerPlayer player) {
+        player.setOnGround(false);
         player.jumpFromGround();
         return null;
     }
@@ -543,9 +647,9 @@ public final class ExplorationScenarios {
                 settings, () -> unprofiled(() -> withSender(collecting(RollLinePayload.class, lines), body)));
     }
 
-    private static ScoresConfig.ExplorationSettings leap(boolean enabled, int cooldownTicks) {
+    private static ScoresConfig.ExplorationSettings leap(boolean enabled) {
         return new ScoresConfig.ExplorationSettings(
-                new ScoresConfig.LeapSettings(enabled, DC, cooldownTicks, BOOST, MIN_DROP),
+                new ScoresConfig.LeapSettings(enabled, DC, BOOST, MIN_DROP),
                 DEFAULTS.landing(),
                 DEFAULTS.cobwebs(),
                 DEFAULTS.climbing(),

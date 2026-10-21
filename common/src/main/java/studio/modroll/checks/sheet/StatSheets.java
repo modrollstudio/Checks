@@ -6,11 +6,13 @@ import java.util.Optional;
 import java.util.stream.Stream;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import studio.modroll.checks.Checks;
 import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.api.CheckKind;
 import studio.modroll.checks.api.ChecksApi;
 import studio.modroll.checks.api.Skill;
+import studio.modroll.checks.body.BodyRules;
 import studio.modroll.checks.body.BodyValues;
 import studio.modroll.checks.body.Extra;
 import studio.modroll.checks.bonus.BonusSources;
@@ -89,14 +91,18 @@ public final class StatSheets {
             return Optional.empty();
         }
         int base = RollService.effectiveEntity(player).armorClass();
+        Optional<StatSheet.ArmorPoints> worn = worn(player, base);
         return BodyValues.armorClass(player)
                 .map(armor -> new StatSheet.ArmorLine(
-                        base + armor.bonus(),
-                        base,
-                        armor.dexModifier(),
-                        armor.category(),
-                        armor.bonus(),
-                        settings.mediumMaxDex()));
+                        base, worn, armor.dexModifier(), armor.category(), armor.bonus(), settings.mediumMaxDex()));
+    }
+
+    /** The armor and toughness, while Critfall's AC is the one it derives from them, so the parts add up. */
+    private static Optional<StatSheet.ArmorPoints> worn(ServerPlayer player, int base) {
+        double armor = player.getAttributeValue(Attributes.ARMOR);
+        double toughness = player.getAttributeValue(Attributes.ARMOR_TOUGHNESS);
+        int derived = BodyRules.BASE_ARMOR_CLASS + BodyRules.armorPart(armor) + BodyRules.toughnessPart(toughness);
+        return derived == base ? Optional.of(new StatSheet.ArmorPoints(armor, toughness)) : Optional.empty();
     }
 
     private static Optional<StatSheet.LevelLine> level(ServerPlayer player) {

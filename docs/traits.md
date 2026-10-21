@@ -44,7 +44,7 @@ in the lang file as `checks.trait.<namespace>.<path>` and `.desc`.
 
 Notes:
 
-- **Hazards**: Critfall's hazard saves (traps from Dungeon Crawl or another mod) get the advantage of
+- **Hazards**: Critfall's hazard saves (traps from Critfall: Depths or another mod) get the advantage of
   `vanilla_save_advantage` against `poison`, when the hazard's damage type is in `#c:is_poison`, and a
   `roll_bonus`'s flat `bonus` and `mode`. See [critfall.md](critfall.md#hazards).
 - **Rerolls** cover checks and saves rolled through `ChecksApi` (`/checks roll`, triggers, vanilla

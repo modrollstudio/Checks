@@ -3,6 +3,7 @@ package studio.modroll.checks.fabric.client;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationNetworking;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
@@ -10,13 +11,18 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import studio.modroll.checks.NetworkVersion;
+import studio.modroll.checks.NetworkVersionPayload;
 import studio.modroll.checks.check.RollLinePayload;
 import studio.modroll.checks.check.client.ChatBox;
 import studio.modroll.checks.check.client.ClientRollLines;
 import studio.modroll.checks.creation.CreationOfferPayload;
 import studio.modroll.checks.creation.client.CharacterCreationScreen;
 import studio.modroll.checks.exploration.ClimbingPayload;
+import studio.modroll.checks.exploration.LeapPayload;
 import studio.modroll.checks.exploration.client.ClientClimbing;
+import studio.modroll.checks.exploration.client.ClientLeaps;
+import studio.modroll.checks.fabric.FabricNetworkVersion;
 import studio.modroll.checks.fabric.mixin.client.ChatComponentAccessor;
 import studio.modroll.checks.fabric.mixin.client.GuiAccessor;
 import studio.modroll.checks.sheet.StatSheetPayload;
@@ -39,6 +45,7 @@ public final class ChecksFabricClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        registerNetworkVersion();
         KeyBindingHelper.registerKeyBinding(StatSheetScreen.KEY);
         KeyBindingHelper.registerKeyBinding(SocialScreen.KEY);
         ClientPlayNetworking.registerGlobalReceiver(
@@ -56,6 +63,7 @@ public final class ChecksFabricClient implements ClientModInitializer {
                 DarkvisionPayload.TYPE, (payload, context) -> ClientDarkvision.set(payload.strength()));
         ClientPlayNetworking.registerGlobalReceiver(
                 ClimbingPayload.TYPE, (payload, context) -> ClientClimbing.set(payload.speed()));
+        ClientPlayNetworking.registerGlobalReceiver(LeapPayload.TYPE, (payload, context) -> ClientLeaps.push(payload));
         ClientPlayNetworking.registerGlobalReceiver(
                 SpeechBubblePayload.TYPE, (payload, context) -> ClientSocialFeel.say(payload));
         ClientPlayNetworking.registerGlobalReceiver(
@@ -79,6 +87,24 @@ public final class ChecksFabricClient implements ClientModInitializer {
             }
             while (SocialScreen.KEY.consumeClick()) {
                 SocialScreen.target().ifPresent(ChecksFabricClient::requestSocialMenu);
+            }
+        });
+    }
+
+    /**
+     * The client's side of {@link FabricNetworkVersion}: answer the server's version with ours, and leave a server
+     * whose Checks is from before the check.
+     */
+    private static void registerNetworkVersion() {
+        NetworkVersionPayload ours = FabricNetworkVersion.ours();
+        ClientConfigurationNetworking.registerGlobalReceiver(
+                NetworkVersionPayload.TYPE,
+                (payload, context) -> context.responseSender().sendPacket(ours));
+        // Only there so the server sees the channel and knows this client has the check.
+        ClientPlayNetworking.registerGlobalReceiver(NetworkVersionPayload.TYPE, (payload, context) -> {});
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
+            if (NetworkVersion.fromBeforeTheCheck(ClientPlayNetworking.getSendable())) {
+                handler.getConnection().disconnect(NetworkVersion.olderServer(ours.modVersion()));
             }
         });
     }

@@ -49,6 +49,11 @@ public class SaveGameTests implements FabricGameTest {
     }
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void aFireAspectHitRollsOnce(GameTestHelper helper) {
+        SaveScenarios.aFireAspectHitRollsOnce(helper);
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
     public void eachSaveSwitchesOff(GameTestHelper helper) {
         SaveScenarios.eachSaveSwitchesOff(helper);
     }

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.3 — 2026-10-20 (alpha)
+
+Requires Critfall 0.2.14 or newer.
+
+- Armor class: only body armor (the chestplate) limits DEX now, as in 5e. A helmet, leggings or boots never lower your AC.
+- The Armor Class tooltip shows where the number comes from: base 10, what your armor and toughness points add, and your DEX.
+- Athletics leaps only ever add to a jump. A made check pushes you further; no roll can stop or shorten a jump.
+- Every Athletics leap rolls, even right after another: the two-second leap cooldown, which reused the last result without a roll or a readout, is gone. A leap rolls once and the next waits until you land. The old `leap.cooldown_ticks` setting is ignored.
+- One roll per hit: a Fire Aspect hit that Critfall rolled for no longer also calls for a DEX save against catching fire.
+- Mismatched versions: a client and a server whose Checks can't talk to each other, such as 0.1.3 and 0.1.2, now refuse to connect when joining, with a message naming the version to install, instead of failing later. Works on NeoForge and Fabric.
+
 ## 0.1.2 — 2026-10-14 (alpha)
 
 Requires Critfall 0.2.14 or newer.

@@ -6,14 +6,16 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import studio.modroll.checks.Checks;
 
 /**
- * The 5e armor weight a worn piece belongs to, from the item tags {@code checks:light_armor},
+ * The 5e armor weight a piece belongs to, from the item tags {@code checks:light_armor},
  * {@code checks:medium_armor} and {@code checks:heavy_armor}; lightest first. An untagged piece counts
- * as no armor.
+ * as no armor. Only body armor, the piece worn on the chest, sets the weight.
  */
 public enum ArmorCategory {
     NONE("none", Optional.empty()),
@@ -36,16 +38,12 @@ public enum ArmorCategory {
         return id;
     }
 
-    /** The heaviest category among the worn pieces decides, as in 5e. */
-    public static ArmorCategory heaviest(Iterable<ItemStack> worn) {
-        ArmorCategory heaviest = NONE;
-        for (ItemStack piece : worn) {
-            ArmorCategory category = of(piece);
-            if (category.compareTo(heaviest) > 0) {
-                heaviest = category;
-            }
-        }
-        return heaviest;
+    /**
+     * The body armor's category, as in 5e, where armor is what covers the body: a helmet, leggings or
+     * boots never limit DEX, whatever their tags.
+     */
+    public static ArmorCategory worn(LivingEntity entity) {
+        return of(entity.getItemBySlot(EquipmentSlot.CHEST));
     }
 
     /** A piece in more than one tag counts as the heaviest of them. */

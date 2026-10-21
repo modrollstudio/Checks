@@ -21,6 +21,7 @@ import studio.modroll.checks.api.CheckRoll;
 import studio.modroll.checks.api.ChecksApi;
 import studio.modroll.checks.check.RollMessages;
 import studio.modroll.checks.check.RollText;
+import studio.modroll.checks.critfall.AttackRolls;
 import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.death.DeathStories;
 import studio.modroll.checks.death.DeathStory;
@@ -118,12 +119,16 @@ public final class VanillaSaves {
         return push.scale(factor(living, VanillaSave.KNOCKBACK));
     }
 
-    /** DEX: catching fire, unless in lava or the ignition would not change the burn time anyway. */
+    /**
+     * DEX: catching fire, unless in lava, the ignition would not change the burn time anyway, or Critfall
+     * already rolled for the hit that sets it (Fire Aspect after a Critfall attack roll).
+     */
     public static int igniteTicks(Entity entity, int ticks) {
         if (!(entity instanceof LivingEntity living)
                 || ticks <= entity.getRemainingFireTicks()
                 || entity.fireImmune()
-                || inLava(entity)) {
+                || inLava(entity)
+                || AttackRolls.takeRolledHit(living)) {
             return ticks;
         }
         return SaveRules.scaledTicks(ticks, factor(living, VanillaSave.FIRE));

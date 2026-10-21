@@ -45,8 +45,13 @@ public class BodyGameTests {
     }
 
     @GameTest(template = TEMPLATE)
-    public void armorClassFollowsTheHeaviestArmor(GameTestHelper helper) {
-        BodyScenarios.armorClassFollowsTheHeaviestArmor(helper);
+    public void armorClassFollowsTheBodyArmor(GameTestHelper helper) {
+        BodyScenarios.armorClassFollowsTheBodyArmor(helper);
+    }
+
+    @GameTest(template = TEMPLATE)
+    public void helmetsLeggingsAndBootsNeverLowerArmorClass(GameTestHelper helper) {
+        BodyScenarios.helmetsLeggingsAndBootsNeverLowerArmorClass(helper);
     }
 
     @GameTest(template = TEMPLATE)

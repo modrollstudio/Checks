@@ -32,6 +32,7 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import studio.modroll.checks.Checks;
 import studio.modroll.checks.ClientPayloads;
+import studio.modroll.checks.NetworkVersion;
 import studio.modroll.checks.ServerHooks;
 import studio.modroll.checks.body.BodyHooks;
 import studio.modroll.checks.body.PlayerBodies;
@@ -47,9 +48,11 @@ import studio.modroll.checks.data.ReloadListeners;
 import studio.modroll.checks.data.ScoresConfigLoader;
 import studio.modroll.checks.exploration.ClimbingPayload;
 import studio.modroll.checks.exploration.Landings;
+import studio.modroll.checks.exploration.LeapPayload;
 import studio.modroll.checks.exploration.Leaps;
 import studio.modroll.checks.exploration.Sneaking;
 import studio.modroll.checks.exploration.client.ClientClimbing;
+import studio.modroll.checks.exploration.client.ClientLeaps;
 import studio.modroll.checks.level.ImprovementPayload;
 import studio.modroll.checks.level.Levelling;
 import studio.modroll.checks.neoforge.client.ChecksNeoForgeClient;
@@ -236,7 +239,7 @@ public final class ChecksNeoForge {
 
     // The client handler is a lambda so a dedicated server never resolves the client-only screen class.
     private static void onRegisterPayloadHandlers(RegisterPayloadHandlersEvent event) {
-        event.registrar("1")
+        event.registrar(Integer.toString(NetworkVersion.CURRENT))
                 .playToServer(
                         StatSheetRequestPayload.TYPE,
                         StatSheetRequestPayload.STREAM_CODEC,
@@ -271,6 +274,8 @@ public final class ChecksNeoForge {
                         ClimbingPayload.TYPE,
                         ClimbingPayload.STREAM_CODEC,
                         (payload, context) -> ClientClimbing.set(payload.speed()))
+                .playToClient(
+                        LeapPayload.TYPE, LeapPayload.STREAM_CODEC, (payload, context) -> ClientLeaps.push(payload))
                 .playToServer(
                         ImprovementPayload.TYPE,
                         ImprovementPayload.STREAM_CODEC,

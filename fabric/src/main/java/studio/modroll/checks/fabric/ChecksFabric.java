@@ -44,6 +44,7 @@ import studio.modroll.checks.creation.CreationSubmitPayload;
 import studio.modroll.checks.data.ReloadListeners;
 import studio.modroll.checks.data.ScoresConfigLoader;
 import studio.modroll.checks.exploration.ClimbingPayload;
+import studio.modroll.checks.exploration.LeapPayload;
 import studio.modroll.checks.fabric.mixin.MobAccessor;
 import studio.modroll.checks.level.ImprovementPayload;
 import studio.modroll.checks.level.Levelling;
@@ -73,6 +74,7 @@ public final class ChecksFabric implements ModInitializer {
     public void onInitialize() {
         Checks.init();
         ClientPayloads.setSender(ChecksFabric::sendToClient);
+        FabricNetworkVersion.register();
         ScoresRuntime.setConfig(ScoresConfigLoader.load(configFile));
 
         PayloadTypeRegistry.playC2S().register(StatSheetRequestPayload.TYPE, StatSheetRequestPayload.STREAM_CODEC);
@@ -98,6 +100,7 @@ public final class ChecksFabric implements ModInitializer {
                 (entity, source, amount) -> !TraitHooks.survivesDeath(entity, source));
         PayloadTypeRegistry.playS2C().register(DarkvisionPayload.TYPE, DarkvisionPayload.STREAM_CODEC);
         PayloadTypeRegistry.playS2C().register(ClimbingPayload.TYPE, ClimbingPayload.STREAM_CODEC);
+        PayloadTypeRegistry.playS2C().register(LeapPayload.TYPE, LeapPayload.STREAM_CODEC);
         ServerPlayerEvents.COPY_FROM.register(PlayerBodies::onRespawn);
         ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register(
                 (player, origin, destination) -> PlayerBodies.sync(player));

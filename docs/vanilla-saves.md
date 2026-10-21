@@ -28,6 +28,13 @@ The default `knockback.min_strength` of `0.7` leaves out plain and sprinting hit
 Species [traits](traits.md) can give advantage on a vanilla save (`vanilla_save_advantage`): Dwarves
 against poison, Elves and Halflings against darkness, Goliaths against knockback.
 
+## One roll per hit
+
+A hazard Critfall already rolled for calls for no second roll: an explosion whose damage a Critfall
+attack roll or hazard save decided calls for no DEX save, and neither does the fire a Critfall-rolled
+hit sets (Fire Aspect). The hit stands in for that one save; the next fire still calls for its own. A
+burning arrow sets its target alight before Critfall rolls the hit, so it still calls for the save.
+
 ## Who saves
 
 Players in survival and adventure. Mobs only with `profiled_mobs: true`, and then only mobs with an

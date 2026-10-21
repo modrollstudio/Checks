@@ -434,10 +434,9 @@ public record ScoresConfig(
 
     /**
      * Athletics: a sprinting jump toward a drop of at least {@code minDrop} blocks rolls against {@code dc}; a
-     * made check adds {@code boost} blocks per tick to the leap. Within {@code cooldownTicks} another leap
-     * reuses the last result.
+     * made check adds {@code boost} blocks per tick to the leap. Every leap rolls; there is no cooldown.
      */
-    public record LeapSettings(boolean enabled, int dc, int cooldownTicks, double boost, int minDrop) {}
+    public record LeapSettings(boolean enabled, int dc, double boost, int minDrop) {}
 
     /**
      * Acrobatics: fall damage rolls against {@code baseDc} plus the damage times {@code dcPerDamage}, rounded
@@ -592,7 +591,7 @@ public record ScoresConfig(
             new RollMessageSettings(true, 240),
             new DeathMessageSettings(true, 1200),
             new ExplorationSettings(
-                    new LeapSettings(true, 12, 40, 0.15, 3),
+                    new LeapSettings(true, 12, 0.15, 3),
                     new LandingSettings(true, 10, 0.5, 0.5),
                     new CobwebSettings(true, 12, 60),
                     new ClimbingSettings(true, 0.1, 0.5),
