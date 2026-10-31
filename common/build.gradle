@@ -28,9 +28,9 @@ neoForge {
 // release jar, which bundles `studio.modroll.critfall.api` under Mojang mappings. The Fabric jar
 // is intermediary-mapped and cannot serve this source set.
 dependencies {
-    compileOnly "maven.modrinth:critfall:${critfall_neoforge_modrinth_id}"
-    testImplementation "maven.modrinth:critfall:${critfall_neoforge_modrinth_id}"
-    gametestCompileOnly "maven.modrinth:critfall:${critfall_neoforge_modrinth_id}"
+    compileOnly critfall('neoforge')
+    testImplementation critfall('neoforge')
+    gametestCompileOnly critfall('neoforge')
 }
 
 processResources {

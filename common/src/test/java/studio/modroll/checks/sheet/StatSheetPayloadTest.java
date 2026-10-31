@@ -73,7 +73,13 @@ class StatSheetPayloadTest {
                 new StatSheet.Body(
                         Optional.of(new StatSheet.HealthLine(27.5f, 3, 6.0, 1.5)),
                         Optional.of(new StatSheet.ArmorLine(
-                                12, Optional.of(new StatSheet.ArmorPoints(5, 2)), 3, ArmorCategory.MEDIUM, 2, 2)),
+                                11,
+                                Optional.of(new StatSheet.ArmorPoints(10, 5, 1, 2, 0)),
+                                3,
+                                ArmorCategory.MEDIUM,
+                                2,
+                                1,
+                                2)),
                         Optional.of(new SizeOption(Size.SMALL, 0.6)),
                         List.of(
                                 new StatSheet.ExtraLine(Extra.KNOCKBACK, -0.1),

@@ -29,6 +29,8 @@ import net.minecraft.core.Holder;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerPlayer;
@@ -49,6 +51,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 import studio.modroll.checks.Checks;
+import studio.modroll.checks.body.BodyValues;
 import studio.modroll.checks.body.Extra;
 import studio.modroll.checks.body.PlayerBodies;
 import studio.modroll.checks.body.Size;
@@ -61,6 +64,7 @@ import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.level.LevelStore;
 import studio.modroll.checks.level.PlayerLevel;
 import studio.modroll.checks.score.ScoresRuntime;
+import studio.modroll.checks.sheet.SheetTooltips;
 import studio.modroll.checks.sheet.StatSheet;
 import studio.modroll.checks.sheet.StatSheets;
 import studio.modroll.critfall.api.AttackContext;
@@ -285,7 +289,9 @@ public final class BodyScenarios {
 
     /**
      * DEX 18 (+4): all of it without body armor or in leather, +2 in chainmail, none in iron. Only the body
-     * armor decides: a helmet, leggings or boots never limit DEX, whatever their weight.
+     * armor decides: a helmet, leggings or boots never limit DEX, whatever their weight. Over an iron helmet, iron
+     * leggings and chainmail boots (8 armor), both capped chestplates still add 3 in all, since body armor never
+     * lowers AC: Critfall's 13 plus the capped DEX would be below its 12 without them plus all of DEX.
      */
     public static void armorClassFollowsTheBodyArmor(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("body-ac"));
@@ -294,23 +300,25 @@ public final class BodyScenarios {
             body(() -> unprofiled(() -> {
                 set(helper, player, "dex", 18);
                 expectAc(helper, 4, player, attacker, "unarmored");
-                wear(player, EquipmentSlot.HEAD, Items.IRON_HELMET);
-                wear(player, EquipmentSlot.LEGS, Items.IRON_LEGGINGS);
-                wear(player, EquipmentSlot.FEET, Items.CHAINMAIL_BOOTS);
+                equip(player, EquipmentSlot.HEAD, Items.IRON_HELMET);
+                equip(player, EquipmentSlot.LEGS, Items.IRON_LEGGINGS);
+                equip(player, EquipmentSlot.FEET, Items.CHAINMAIL_BOOTS);
                 expectAc(
                         helper,
                         4,
                         player,
                         attacker,
                         "an iron helmet, iron leggings and chainmail boots, no body armor");
-                wear(player, EquipmentSlot.CHEST, Items.LEATHER_CHESTPLATE);
+                equip(player, EquipmentSlot.CHEST, Items.LEATHER_CHESTPLATE);
                 expectAc(helper, 4, player, attacker, "light body armor with heavy leggings");
-                wear(player, EquipmentSlot.CHEST, Items.CHAINMAIL_CHESTPLATE);
-                expectAc(helper, 2, player, attacker, "medium body armor with heavy leggings");
-                wear(player, EquipmentSlot.CHEST, Items.IRON_CHESTPLATE);
-                expectAc(helper, 0, player, attacker, "heavy body armor");
+                equip(player, EquipmentSlot.CHEST, Items.CHAINMAIL_CHESTPLATE);
+                expectDexPart(helper, 2, player, "medium body armor with heavy leggings");
+                expectAc(helper, 3, player, attacker, "medium body armor, kept from lowering AC");
+                equip(player, EquipmentSlot.CHEST, Items.IRON_CHESTPLATE);
+                expectDexPart(helper, 0, player, "heavy body armor");
+                expectAc(helper, 3, player, attacker, "heavy body armor, kept from lowering AC");
 
-                wear(player, EquipmentSlot.CHEST, Items.CHAINMAIL_CHESTPLATE);
+                equip(player, EquipmentSlot.CHEST, Items.CHAINMAIL_CHESTPLATE);
                 set(helper, player, "dex", 12);
                 expectAc(helper, 1, player, attacker, "DEX 12 under the medium cap");
                 set(helper, player, "dex", 8);
@@ -324,10 +332,11 @@ public final class BodyScenarios {
     }
 
     /**
-     * The playtest character, DEX 20 (+5): AC 15 unarmored, 16 with a chainmail helmet, 15 once a chainmail
-     * chestplate caps DEX at +2, 18 with iron leggings, and still 18 with chainmail boots, whose one armor point
-     * Critfall's half-the-armor rounds away. Then any helmet, leggings or boots, of every shipped material, over
-     * any body armor: adding the piece never lowers the AC an attack rolls against.
+     * The playtest character, DEX 20 (+5), under Critfall's default quarter of the armor: AC 15 unarmored, still
+     * 15 with a chainmail helmet, whose two points round away, still 15 once a chainmail chestplate caps DEX at +2,
+     * since it never lowers AC, 16 with iron leggings and 17 with chainmail boots, each counted as without the
+     * chestplate. Then any helmet, leggings or boots, of every shipped material, over any body armor: adding the
+     * piece never lowers the AC an attack rolls against.
      */
     public static void helmetsLeggingsAndBootsNeverLowerArmorClass(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("body-pieces"));
@@ -337,13 +346,13 @@ public final class BodyScenarios {
                 set(helper, player, "dex", 20);
                 expectArmorClass(helper, 15, player, attacker, "unarmored");
                 equip(player, EquipmentSlot.HEAD, Items.CHAINMAIL_HELMET);
-                expectArmorClass(helper, 16, player, attacker, "with a chainmail helmet");
+                expectArmorClass(helper, 15, player, attacker, "with a chainmail helmet");
                 equip(player, EquipmentSlot.CHEST, Items.CHAINMAIL_CHESTPLATE);
                 expectArmorClass(helper, 15, player, attacker, "with a chainmail chestplate");
                 equip(player, EquipmentSlot.LEGS, Items.IRON_LEGGINGS);
-                expectArmorClass(helper, 18, player, attacker, "with iron leggings");
+                expectArmorClass(helper, 16, player, attacker, "with iron leggings");
                 equip(player, EquipmentSlot.FEET, Items.CHAINMAIL_BOOTS);
-                expectArmorClass(helper, 18, player, attacker, "with chainmail boots");
+                expectArmorClass(helper, 17, player, attacker, "with chainmail boots");
 
                 for (Item bodyArmor : BODY_ARMOR) {
                     equip(player, EquipmentSlot.CHEST, bodyArmor);
@@ -361,6 +370,50 @@ public final class BodyScenarios {
                         }
                     }
                 }
+                return null;
+            }));
+        } finally {
+            logout(helper, player);
+        }
+        helper.succeed();
+    }
+
+    /**
+     * Body armor never lowers AC. The playtest character, DEX 20 (+5), has AC 15 unarmored. A chainmail chestplate
+     * caps DEX at +2 for Critfall's 11 + 2 = 13, so AC stays at the 15 without it, and the sheet's tooltip says why.
+     * In full chainmail (12 armor) it is 16: 13 + 2 with the chestplate, but 11 + 5 without it.
+     */
+    public static void bodyArmorNeverLowersArmorClass(GameTestHelper helper) {
+        ServerPlayer player = login(helper, newProfile("body-floor"));
+        Mob attacker = spawnCalm(helper, EntityType.ZOMBIE);
+        try {
+            body(() -> unprofiled(() -> {
+                set(helper, player, "dex", 20);
+                expectArmorClass(helper, 15, player, attacker, "unarmored");
+                equip(player, EquipmentSlot.CHEST, Items.CHAINMAIL_CHESTPLATE);
+                expectDexPart(helper, 2, player, "in a chainmail chestplate");
+                expectArmorClass(helper, 15, player, attacker, "in a chainmail chestplate, not 13");
+
+                StatSheet.Body body = StatSheets.forPlayer(player).orElseThrow().body();
+                StatSheet.ArmorLine armor = body.armor().orElseThrow();
+                expectEquals(helper, 15, armor.armorClass(), "sheet AC in a chainmail chestplate");
+                expectEquals(helper, 2, armor.dexBonus(), "sheet DEX part, capped by the chainmail");
+                expectEquals(helper, 2, armor.floorBonus(), "sheet part that keeps the chainmail from lowering AC");
+                List<Component> tooltip = SheetTooltips.body(body).orElseThrow().rows().stream()
+                        .flatMap(row -> row.tooltip().stream())
+                        .toList();
+                expect(
+                        helper,
+                        tooltip.stream()
+                                .anyMatch(line -> line.getContents() instanceof TranslatableContents contents
+                                        && contents.getKey().equals("screen.checks.tooltip.armor_class.floor")
+                                        && List.of(contents.getArgs()).equals(List.of("+2"))),
+                        "the tooltip shows the +2 that keeps the chainmail from lowering AC, was " + tooltip);
+
+                equip(player, EquipmentSlot.HEAD, Items.CHAINMAIL_HELMET);
+                equip(player, EquipmentSlot.LEGS, Items.CHAINMAIL_LEGGINGS);
+                equip(player, EquipmentSlot.FEET, Items.CHAINMAIL_BOOTS);
+                expectArmorClass(helper, 16, player, attacker, "in full chainmail");
                 return null;
             }));
         } finally {
@@ -609,12 +662,18 @@ public final class BodyScenarios {
                 expectEquals(helper, 3, health.conModifier(), "sheet CON modifier");
                 StatSheet.ArmorLine armor = body.armor().orElseThrow();
                 expectEquals(helper, 2, armor.dexBonus(), "sheet DEX part of AC");
-                expectEquals(helper, armor.baseArmorClass() + 2, armor.armorClass(), "sheet AC");
-                expectEquals(helper, 12, armor.baseArmorClass(), "sheet Critfall AC: 10 and half of 5 armor");
+                expectEquals(helper, 1, armor.floorBonus(), "sheet part that keeps the chainmail from lowering AC");
+                expectEquals(helper, armor.baseArmorClass() + 3, armor.armorClass(), "sheet AC");
+                expectEquals(
+                        helper,
+                        RollService.effectiveEntity(player).armorClass(),
+                        armor.baseArmorClass(),
+                        "sheet Critfall AC is the one attacks roll against");
+                expectEquals(helper, 11, armor.baseArmorClass(), "sheet Critfall AC: 10 and a quarter of 5 armor");
                 expect(
                         helper,
-                        armor.worn().equals(Optional.of(new StatSheet.ArmorPoints(5, 0))),
-                        "the sheet carries the armor points Critfall's AC comes from, was " + armor.worn());
+                        armor.worn().equals(Optional.of(new StatSheet.ArmorPoints(10, 5, 1, 0, 0))),
+                        "the sheet carries Critfall's breakdown of its AC, was " + armor.worn());
                 expect(helper, body.size().orElseThrow().size() == Size.SMALL, "sheet size");
                 expect(helper, body.extras().size() == Extra.values().length, "every extra is on by default");
                 return null;
@@ -681,10 +740,6 @@ public final class BodyScenarios {
                         speciesPicks(player, choices, PICKS)));
     }
 
-    private static void wear(LivingEntity entity, EquipmentSlot slot, Item item) {
-        entity.setItemSlot(slot, new ItemStack(item));
-    }
-
     /** Wears {@code item} (air takes the piece off) with its armor points, as the entity's next tick would apply them. */
     private static void equip(LivingEntity entity, EquipmentSlot slot, Item item) {
         entity.getItemBySlot(slot).forEachModifier(slot, (attribute, modifier) -> {
@@ -713,6 +768,12 @@ public final class BodyScenarios {
     private static void expectArmorClass(
             GameTestHelper helper, int expected, LivingEntity defender, LivingEntity attacker, String what) {
         expectEquals(helper, expected, armorClass(defender, attacker), "AC " + what);
+    }
+
+    /** The DEX part alone, before anything that keeps body armor from lowering AC. */
+    private static void expectDexPart(GameTestHelper helper, int expected, LivingEntity entity, String what) {
+        expectEquals(
+                helper, expected, BodyValues.armorClass(entity).orElseThrow().dexBonus(), "DEX part, " + what);
     }
 
     private static void expectAc(

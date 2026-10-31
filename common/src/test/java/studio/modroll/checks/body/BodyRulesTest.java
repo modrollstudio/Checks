@@ -34,12 +34,15 @@ class BodyRulesTest {
     }
 
     @Test
-    void critfallCountsHalfTheArmorAndAQuarterOfTheToughnessRoundedDown() {
-        assertEquals(0, BodyRules.armorPart(1));
-        assertEquals(1, BodyRules.armorPart(2));
-        assertEquals(6, BodyRules.armorPart(13), "an odd point adds nothing");
-        assertEquals(0, BodyRules.toughnessPart(3));
-        assertEquals(2, BodyRules.toughnessPart(8));
+    void bodyArmorNeverLowersArmorClass() {
+        assertEquals(
+                2,
+                BodyRules.bodyArmorFloor(11, 2, 10, 5),
+                "DEX +5 in a chainmail chestplate: 11 + 2 = 13 would be below the 15 without it");
+        assertEquals(4, BodyRules.bodyArmorFloor(11, 0, 10, 5), "DEX +5 in an iron chestplate: 15, not 11");
+        assertEquals(0, BodyRules.bodyArmorFloor(13, 2, 11, 3), "DEX +3 in medium armor: 15 beats 14 without it");
+        assertEquals(0, BodyRules.bodyArmorFloor(12, 2, 10, 4), "a tie needs nothing");
+        assertEquals(0, BodyRules.bodyArmorFloor(11, 0, 10, -1), "a DEX penalty heavy armor ignores");
     }
 
     @Test

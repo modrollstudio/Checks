@@ -36,15 +36,20 @@ through Critfall's `acModifier`:
 | Heavy | none |
 
 Only body armor limits DEX, as in 5e, where armor is what covers the body: a helmet, leggings or boots
-never do, whatever their weight. Iron leggings with a leather chestplate keep all of DEX; a chainmail
+never do, whatever their weight. Putting armor on never lowers AC either: when a chestplate's DEX cap
+would leave AC below what it is without the chestplate (Critfall's AC from the other pieces, plus all
+of DEX), AC is the higher value. With DEX 20 (+5), a chainmail chestplate on its own gives 11 + 2 = 13,
+so AC stays at the 15 you have without it. Iron leggings with a leather chestplate keep all of DEX; a chainmail
 chestplate caps it at +2 whatever else is worn. A DEX penalty applies without body armor and in light
 or medium armor, never in heavy. Who gets it follows the same rule as Critfall attack modifiers (see
 [critfall.md](critfall.md#who-gets-checks-values)): players always, mobs with a Checks profile, and
 other mobs only with `critfall.unprofiled_mobs`.
 
-Every piece's armor points add up, and Critfall turns the total into AC: 10, plus half the armor points
-and a quarter of the toughness, each rounded down. So an odd point adds nothing until the next one
-joins it: chainmail boots (1 armor) over 12 points leave AC where it was. That rounding is Critfall's.
+Every piece's armor points add up, and Critfall turns the total into AC: by default (Critfall 0.2.18 and
+newer) 10, plus a quarter of the armor points and a quarter of the toughness, each rounded down. So a
+point or two can add nothing until more join them: chainmail boots (1 armor) over 12 points leave AC
+where it was. That formula and its rounding are Critfall's, set by its rules' `balance.armor_ac_divisor`
+and `balance.toughness_ac_divisor`; the stat screen shows the parts Critfall reports, whatever they are.
 
 ### Armor categories
 

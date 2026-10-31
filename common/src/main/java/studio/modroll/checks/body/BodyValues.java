@@ -7,6 +7,7 @@ import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.creation.CharacterBuild;
 import studio.modroll.checks.creation.CharacterCreation;
 import studio.modroll.checks.creation.PresetChoices;
+import studio.modroll.checks.critfall.CritfallArmorClass;
 import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.level.Levelling;
 import studio.modroll.checks.level.PlayerLevel;
@@ -32,8 +33,17 @@ public final class BodyValues {
         }
     }
 
-    /** What DEX adds to AC in the body armor worn: {@code bonus} out of {@code dexModifier}. */
-    public record ArmorBonus(int dexModifier, ArmorCategory category, int bonus) {}
+    /**
+     * What DEX adds to AC in the body armor worn: {@code dexBonus} out of {@code dexModifier}, and {@code floorBonus}
+     * when that cap would leave AC below what it is without the body armor.
+     */
+    public record ArmorBonus(int dexModifier, ArmorCategory category, int dexBonus, int floorBonus) {
+
+        /** All Checks adds to Critfall's AC. */
+        public int bonus() {
+            return dexBonus + floorBonus;
+        }
+    }
 
     public static Optional<HealthBonus> health(ServerPlayer player) {
         ScoresConfig.HealthSettings settings = settings().health();
@@ -84,8 +94,16 @@ public final class BodyValues {
         }
         int dexModifier = ScoreService.modifier(entity, Ability.DEXTERITY);
         ArmorCategory category = ArmorCategory.worn(entity);
-        return Optional.of(new ArmorBonus(
-                dexModifier, category, BodyRules.armorClassBonus(dexModifier, category, settings.mediumMaxDex())));
+        int dexBonus = BodyRules.armorClassBonus(dexModifier, category, settings.mediumMaxDex());
+        // Only a cap that held DEX back can leave AC below the AC without the body armor.
+        int floorBonus = dexBonus < dexModifier
+                ? BodyRules.bodyArmorFloor(
+                        CritfallArmorClass.worn(entity),
+                        dexBonus,
+                        CritfallArmorClass.withoutBodyArmor(entity),
+                        dexModifier)
+                : 0;
+        return Optional.of(new ArmorBonus(dexModifier, category, dexBonus, floorBonus));
     }
 
     private static ScoresConfig.BodySettings settings() {

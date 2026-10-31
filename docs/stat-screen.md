@@ -49,10 +49,12 @@ Hovering shows a short explanation in a tooltip:
   having both says they cancel out. The save and skill modifiers shown include the flat bonuses, as
   a roll would. See [bonus-sources.md](bonus-sources.md#stat-screen).
 - **Hit points:** what CON adds (`CON +3: +6 max health`) and, when on, what levels add.
-- **Armor class:** where Critfall's AC comes from, the base 10 and what the armor and toughness
-  points add (`Armor 13: +6 (half, rounded down)`), then the DEX part and the body armor rule that
-  limits it, e.g. `DEX +2 (medium body armor, max +2)`. An AC Critfall did not derive from the armor,
-  such as an entity profile's, shows as one line (`Set by Critfall: AC 15`).
+- **Armor class:** where Critfall's AC comes from, as Critfall breaks it down: the base 10 and what
+  the armor and toughness points add (`Armor 13: +3`), then the DEX part and the body armor rule that
+  limits it, e.g. `DEX +2 (medium body armor, max +2)`. When the body armor's cap would lower AC, a
+  last line adds back what keeps it at the AC without the body armor
+  (`Never below your AC without body armor: +2`). An AC Critfall did not derive from the armor, such
+  as an entity profile's, shows as one line (`Set by Critfall: AC 15`).
 - **Size:** the scale your species gives, e.g. `Scale ×0.6`.
 - **Passive:** `10 +` skill modifier plus bonus sources (flat bonuses, +5 for advantage, -5 for
   disadvantage), used when you're not actively rolling.

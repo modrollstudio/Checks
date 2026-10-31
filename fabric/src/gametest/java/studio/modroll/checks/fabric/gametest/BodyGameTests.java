@@ -49,6 +49,11 @@ public class BodyGameTests implements FabricGameTest {
     }
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void bodyArmorNeverLowersArmorClass(GameTestHelper helper) {
+        BodyScenarios.bodyArmorNeverLowersArmorClass(helper);
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
     public void armorClassReachesCritfallRolls(GameTestHelper helper) {
         BodyScenarios.armorClassReachesCritfallRolls(helper);
     }

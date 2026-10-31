@@ -38,7 +38,7 @@ dependencies {
 
     // Critfall consumed as a published Modrinth artifact (the intermediary-mapped release jar);
     // modImplementation has Loom remap it to named for dev runs and load it as a mod.
-    modImplementation "maven.modrinth:critfall:${critfall_fabric_modrinth_id}"
+    modImplementation critfall('fabric')
 
     // Sodium in dev runs only, to check our world and HUD rendering under it. modLocalRuntime keeps
     // it out of the compile classpath, the jar and the published metadata; it is a client-only mod, so
