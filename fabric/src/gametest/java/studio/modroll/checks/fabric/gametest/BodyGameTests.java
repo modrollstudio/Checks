@@ -102,4 +102,9 @@ public class BodyGameTests implements FabricGameTest {
     public void sheetShowsTheBody(GameTestHelper helper) {
         BodyScenarios.sheetShowsTheBody(helper);
     }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void classHitDieCountsForEveryLevel(GameTestHelper helper) {
+        BodyScenarios.classHitDieCountsForEveryLevel(helper);
+    }
 }

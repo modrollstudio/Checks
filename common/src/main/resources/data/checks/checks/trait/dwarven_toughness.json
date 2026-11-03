@@ -3,7 +3,7 @@
   "effects": [
     {
       "type": "extra_health",
-      "per_level": 0.5
+      "per_level": 1
     }
   ]
 }

@@ -34,7 +34,7 @@ in the lang file as `checks.trait.<namespace>.<path>` and `.desc`.
 | `vanilla_save_advantage` | `against`: [vanilla save](vanilla-saves.md) ids (`explosion`, `poison`, `knockback`, `fire`, `darkness`) | advantage on those saves |
 | `roll_bonus` | `applies_to`, `bonus`, `mode`, as in a [bonus source](bonus-sources.md) | an always-on bonus source on checks and saves rolled through Checks; counted in passive scores and shown on the stat screen under the trait's name |
 | `damage_resistance` | `damage_types`: damage type ids or `#tags`; `multiplier` (default `0.5`) | matching damage is multiplied; with several matching resistances, the lowest multiplier applies |
-| `extra_health` | `per_level` | max health + `per_level` × character level, rounded down |
+| `extra_health` | `per_level` | max health + `per_level` × character level × `health.per_level.multiplier` (default `0.2`), rounded down |
 | `darkvision` | — | darkness looks like dim light, at `traits.darkvision.strength` (see below) |
 | `reroll` | `on`: `natural_1` or `failure`; `daily` (default `false`) | the d20 of a check or save rolled through Checks is rolled again through Critfall and the new roll stands; `daily` allows it once per recharge |
 | `last_stand` | — | once per recharge, damage that would kill leaves the player at 1 HP; the void and `/kill` still kill. It comes before a Totem of Undying, which is only used while the last stand is recharging or off |
@@ -60,7 +60,8 @@ Notes:
   to any skill opens all of them. The picks sit in their own group on the skills page, never repeat a
   background or class skill, and are validated by the server.
 - **Once a day** means `traits.recharge_ticks` (default 24000, one Minecraft day) of game time after the
-  last use. Uses are kept per player in the world save (`checks_trait_uses`).
+  last use, or a long rest, whichever comes first (`rest.long_rest.recharges_traits`, see
+  [rests.md](rests.md#long-rest)). Uses are kept per player in the world save (`checks_trait_uses`).
 
 ## The shipped traits
 
@@ -70,7 +71,7 @@ Notes:
 | Dragonborn | Damage Resistance | fire and lava damage halved |
 | Dragonborn | Draconic Flight | fall damage halved |
 | Dwarf | Dwarven Resilience | advantage on the CON save against poison, wither and hunger, and on saves against poison hazards |
-| Dwarf | Dwarven Toughness | +0.5 max health per level |
+| Dwarf | Dwarven Toughness | +1 max health per level, scaled like hit points per level: +1 every five levels by default |
 | Elf | Fey Ancestry | advantage on the WIS save against darkness |
 | Elf | Keen Senses | one skill pick from Insight, Perception or Survival |
 | Elf | Trance | phantoms ignore you |

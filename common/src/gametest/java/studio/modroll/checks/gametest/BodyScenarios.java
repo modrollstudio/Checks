@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.Set;
 import java.util.function.Supplier;
 import net.minecraft.core.Holder;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -51,14 +52,18 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 import studio.modroll.checks.Checks;
+import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.body.BodyValues;
 import studio.modroll.checks.body.Extra;
 import studio.modroll.checks.body.PlayerBodies;
 import studio.modroll.checks.body.Size;
+import studio.modroll.checks.creation.CharacterBuild;
 import studio.modroll.checks.creation.CharacterCreation;
+import studio.modroll.checks.creation.CharacterStore;
 import studio.modroll.checks.creation.CreationMethod;
 import studio.modroll.checks.creation.CreationSubmission;
 import studio.modroll.checks.creation.PresetChoices;
+import studio.modroll.checks.creation.PresetGrants;
 import studio.modroll.checks.creation.Rejection;
 import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.level.LevelStore;
@@ -161,33 +166,101 @@ public final class BodyScenarios {
         helper.succeed();
     }
 
-    /** Two levels gained with a d10 are worth 6 each, times 0.5: +6 HP at level 3, +3 back at level 2. */
+    /**
+     * Each level after the first adds a d10's 6 plus the CON modifier, times 0.5, with no class (the custom hit die,
+     * here a d10): +6 HP at level 3 with CON 10, and with CON 14 +8 at level 3 on top of CON's own +4. Max health is
+     * rounded down to whole hearts: level 2's +3 gives 22, or 23 with whole hearts off, and a CON of 1 (-5) with the
+     * minimum of 1 per level gives -9, so 10. With per level health off, levels add nothing.
+     */
     public static void levelsAddHitDieHealthWhileOn(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("body-lv"));
-        ScoresConfig.BodySettings perLevel = health(new ScoresConfig.HealthSettings(true, 2.0, true, 0.5));
+        ScoresConfig.BodySettings perLevel =
+                health(new ScoresConfig.HealthSettings(true, 2.0, true, 0.5, true, 1, 10, true));
         try {
             withBody(
                     perLevel,
                     () -> unprofiled(() -> {
                         LevelStore levels = LevelStore.get(player.server);
-                        Map<Integer, Integer> hitDice = Map.of(2, 10, 3, 10);
-                        levels.set(player.getUUID(), new PlayerLevel(3, 90, List.of(), hitDice));
+                        levels.set(player.getUUID(), new PlayerLevel(3, 90, List.of(), List.of(), 0));
                         expectHealth(helper, player, 26f, "max health at level 3");
                         player.setHealth(26f);
 
-                        levels.set(player.getUUID(), new PlayerLevel(2, 30, List.of(), hitDice));
-                        expectHealth(helper, player, 23f, "max health at level 2");
-                        expect(helper, player.getHealth() <= 23f, "health must stay within the new max");
+                        levels.set(player.getUUID(), new PlayerLevel(2, 30, List.of(), List.of(), 0));
+                        expectHealth(helper, player, 22f, "max health at level 2, in whole hearts");
+                        expect(helper, player.getHealth() <= 22f, "health must stay within the new max");
+
+                        levels.set(player.getUUID(), new PlayerLevel(3, 90, List.of(), List.of(), 0));
+                        set(helper, player, "con", 14);
+                        expectHealth(helper, player, 32f, "max health at level 3 with CON 14");
+                        set(helper, player, "con", 1);
+                        expectHealth(helper, player, 10f, "max health at level 3 with CON 1 (-10, +1 per level)");
+                        set(helper, player, "con", 10);
                         return null;
                     }));
+            withBody(
+                    health(new ScoresConfig.HealthSettings(true, 2.0, true, 0.5, true, 1, 10, false)),
+                    () -> unprofiled(() -> {
+                        LevelStore.get(player.server)
+                                .set(player.getUUID(), new PlayerLevel(2, 30, List.of(), List.of(), 0));
+                        expectHealth(helper, player, 23f, "max health at level 2 with whole hearts off");
+                        return null;
+                    }));
+            withBody(
+                    health(new ScoresConfig.HealthSettings(true, 2.0, false, 0.5, true, 1, 10, true)),
+                    () -> unprofiled(() -> {
+                        expectHealth(helper, player, BASE_HEALTH, "max health with per level health off");
+                        return null;
+                    }));
+        } finally {
+            logout(helper, player);
+        }
+        helper.succeed();
+    }
+
+    /**
+     * The class's hit die counts for every level after the first, whenever it was gained: a Fighter at level 5 with
+     * CON 10 has 4 levels of a d10's 6, times the shipped 0.2, so +4 HP; with a Custom class the shipped d8 gives
+     * 4 × 5 × 0.2 = +4 too. A Barbarian's d12 gives 4 × 7 × 0.2 = 5.6 and a Wizard's d6 4 × 4 × 0.2 = 3.2, each
+     * rounded down to whole hearts: +4 and +2.
+     */
+    public static void classHitDieCountsForEveryLevel(GameTestHelper helper) {
+        ServerPlayer player = login(helper, newProfile("body-lv-class"));
+        try {
             body(() -> unprofiled(() -> {
-                expectHealth(helper, player, BASE_HEALTH, "max health with per-level health off (the default)");
+                LevelStore.get(player.server).set(player.getUUID(), new PlayerLevel(5, 650, List.of(), List.of(), 0));
+                expectHealth(helper, player, 24f, "max health at level 5 with no class (d8)");
+                CharacterStore.get(player.server)
+                        .update(player.getUUID(), character -> character.withBuild(classBuild("checks:fighter")));
+                expectHealth(helper, player, 24f, "max health at level 5 as a Fighter (d10)");
+                CharacterStore.get(player.server)
+                        .update(player.getUUID(), character -> character.withBuild(classBuild("checks:barbarian")));
+                expectHealth(helper, player, 24f, "max health at level 5 as a Barbarian (d12)");
+                CharacterStore.get(player.server)
+                        .update(player.getUUID(), character -> character.withBuild(classBuild("checks:wizard")));
+                expectHealth(helper, player, 22f, "max health at level 5 as a Wizard (d6)");
                 return null;
             }));
         } finally {
             logout(helper, player);
         }
         helper.succeed();
+    }
+
+    private static CharacterBuild classBuild(String classId) {
+        Map<Ability, Integer> scores = new EnumMap<>(Ability.class);
+        for (Ability ability : Ability.values()) {
+            scores.put(ability, 10);
+        }
+        return new CharacterBuild(
+                CreationMethod.STANDARD_ARRAY,
+                scores,
+                Set.of(),
+                new PresetChoices(
+                        Optional.empty(),
+                        Optional.empty(),
+                        Optional.of(ResourceLocation.parse(classId)),
+                        Optional.empty()),
+                PresetGrants.NONE);
     }
 
     /**
@@ -627,7 +700,7 @@ public final class BodyScenarios {
                 set(helper, player, "dex", 18);
                 return null;
             });
-            withBody(health(new ScoresConfig.HealthSettings(false, 2.0, false, 0.2)), () -> {
+            withBody(health(new ScoresConfig.HealthSettings(false, 2.0, false, 0.2, true, 1, 8, true)), () -> {
                 expectHealth(helper, player, BASE_HEALTH, "max health with health off");
                 expect(
                         helper,
@@ -715,7 +788,7 @@ public final class BodyScenarios {
                     new ScoresConfig.ExtraSetting(false, DEFAULTS.extra(extra).perPoint()));
         }
         return new ScoresConfig.BodySettings(
-                new ScoresConfig.HealthSettings(false, 2.0, false, 0.2),
+                new ScoresConfig.HealthSettings(false, 2.0, false, 0.2, true, 1, 8, true),
                 new ScoresConfig.ArmorClassSettings(false, 2),
                 false,
                 extras);

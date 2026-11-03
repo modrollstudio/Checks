@@ -1,6 +1,8 @@
 package studio.modroll.checks.data;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,9 +40,10 @@ public record ScoresConfig(
         SocialSettings social,
         RollMessageSettings rollMessages,
         DeathMessageSettings deathMessages,
-        ExplorationSettings exploration) {
+        ExplorationSettings exploration,
+        RestSettings rest) {
 
-    public static final int FORMAT_VERSION = 1;
+    public static final int FORMAT_VERSION = 2;
 
     public record Derivation(
             boolean enabled,
@@ -99,7 +102,8 @@ public record ScoresConfig(
             List<Integer> xpThresholds,
             List<Integer> proficiencyBonuses,
             XpSources xpSources,
-            ImprovementSettings improvements) {
+            ImprovementSettings improvements,
+            ExpertiseSettings expertise) {
 
         public LevellingSettings {
             xpThresholds = List.copyOf(xpThresholds);
@@ -112,15 +116,52 @@ public record ScoresConfig(
             boolean vanillaXpEnabled, int xpPerPoint, boolean advancementsEnabled, int xpPerAdvancement) {}
 
     /**
-     * Ability score improvements: one is earned at each of {@code levels}; {@code options} are the
-     * allowed splits (e.g. +2 or +1/+1), and no improvement may raise a score above {@code maxScore}.
+     * Ability score improvements: one is earned at each of {@code levels}, and one more at each of the
+     * character's class's {@code classLevels}; {@code options} are the allowed splits (e.g. +2 or +1/+1), and
+     * no improvement may raise a score above {@code maxScore}.
      */
-    public record ImprovementSettings(List<Integer> levels, List<List<Integer>> options, int maxScore) {
+    public record ImprovementSettings(
+            List<Integer> levels,
+            Map<ResourceLocation, List<Integer>> classLevels,
+            List<List<Integer>> options,
+            int maxScore) {
 
         public ImprovementSettings {
             levels = List.copyOf(levels);
+            classLevels = copyOfLists(classLevels);
             options = options.stream().map(List::copyOf).toList();
         }
+
+        /** The shared levels, then the class's own, which may repeat a level for a second improvement there. */
+        public List<Integer> levelsFor(Optional<ResourceLocation> classId) {
+            List<Integer> all = new ArrayList<>(levels);
+            classId.map(id -> classLevels.getOrDefault(id, List.of())).ifPresent(all::addAll);
+            return all;
+        }
+    }
+
+    /**
+     * Expertise: at each of a class's {@code classLevels} the character picks {@code skillsPerLevel} skills they are
+     * proficient in, and their proficiency bonus counts twice on them.
+     */
+    public record ExpertiseSettings(
+            boolean enabled, int skillsPerLevel, Map<ResourceLocation, List<Integer>> classLevels) {
+
+        public ExpertiseSettings {
+            classLevels = copyOfLists(classLevels);
+        }
+
+        public List<Integer> levelsFor(Optional<ResourceLocation> classId) {
+            return enabled
+                    ? classId.map(id -> classLevels.getOrDefault(id, List.of())).orElse(List.of())
+                    : List.of();
+        }
+    }
+
+    private static Map<ResourceLocation, List<Integer>> copyOfLists(Map<ResourceLocation, List<Integer>> lists) {
+        Map<ResourceLocation, List<Integer>> copy = new HashMap<>();
+        lists.forEach((id, levels) -> copy.put(id, List.copyOf(levels)));
+        return Map.copyOf(copy);
     }
 
     /**
@@ -154,11 +195,22 @@ public record ScoresConfig(
     }
 
     /**
-     * Max health from the CON modifier, {@code perConPoint} hit points per point, and optionally from
-     * the hit dice recorded at each level gained, scaled by {@code perLevelMultiplier}.
+     * Max health from the CON modifier, {@code perConPoint} hit points per point, and while {@code perLevelEnabled}
+     * from each level after the first: the class's hit die's fixed value ({@code sides / 2 + 1}), plus the CON
+     * modifier when {@code conPerLevel}, at least {@code minPerLevel}, times {@code perLevelMultiplier}. A Custom
+     * class, or none, uses a {@code customHitDie}. Traits that add health per level are scaled by the multiplier too.
+     * With {@code wholeHearts}, all the max health Checks adds is rounded down to an even number, so the last heart is
+     * never half empty.
      */
     public record HealthSettings(
-            boolean enabled, double perConPoint, boolean perLevelEnabled, double perLevelMultiplier) {}
+            boolean enabled,
+            double perConPoint,
+            boolean perLevelEnabled,
+            double perLevelMultiplier,
+            boolean conPerLevel,
+            int minPerLevel,
+            int customHitDie,
+            boolean wholeHearts) {}
 
     /** DEX added to AC, capped at {@code mediumMaxDex} in medium armor. */
     public record ArmorClassSettings(boolean enabled, int mediumMaxDex) {}
@@ -502,6 +554,30 @@ public record ScoresConfig(
      */
     public record ReductionSettings(boolean enabled, double perPoint, double maxReduction) {}
 
+    /** Hit Dice and the rests that spend and regain them. */
+    public record RestSettings(HitDiceSettings hitDice, ShortRestSettings shortRest, LongRestSettings longRest) {}
+
+    /**
+     * A pool of Hit Dice, one per level, each the class's hit die. Spending one heals what it rolls plus the CON
+     * modifier, at least {@code minHeal}, times {@code healMultiplier}.
+     */
+    public record HitDiceSettings(boolean enabled, double healMultiplier, int minHeal) {}
+
+    /**
+     * Using a lit campfire with an empty hand starts a short rest of {@code ticks}, within {@code campfireRadius}
+     * blocks of it, with no monster that stops sleep within {@code monsterRange} blocks across and
+     * {@code monsterHeight} up or down. Once it is done, Hit Dice are spent until full health or none are left.
+     */
+    public record ShortRestSettings(
+            boolean enabled, int ticks, double campfireRadius, double monsterRange, double monsterHeight) {}
+
+    /**
+     * Sleeping through the night: {@code regainFraction} of the player's Hit Dice come back, rounded down, at least
+     * {@code minRegain}; {@code healToFull} heals them, and {@code rechargesTraits} readies their once-a-day traits.
+     */
+    public record LongRestSettings(
+            boolean enabled, double regainFraction, int minRegain, boolean healToFull, boolean rechargesTraits) {}
+
     public int playerDefault(Ability ability) {
         return playerDefaults.get(ability);
     }
@@ -540,10 +616,19 @@ public record ScoresConfig(
                             22500, 26500, 30500, 35500),
                     List.of(2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6),
                     new XpSources(true, 1, true, 25),
-                    new ImprovementSettings(List.of(4, 8, 12, 16, 19), List.of(List.of(2), List.of(1, 1)), 20)),
+                    new ImprovementSettings(
+                            List.of(4, 8, 12, 16, 19),
+                            Map.of(Checks.id("fighter"), List.of(6, 14), Checks.id("rogue"), List.of(10)),
+                            List.of(List.of(2), List.of(1, 1)),
+                            20),
+                    new ExpertiseSettings(
+                            true, 2, Map.of(Checks.id("rogue"), List.of(1, 6), Checks.id("bard"), List.of(3, 10)))),
             new ExtensionSettings(true, new BonusSourceSettings(true, 5), true, true, true),
             new BodySettings(
-                    new HealthSettings(true, 2.0, false, 0.2), new ArmorClassSettings(true, 2), true, defaultExtras()),
+                    new HealthSettings(true, 2.0, true, 0.2, true, 1, 8, true),
+                    new ArmorClassSettings(true, 2),
+                    true,
+                    defaultExtras()),
             new SaveSettings(false, 20, 0.7, defaultSaves()),
             new TraitSettings(true, 24000, 0.4, allTraitEffects()),
             new SocialSettings(
@@ -603,7 +688,11 @@ public record ScoresConfig(
                     new StructureLoreSettings(true, 12, 6000, 20),
                     new TamingSettings(true, 12),
                     new ReductionSettings(true, 0.05, 0.25),
-                    new ReductionSettings(true, 0.05, 0.25)));
+                    new ReductionSettings(true, 0.05, 0.25)),
+            new RestSettings(
+                    new HitDiceSettings(true, 1.0, 1),
+                    new ShortRestSettings(true, 1000, 3, 8, 5),
+                    new LongRestSettings(true, 1.0, 1, true, true)));
 
     private static Deal defaultDeal() {
         return new Deal(

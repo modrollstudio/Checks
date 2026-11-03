@@ -155,22 +155,32 @@ public final class TraitScenarios {
         helper.succeed();
     }
 
-    /** Dwarven Toughness: half a hit point per level, rounded down, so +2 at level 4. */
+    /**
+     * Dwarven Toughness: one hit point per level, scaled by the per level multiplier (0.2) and rounded down, so +2 at
+     * level 10 and nothing yet at level 4.
+     */
     public static void extraHealthFollowsTheLevel(GameTestHelper helper) {
         ServerPlayer dwarf = character(helper, "trait-tough", "dwarf");
         try {
-            LevelStore.get(dwarf.server).set(dwarf.getUUID(), new PlayerLevel(4, 270, List.of(), Map.of()));
-            PlayerBodies.sync(dwarf);
-            expectClose(helper, FULL_HEALTH + 2, dwarf.getMaxHealth(), "a level 4 dwarf's max health");
-            withTraits(without(TraitEffectType.EXTRA_HEALTH), () -> {
-                PlayerBodies.sync(dwarf);
-                expectClose(helper, FULL_HEALTH, dwarf.getMaxHealth(), "max health with extra health off");
-                return null;
-            });
+            expectToughness(helper, dwarf, new PlayerLevel(10, 6400, List.of(), List.of(), 0), 2);
+            expectToughness(helper, dwarf, new PlayerLevel(4, 270, List.of(), List.of(), 0), 0);
         } finally {
             logout(helper, dwarf);
         }
         helper.succeed();
+    }
+
+    /** What the trait adds at {@code level}: the max health with extra health on, less that with it off. */
+    private static void expectToughness(GameTestHelper helper, ServerPlayer dwarf, PlayerLevel level, float extra) {
+        LevelStore.get(dwarf.server).set(dwarf.getUUID(), level);
+        PlayerBodies.sync(dwarf);
+        float with = dwarf.getMaxHealth();
+        float without = withTraits(without(TraitEffectType.EXTRA_HEALTH), () -> {
+            PlayerBodies.sync(dwarf);
+            return dwarf.getMaxHealth();
+        });
+        PlayerBodies.sync(dwarf);
+        expectClose(helper, extra, with - without, "Dwarven Toughness at level " + level.level());
     }
 
     /** The server sends an elf the configured strength and a human none; strength 0 turns it off. */

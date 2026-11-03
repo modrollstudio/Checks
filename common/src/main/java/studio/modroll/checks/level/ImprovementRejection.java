@@ -5,12 +5,18 @@ import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.data.ScoresConfig.ImprovementSettings;
 import studio.modroll.checks.sheet.SheetText;
 
-/** Why the server refused an ability score improvement; each has a lang line under {@code checks.level.rejected}. */
+/**
+ * Why the server refused an ability score improvement or an Expertise choice; each has a lang line under
+ * {@code checks.level.rejected}.
+ */
 public enum ImprovementRejection {
     LEVELLING_DISABLED("levelling_disabled"),
     NONE_PENDING("none_pending"),
     WRONG_SPLIT("wrong_split"),
-    OVER_MAX("over_max");
+    OVER_MAX("over_max"),
+    NO_EXPERTISE_PENDING("no_expertise_pending"),
+    WRONG_EXPERTISE("wrong_expertise"),
+    NOT_PROFICIENT("not_proficient");
 
     private final String id;
 

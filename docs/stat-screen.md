@@ -26,9 +26,9 @@ window allows, everything under the header scrolls with the mouse wheel: the Ove
 time, so a tall section from another mod never runs off-screen, and the skills a row at a time.
 
 Until your character is confirmed, a **Create Character** button at the bottom reopens character
-creation (see [character-creation.md](character-creation.md)). While an ability score improvement
-waits, a **Level up!** button opens the screen to choose it (see
-[levelling.md](levelling.md#ability-score-improvements)).
+creation (see [character-creation.md](character-creation.md)). While levelling is on, a **Levels**
+button opens the panel listing what each level gave; it reads **Level up!** while an ability score
+improvement or Expertise waits to be chosen there (see [levelling.md](levelling.md#the-level-up-panel)).
 
 A dot before each save and skill shows proficiency: hollow for none, one filled for proficient, two
 filled for expertise. Hovering a dot or the Saving Throws heading shows this legend.
@@ -48,7 +48,12 @@ Hovering shows a short explanation in a tooltip:
   a line names each source granting advantage or disadvantage (`Advantage from Elven Boots.`), and
   having both says they cancel out. The save and skill modifiers shown include the flat bonuses, as
   a roll would. See [bonus-sources.md](bonus-sources.md#stat-screen).
-- **Hit points:** what CON adds (`CON +3: +6 max health`) and, when on, what levels add.
+- **Hit points:** your max health; what CON adds (`CON +3: +6 max health`) and what the levels after
+  the first add with your class's hit die (`Levels after the first (d10 Hit Die): +4 max health`).
+- **Hit Dice:** `3/5 d8`, the dice left of your pool. The tooltip is short: `Hit Dice: 3/5 (d8)`,
+  `Rest at a lit campfire to heal with them.` and what sleeping does, by the server's settings, such as
+  `Sleep to heal fully and get your Hit Dice back.` The details are in
+  [rests.md](rests.md).
 - **Armor class:** where Critfall's AC comes from, as Critfall breaks it down: the base 10 and what
   the armor and toughness points add (`Armor 13: +3`), then the DEX part and the body armor rule that
   limits it, e.g. `DEX +2 (medium body armor, max +2)`. When the body armor's cap would lower AC, a

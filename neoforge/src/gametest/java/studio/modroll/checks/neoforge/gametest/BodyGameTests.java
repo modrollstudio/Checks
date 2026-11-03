@@ -108,4 +108,9 @@ public class BodyGameTests {
     public void sheetShowsTheBody(GameTestHelper helper) {
         BodyScenarios.sheetShowsTheBody(helper);
     }
+
+    @GameTest(template = TEMPLATE)
+    public void classHitDieCountsForEveryLevel(GameTestHelper helper) {
+        BodyScenarios.classHitDieCountsForEveryLevel(helper);
+    }
 }

@@ -64,6 +64,23 @@ ChecksApi.onLevelUp(event -> {
 
 See [levelling.md](levelling.md).
 
+## Rests
+
+| Method | Value |
+| --- | --- |
+| `hitDiceLeft(player)` | the Hit Dice the player can still spend; `0` while Hit Dice are off |
+| `addRestBlocker(predicate)` | registers a `Predicate<ServerPlayer>`; while it answers true the player can't rest |
+
+A blocker is asked on the server thread when a player starts a short rest and every tick while they
+rest. While it answers true, no rest starts and a rest under way breaks before any Hit Die is spent. It
+is meant for Initiative's encounters. Register once, while your mod starts.
+
+```java
+ChecksApi.addRestBlocker(player -> Encounters.isFighting(player));
+```
+
+See [rests.md](rests.md).
+
 ## Rolling
 
 Every roll method has an overload taking Critfall's `RollMode` (`NORMAL`, `ADVANTAGE`,

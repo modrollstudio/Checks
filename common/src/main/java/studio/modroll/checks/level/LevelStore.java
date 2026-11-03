@@ -5,11 +5,14 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
 import studio.modroll.checks.Checks;
@@ -18,7 +21,7 @@ import studio.modroll.checks.api.Ability;
 
 /**
  * Per-player levels in their own world-level {@link SavedData}; without a file, every player starts at
- * level 1. A level outside 1..20 is clamped.
+ * level 1. A level outside 1..20 is clamped. The per-level hit dice older versions recorded are not read.
  */
 public final class LevelStore extends SavedData {
 
@@ -26,7 +29,8 @@ public final class LevelStore extends SavedData {
     private static final String LEVEL_KEY = "level";
     private static final String XP_KEY = "xp";
     private static final String IMPROVEMENTS_KEY = "improvements";
-    private static final String HIT_DICE_KEY = "hit_dice";
+    private static final String EXPERTISE_KEY = "expertise";
+    private static final String HIT_DICE_SPENT_KEY = "hit_dice_spent";
 
     private final Map<UUID, PlayerLevel> levels = new HashMap<>();
 
@@ -62,13 +66,14 @@ public final class LevelStore extends SavedData {
     private static CompoundTag levelTag(PlayerLevel level) {
         ListTag improvements = new ListTag();
         level.improvements().forEach(improvement -> improvements.add(improvementTag(improvement)));
-        CompoundTag hitDice = new CompoundTag();
-        level.hitDice().forEach((atLevel, sides) -> hitDice.putInt(Integer.toString(atLevel), sides));
+        ListTag expertise = new ListTag();
+        level.expertise().forEach(skill -> expertise.add(StringTag.valueOf(skill.toString())));
         CompoundTag tag = new CompoundTag();
         tag.putInt(LEVEL_KEY, level.level());
         tag.putInt(XP_KEY, level.xp());
         tag.put(IMPROVEMENTS_KEY, improvements);
-        tag.put(HIT_DICE_KEY, hitDice);
+        tag.put(EXPERTISE_KEY, expertise);
+        tag.putInt(HIT_DICE_SPENT_KEY, level.hitDiceSpent());
         return tag;
     }
 
@@ -84,8 +89,19 @@ public final class LevelStore extends SavedData {
         for (Tag improvement : tag.getList(IMPROVEMENTS_KEY, Tag.TAG_COMPOUND)) {
             improvements.add(parseImprovement((CompoundTag) improvement));
         }
+        List<ResourceLocation> expertise = new ArrayList<>();
+        for (Tag skill : tag.getList(EXPERTISE_KEY, Tag.TAG_STRING)) {
+            Optional.ofNullable(ResourceLocation.tryParse(skill.getAsString()))
+                    .ifPresentOrElse(
+                            expertise::add,
+                            () -> Checks.LOG.warn("Skipping expertise in invalid skill '{}'", skill.getAsString()));
+        }
         return new PlayerLevel(
-                level, Math.max(0, tag.getInt(XP_KEY)), improvements, parseHitDice(tag.getCompound(HIT_DICE_KEY)));
+                level,
+                Math.max(0, tag.getInt(XP_KEY)),
+                improvements,
+                expertise,
+                Math.clamp(tag.getInt(HIT_DICE_SPENT_KEY), 0, level));
     }
 
     private static Map<Ability, Integer> parseImprovement(CompoundTag tag) {
@@ -96,17 +112,5 @@ public final class LevelStore extends SavedData {
             }
         }
         return improvement;
-    }
-
-    private static Map<Integer, Integer> parseHitDice(CompoundTag tag) {
-        Map<Integer, Integer> hitDice = new HashMap<>();
-        for (String key : tag.getAllKeys()) {
-            try {
-                hitDice.put(Integer.parseInt(key), tag.getInt(key));
-            } catch (NumberFormatException e) {
-                Checks.LOG.warn("Skipping hit die under invalid level '{}'", key);
-            }
-        }
-        return hitDice;
     }
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 import studio.modroll.checks.api.Ability;
 
@@ -19,13 +20,31 @@ class LevelStoreTest {
                 8,
                 3500,
                 List.of(Map.of(Ability.STRENGTH, 2), Map.of(Ability.DEXTERITY, 1, Ability.WISDOM, 1)),
-                Map.of(2, 10, 3, 10, 4, 8));
+                List.of(ResourceLocation.parse("checks:stealth"), ResourceLocation.parse("checks:perception")),
+                3);
         LevelStore store = new LevelStore();
         store.set(PLAYER, level);
 
         LevelStore loaded = LevelStore.load(store.save(new CompoundTag(), null), null);
 
         assertEquals(level, loaded.level(PLAYER));
+    }
+
+    @Test
+    void theHitDiceOlderVersionsRecordedAreIgnored() {
+        CompoundTag hitDice = new CompoundTag();
+        hitDice.putInt("2", 10);
+        CompoundTag entry = new CompoundTag();
+        entry.putInt("level", 2);
+        entry.put("hit_dice", hitDice);
+        CompoundTag players = new CompoundTag();
+        players.put(PLAYER.toString(), entry);
+        CompoundTag tag = new CompoundTag();
+        tag.put("players", players);
+
+        assertEquals(
+                PlayerLevel.START.withLevelAndXp(2, 0),
+                LevelStore.load(tag, null).level(PLAYER));
     }
 
     @Test

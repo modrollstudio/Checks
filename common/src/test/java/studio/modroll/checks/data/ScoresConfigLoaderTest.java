@@ -276,7 +276,12 @@ class ScoresConfigLoaderTest {
         assertFalse(levelling.enabled());
         assertEquals(new ScoresConfig.XpSources(false, 3, true, 100), levelling.xpSources());
         assertEquals(
-                new ScoresConfig.ImprovementSettings(List.of(3, 6), List.of(List.of(1)), 18), levelling.improvements());
+                new ScoresConfig.ImprovementSettings(
+                        List.of(3, 6),
+                        ScoresConfig.DEFAULTS.levelling().improvements().classLevels(),
+                        List.of(List.of(1)),
+                        18),
+                levelling.improvements());
         assertEquals(ScoresConfig.DEFAULTS.levelling().xpThresholds(), levelling.xpThresholds());
         assertEquals(List.of(), warnings);
     }
@@ -334,6 +339,63 @@ class ScoresConfigLoaderTest {
     }
 
     @Test
+    void readsClassImprovementLevelsAndExpertise() {
+        ScoresConfig.LevellingSettings levelling = parse("{\"levelling\": {"
+                        + " \"ability_improvements\": {\"class_levels\": {\"mypack:knight\": [5, 21], \"Not An Id\": [3]}},"
+                        + " \"expertise\": {\"enabled\": false, \"skills_per_level\": 1,"
+                        + " \"class_levels\": {\"checks:rogue\": [2]}}}}")
+                .levelling();
+
+        assertEquals(
+                Map.of(ResourceLocation.parse("mypack:knight"), List.of(5)),
+                levelling.improvements().classLevels());
+        assertEquals(
+                List.of(4, 8, 12, 16, 19, 5),
+                levelling.improvements().levelsFor(Optional.of(ResourceLocation.parse("mypack:knight"))));
+        assertEquals(
+                new ScoresConfig.ExpertiseSettings(
+                        false, 1, Map.of(ResourceLocation.parse("checks:rogue"), List.of(2))),
+                levelling.expertise());
+        assertEquals(List.of(), levelling.expertise().levelsFor(Optional.of(ResourceLocation.parse("checks:rogue"))));
+        assertEquals(2, warnings.size());
+    }
+
+    @Test
+    void readsTheHealthPerLevelSettings() {
+        ScoresConfig.HealthSettings health = parse(
+                        "{\"health\": {\"whole_hearts\": false, \"per_level\": {\"enabled\": false,"
+                                + " \"multiplier\": 0.1, \"con_per_level\": false, \"min_per_level\": 0, \"custom_hit_die\": 0}}}")
+                .body()
+                .health();
+
+        assertEquals(new ScoresConfig.HealthSettings(true, 2.0, false, 0.1, false, 0, 8, false), health);
+        assertEquals(1, warnings.size());
+    }
+
+    @Test
+    void readsTheRestSettings() {
+        ScoresConfig.RestSettings rest = parse("{\"rest\": {"
+                        + " \"hit_dice\": {\"enabled\": false, \"heal_multiplier\": 0.5, \"min_heal\": 0},"
+                        + " \"short_rest\": {\"enabled\": false, \"ticks\": 0, \"campfire_radius\": 4,"
+                        + " \"monster_range\": -1, \"monster_height\": 3},"
+                        + " \"long_rest\": {\"enabled\": false, \"regain_fraction\": 2, \"min_regain\": 2,"
+                        + " \"heal_to_full\": true, \"recharges_traits\": false}}}")
+                .rest();
+
+        assertEquals(new ScoresConfig.HitDiceSettings(false, 0.5, 0), rest.hitDice());
+        assertEquals(new ScoresConfig.ShortRestSettings(false, 1000, 4, 8, 3), rest.shortRest());
+        assertEquals(new ScoresConfig.LongRestSettings(false, 1.0, 2, true, false), rest.longRest());
+        assertEquals(3, warnings.size());
+    }
+
+    @Test
+    void preRestConfigLoadsWithTheRestDefaults() {
+        assertEquals(
+                ScoresConfig.DEFAULTS.rest(), parse("{\"format_version\": 1}").rest());
+        assertEquals(List.of(), warnings);
+    }
+
+    @Test
     void readsTheBodySettings() {
         ScoresConfig.BodySettings body = parse("{\"health\": {\"enabled\": false, \"per_con_point\": 1.5,"
                         + " \"per_level\": {\"enabled\": true, \"multiplier\": 0.5}},"
@@ -342,7 +404,7 @@ class ScoresConfigLoaderTest {
                         + " \"attribute_extras\": {\"breath\": {\"enabled\": false, \"per_point\": 0.5}}}")
                 .body();
 
-        assertEquals(new ScoresConfig.HealthSettings(false, 1.5, true, 0.5), body.health());
+        assertEquals(new ScoresConfig.HealthSettings(false, 1.5, true, 0.5, true, 1, 8, true), body.health());
         assertEquals(new ScoresConfig.ArmorClassSettings(false, 3), body.armorClass());
         assertFalse(body.sizeEnabled());
         assertEquals(new ScoresConfig.ExtraSetting(false, 0.5), body.extra(Extra.BREATH));

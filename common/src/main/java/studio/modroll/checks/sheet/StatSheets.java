@@ -1,6 +1,7 @@
 package studio.modroll.checks.sheet;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -11,6 +12,7 @@ import studio.modroll.checks.Checks;
 import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.api.CheckKind;
 import studio.modroll.checks.api.ChecksApi;
+import studio.modroll.checks.api.Proficiency;
 import studio.modroll.checks.api.Skill;
 import studio.modroll.checks.body.BodyValues;
 import studio.modroll.checks.body.Extra;
@@ -21,11 +23,14 @@ import studio.modroll.checks.creation.CharacterCreation;
 import studio.modroll.checks.critfall.ChecksModifierProvider;
 import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.data.SkillStore;
+import studio.modroll.checks.level.LevelGain;
 import studio.modroll.checks.level.LevelRules;
 import studio.modroll.checks.level.Levelling;
+import studio.modroll.checks.level.Levels;
 import studio.modroll.checks.level.PlayerLevel;
 import studio.modroll.checks.preset.Presets;
 import studio.modroll.checks.preset.Species;
+import studio.modroll.checks.rest.Rests;
 import studio.modroll.checks.score.ScoresRuntime;
 import studio.modroll.critfall.api.ArmorClassBreakdown;
 import studio.modroll.critfall.api.RollService;
@@ -76,9 +81,15 @@ public final class StatSheets {
         return new StatSheet.Body(
                 BodyValues.health(player)
                         .map(health -> new StatSheet.HealthLine(
-                                player.getMaxHealth(), health.conModifier(), health.conHealth(), health.levelHealth())),
+                                player.getMaxHealth(),
+                                health.conModifier(),
+                                health.conHealth(),
+                                health.hitDie(),
+                                health.levelHealth(),
+                                BodyValues.maxHealthBonus(player) - health.total() - BodyValues.traitHealth(player))),
                 armor(player, settings.armorClass()),
                 BodyValues.size(player),
+                hitDice(player),
                 Arrays.stream(Extra.values())
                         .filter(extra -> settings.extra(extra).enabled())
                         .map(extra -> new StatSheet.ExtraLine(extra, BodyValues.extra(player, extra)))
@@ -116,21 +127,68 @@ public final class StatSheets {
                 breakdown.toughnessPart()));
     }
 
+    private static Optional<StatSheet.HitDiceLine> hitDice(ServerPlayer player) {
+        ScoresConfig.RestSettings rest = ScoresRuntime.config().rest();
+        if (!rest.hitDice().enabled()) {
+            return Optional.empty();
+        }
+        boolean longRests = rest.longRest().enabled();
+        return Optional.of(new StatSheet.HitDiceLine(
+                BodyValues.hitDie(player),
+                Rests.hitDiceLeft(player),
+                Levelling.activeLevel(player).level(),
+                longRests ? rest.longRest().regainFraction() : 0.0,
+                longRests && rest.longRest().healToFull()));
+    }
+
     private static Optional<StatSheet.LevelLine> level(ServerPlayer player) {
         ScoresConfig.LevellingSettings settings = ScoresRuntime.config().levelling();
         if (!settings.enabled()) {
             return Optional.empty();
         }
         PlayerLevel level = Levelling.activeLevel(player);
+        Optional<ResourceLocation> classId = Levelling.classId(player);
         return Optional.of(new StatSheet.LevelLine(
                 level.level(),
                 level.xp(),
                 LevelRules.threshold(level.level(), settings),
                 LevelRules.nextThreshold(level.level(), settings),
                 new StatSheet.Improvements(
-                        LevelRules.pendingImprovements(level, settings),
+                        LevelRules.pendingImprovements(level, classId, settings),
                         settings.improvements().options(),
-                        settings.improvements().maxScore())));
+                        settings.improvements().maxScore()),
+                expertise(player, level, classId, settings),
+                gains(player, level.level(), classId, settings)));
+    }
+
+    /** The skills the player is proficient in, without Expertise, while they have Expertise to choose. */
+    private static StatSheet.ExpertiseChoice expertise(
+            ServerPlayer player,
+            PlayerLevel level,
+            Optional<ResourceLocation> classId,
+            ScoresConfig.LevellingSettings settings) {
+        int pending = LevelRules.pendingExpertise(level, classId, settings);
+        if (pending <= 0) {
+            return StatSheet.ExpertiseChoice.NONE;
+        }
+        return new StatSheet.ExpertiseChoice(
+                pending,
+                SkillStore.skills().values().stream()
+                        .filter(skill -> ChecksApi.skillProficiency(player, skill) == Proficiency.PROFICIENT)
+                        .map(Skill::id)
+                        .sorted(Comparator.comparing(ResourceLocation::toString))
+                        .toList());
+    }
+
+    /** Level 1 is given the max health the later levels don't add, so the list adds up to the max health. */
+    private static List<LevelGain> gains(
+            ServerPlayer player,
+            int level,
+            Optional<ResourceLocation> classId,
+            ScoresConfig.LevellingSettings settings) {
+        double levelOne = player.getMaxHealth()
+                - (BodyValues.maxHealthBonus(player, level) - BodyValues.maxHealthBonus(player, Levels.MIN_LEVEL));
+        return LevelRules.gains(level, classId, settings, at -> BodyValues.maxHealthBonus(player, at), levelOne);
     }
 
     private static Optional<StatSheet.Identity> identity(ServerPlayer player) {

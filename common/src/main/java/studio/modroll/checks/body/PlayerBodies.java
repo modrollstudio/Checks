@@ -35,7 +35,6 @@ public final class PlayerBodies {
     public static final ResourceLocation KNOCKBACK = Checks.id("str_knockback");
     public static final ResourceLocation MINING_SPEED = Checks.id("str_mining_speed");
     public static final ResourceLocation BREATH = Checks.id("con_breath");
-    public static final ResourceLocation TRAIT_HEALTH = Checks.id("trait_health");
 
     private record Modifier(
             Holder<Attribute> attribute,
@@ -45,10 +44,10 @@ public final class PlayerBodies {
 
     private static final List<Modifier> MODIFIERS = List.of(
             new Modifier(
-                    Attributes.MAX_HEALTH, HEALTH, AttributeModifier.Operation.ADD_VALUE, player -> BodyValues.health(
-                                    player)
-                            .map(BodyValues.HealthBonus::total)
-                            .orElse(0.0)),
+                    Attributes.MAX_HEALTH,
+                    HEALTH,
+                    AttributeModifier.Operation.ADD_VALUE,
+                    player -> BodyValues.maxHealthBonus(player)),
             new Modifier(
                     Attributes.SCALE, SIZE, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, player -> BodyValues.size(
                                     player)
@@ -68,12 +67,7 @@ public final class PlayerBodies {
                     Attributes.OXYGEN_BONUS,
                     BREATH,
                     AttributeModifier.Operation.ADD_VALUE,
-                    player -> BodyValues.extra(player, Extra.BREATH)),
-            new Modifier(
-                    Attributes.MAX_HEALTH,
-                    TRAIT_HEALTH,
-                    AttributeModifier.Operation.ADD_VALUE,
-                    BodyValues::traitHealth));
+                    player -> BodyValues.extra(player, Extra.BREATH)));
 
     /** A trait attribute modifier on a player. */
     private record Applied(Holder<Attribute> attribute, ResourceLocation id) {}

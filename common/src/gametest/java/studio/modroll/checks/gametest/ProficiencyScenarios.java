@@ -307,7 +307,8 @@ public final class ProficiencyScenarios {
                     live.social(),
                     live.rollMessages(),
                     live.deathMessages(),
-                    live.exploration());
+                    live.exploration(),
+                    live.rest());
 
             withConfig(
                     proficiencyOff,

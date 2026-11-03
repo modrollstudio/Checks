@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.google.gson.JsonParser;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -45,7 +46,8 @@ class ScoreResolverTest {
             CONFIG.social(),
             CONFIG.rollMessages(),
             CONFIG.deathMessages(),
-            CONFIG.exploration());
+            CONFIG.exploration(),
+            CONFIG.rest());
 
     @Test
     void mobUsesProfileWhenPresent() {
@@ -112,7 +114,8 @@ class ScoreResolverTest {
                 CONFIG.social(),
                 CONFIG.rollMessages(),
                 CONFIG.deathMessages(),
-                CONFIG.exploration());
+                CONFIG.exploration(),
+                CONFIG.rest());
         assertEquals(
                 10,
                 ScoreResolver.resolveScore(
@@ -211,7 +214,8 @@ class ScoreResolverTest {
                 CONFIG.social(),
                 CONFIG.rollMessages(),
                 CONFIG.deathMessages(),
-                CONFIG.exploration());
+                CONFIG.exploration(),
+                CONFIG.rest());
         assertEquals(0, ScoreResolver.resolveSkillBonus(STEALTH, skillProfile(3), OptionalInt.of(5), noSkills));
     }
 
@@ -245,18 +249,24 @@ class ScoreResolverTest {
         assertEquals(
                 Proficiency.EXPERTISE,
                 ScoreResolver.resolveSkillProficiency(
-                        STEALTH, profiled, Optional.of(Proficiency.EXPERTISE), Optional.empty(), CONFIG));
+                        STEALTH,
+                        profiled,
+                        Optional.of(Proficiency.EXPERTISE),
+                        Optional.empty(),
+                        Optional.empty(),
+                        CONFIG));
         assertEquals(
                 Proficiency.NONE,
                 ScoreResolver.resolveSkillProficiency(
-                        STEALTH, profiled, Optional.of(Proficiency.NONE), Optional.empty(), CONFIG));
+                        STEALTH, profiled, Optional.of(Proficiency.NONE), Optional.empty(), Optional.empty(), CONFIG));
         assertEquals(
                 Proficiency.PROFICIENT,
-                ScoreResolver.resolveSkillProficiency(STEALTH, profiled, Optional.empty(), Optional.empty(), CONFIG));
+                ScoreResolver.resolveSkillProficiency(
+                        STEALTH, profiled, Optional.empty(), Optional.empty(), Optional.empty(), CONFIG));
         assertEquals(
                 Proficiency.NONE,
                 ScoreResolver.resolveSkillProficiency(
-                        STEALTH, Optional.empty(), Optional.empty(), Optional.empty(), CONFIG));
+                        STEALTH, Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), CONFIG));
     }
 
     @Test
@@ -285,7 +295,12 @@ class ScoreResolverTest {
         assertEquals(
                 Proficiency.NONE,
                 ScoreResolver.resolveSkillProficiency(
-                        STEALTH, profiled, Optional.of(Proficiency.EXPERTISE), Optional.empty(), off));
+                        STEALTH,
+                        profiled,
+                        Optional.of(Proficiency.EXPERTISE),
+                        Optional.empty(),
+                        Optional.empty(),
+                        off));
         assertEquals(
                 Proficiency.NONE,
                 ScoreResolver.resolveSaveProficiency(
@@ -343,6 +358,55 @@ class ScoreResolverTest {
         assertEquals(10, playerStrength(OptionalInt.empty(), Optional.empty(), improved, withLevelling(false)));
     }
 
+    @Test
+    void onlyTheImprovementsTheLevelAndClassEarnApply() {
+        Optional<PlayerLevel> twice = Optional.of(PlayerLevel.START
+                .withLevelAndXp(6, 0)
+                .withImprovement(Map.of(Ability.STRENGTH, 2))
+                .withImprovement(Map.of(Ability.STRENGTH, 2)));
+        Optional<CharacterBuild> fighter = Optional.of(ofClass(character(15, Set.of()), "checks:fighter"));
+        assertEquals(19, playerStrength(OptionalInt.empty(), fighter, twice, CONFIG));
+        assertEquals(17, playerStrength(OptionalInt.empty(), Optional.of(character(15, Set.of())), twice, CONFIG));
+        assertEquals(17, playerStrength(OptionalInt.empty(), fighter, twice, withPresets(false)));
+    }
+
+    @Test
+    void expertiseRaisesAProficientSkillTheClassEarnsItFor() {
+        Optional<PlayerLevel> chose = Optional.of(PlayerLevel.START.withExpertise(List.of(STEALTH.id())));
+        Optional<CharacterBuild> rogue = Optional.of(ofClass(character(10, Set.of(STEALTH.id())), "checks:rogue"));
+        assertEquals(Proficiency.EXPERTISE, skillProficiency(rogue, chose, CONFIG));
+        assertEquals(Proficiency.PROFICIENT, skillProficiency(rogue, Optional.empty(), CONFIG));
+        assertEquals(
+                Proficiency.PROFICIENT,
+                skillProficiency(Optional.of(character(10, Set.of(STEALTH.id()))), chose, CONFIG),
+                "a Custom class earns no Expertise");
+        assertEquals(
+                Proficiency.NONE,
+                skillProficiency(Optional.of(ofClass(character(10, Set.of()), "checks:rogue")), chose, CONFIG),
+                "Expertise needs proficiency");
+        assertEquals(Proficiency.PROFICIENT, skillProficiency(rogue, chose, withLevelling(false)));
+        assertEquals(Proficiency.PROFICIENT, skillProficiency(rogue, chose, withPresets(false)));
+    }
+
+    private static Proficiency skillProficiency(
+            Optional<CharacterBuild> character, Optional<PlayerLevel> level, ScoresConfig config) {
+        return ScoreResolver.resolveSkillProficiency(
+                STEALTH, Optional.empty(), Optional.empty(), character, level, config);
+    }
+
+    private static CharacterBuild ofClass(CharacterBuild build, String classId) {
+        return new CharacterBuild(
+                build.method(),
+                build.scores(),
+                build.skills(),
+                new PresetChoices(
+                        Optional.empty(),
+                        Optional.empty(),
+                        Optional.of(ResourceLocation.parse(classId)),
+                        Optional.empty()),
+                build.grants());
+    }
+
     private static int playerStrength(
             OptionalInt stored, Optional<CharacterBuild> character, Optional<PlayerLevel> level, ScoresConfig config) {
         return ScoreResolver.resolveScore(
@@ -365,7 +429,12 @@ class ScoreResolverTest {
                 true,
                 CONFIG.creation(),
                 new ScoresConfig.LevellingSettings(
-                        enabled, live.xpThresholds(), live.proficiencyBonuses(), live.xpSources(), live.improvements()),
+                        enabled,
+                        live.xpThresholds(),
+                        live.proficiencyBonuses(),
+                        live.xpSources(),
+                        live.improvements(),
+                        live.expertise()),
                 CONFIG.extensions(),
                 CONFIG.body(),
                 CONFIG.saves(),
@@ -373,7 +442,8 @@ class ScoreResolverTest {
                 CONFIG.social(),
                 CONFIG.rollMessages(),
                 CONFIG.deathMessages(),
-                CONFIG.exploration());
+                CONFIG.exploration(),
+                CONFIG.rest());
     }
 
     private static ScoresConfig withProficiency(boolean enabled, int defaultBonus) {
@@ -394,7 +464,8 @@ class ScoreResolverTest {
                 CONFIG.social(),
                 CONFIG.rollMessages(),
                 CONFIG.deathMessages(),
-                CONFIG.exploration());
+                CONFIG.exploration(),
+                CONFIG.rest());
     }
 
     @Test
@@ -441,7 +512,8 @@ class ScoreResolverTest {
                         off));
         assertEquals(
                 Proficiency.NONE,
-                ScoreResolver.resolveSkillProficiency(STEALTH, Optional.empty(), Optional.empty(), character, off));
+                ScoreResolver.resolveSkillProficiency(
+                        STEALTH, Optional.empty(), Optional.empty(), character, Optional.empty(), off));
     }
 
     @Test
@@ -449,11 +521,17 @@ class ScoreResolverTest {
         Optional<CharacterBuild> character = Optional.of(character(10, Set.of(STEALTH.id())));
         assertEquals(
                 Proficiency.PROFICIENT,
-                ScoreResolver.resolveSkillProficiency(STEALTH, Optional.empty(), Optional.empty(), character, CONFIG));
+                ScoreResolver.resolveSkillProficiency(
+                        STEALTH, Optional.empty(), Optional.empty(), character, Optional.empty(), CONFIG));
         assertEquals(
                 Proficiency.EXPERTISE,
                 ScoreResolver.resolveSkillProficiency(
-                        STEALTH, Optional.empty(), Optional.of(Proficiency.EXPERTISE), character, CONFIG));
+                        STEALTH,
+                        Optional.empty(),
+                        Optional.of(Proficiency.EXPERTISE),
+                        character,
+                        Optional.empty(),
+                        CONFIG));
     }
 
     private static CharacterBuild character(int strength, Set<ResourceLocation> skills) {
@@ -491,7 +569,7 @@ class ScoreResolverTest {
         assertEquals(
                 Proficiency.PROFICIENT,
                 ScoreResolver.resolveSkillProficiency(
-                        ATHLETICS, Optional.empty(), Optional.empty(), character, CONFIG));
+                        ATHLETICS, Optional.empty(), Optional.empty(), character, Optional.empty(), CONFIG));
         assertEquals(
                 Proficiency.PROFICIENT,
                 ScoreResolver.resolveSaveProficiency(
@@ -522,7 +600,8 @@ class ScoreResolverTest {
         assertEquals(15, playerStrength(character, off));
         assertEquals(
                 Proficiency.NONE,
-                ScoreResolver.resolveSkillProficiency(ATHLETICS, Optional.empty(), Optional.empty(), character, off));
+                ScoreResolver.resolveSkillProficiency(
+                        ATHLETICS, Optional.empty(), Optional.empty(), character, Optional.empty(), off));
         assertEquals(
                 Proficiency.NONE,
                 ScoreResolver.resolveSaveProficiency(
@@ -534,17 +613,20 @@ class ScoreResolverTest {
         Optional<CharacterBuild> character = presetCharacter();
         assertEquals(
                 Proficiency.PROFICIENT,
-                ScoreResolver.resolveSkillProficiency(STEALTH, Optional.empty(), Optional.empty(), character, CONFIG));
+                ScoreResolver.resolveSkillProficiency(
+                        STEALTH, Optional.empty(), Optional.empty(), character, Optional.empty(), CONFIG));
         Map<TraitEffectType, Boolean> effects = new EnumMap<>(CONFIG.traits().effects());
         effects.put(TraitEffectType.SKILL_CHOICES, false);
         ScoresConfig off = withTraits(new ScoresConfig.TraitSettings(
                 true, CONFIG.traits().rechargeTicks(), CONFIG.traits().darkvisionStrength(), effects));
         assertEquals(
                 Proficiency.NONE,
-                ScoreResolver.resolveSkillProficiency(STEALTH, Optional.empty(), Optional.empty(), character, off));
+                ScoreResolver.resolveSkillProficiency(
+                        STEALTH, Optional.empty(), Optional.empty(), character, Optional.empty(), off));
         assertEquals(
                 Proficiency.PROFICIENT,
-                ScoreResolver.resolveSkillProficiency(ATHLETICS, Optional.empty(), Optional.empty(), character, off));
+                ScoreResolver.resolveSkillProficiency(
+                        ATHLETICS, Optional.empty(), Optional.empty(), character, Optional.empty(), off));
     }
 
     private static ScoresConfig withTraits(ScoresConfig.TraitSettings traits) {
@@ -565,7 +647,8 @@ class ScoreResolverTest {
                 CONFIG.social(),
                 CONFIG.rollMessages(),
                 CONFIG.deathMessages(),
-                CONFIG.exploration());
+                CONFIG.exploration(),
+                CONFIG.rest());
     }
 
     private static int playerStrength(Optional<CharacterBuild> character, ScoresConfig config) {
@@ -626,7 +709,8 @@ class ScoreResolverTest {
                 CONFIG.social(),
                 CONFIG.rollMessages(),
                 CONFIG.deathMessages(),
-                CONFIG.exploration());
+                CONFIG.exploration(),
+                CONFIG.rest());
     }
 
     private static Optional<EntityScoreProfile> abilities(String abilities) {

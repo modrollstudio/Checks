@@ -27,8 +27,10 @@ Farmer, Explorer and Smith are Minecraft-flavoured backgrounds of our own.
   - Its kit is handed out once, when the character is confirmed. Items that do not fit in the
     inventory drop at the player's feet.
 - **Class:** two saving-throw proficiencies, a skill list with how many to pick, a suggested ability
-  order, and a hit die, recorded at each level gained for optional per-level health (see
-  [body.md](body.md#max-health)). There are no class features.
+  order, and a hit die, which sets the hit points every level after the first adds (see
+  [body.md](body.md#max-health)) and the Hit Dice spent on rests (see [rests.md](rests.md)). Fighters and
+  Rogues earn extra ability score improvements, and Rogues and Bards Expertise (see
+  [levelling.md](levelling.md)); there are no other class features yet.
 
 ## Skills
 

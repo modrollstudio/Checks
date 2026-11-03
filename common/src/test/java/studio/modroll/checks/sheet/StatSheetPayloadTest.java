@@ -16,6 +16,7 @@ import studio.modroll.checks.body.Size;
 import studio.modroll.checks.body.SizeOption;
 import studio.modroll.checks.bonus.BonusPart;
 import studio.modroll.checks.creation.PresetChoices;
+import studio.modroll.checks.level.LevelGain;
 import studio.modroll.critfall.api.dice.RollMode;
 
 class StatSheetPayloadTest {
@@ -68,10 +69,14 @@ class StatSheetPayloadTest {
                         700,
                         650,
                         Optional.of(1400),
-                        new StatSheet.Improvements(1, List.of(List.of(2), List.of(1, 1)), 20))),
+                        new StatSheet.Improvements(1, List.of(List.of(2), List.of(1, 1)), 20),
+                        new StatSheet.ExpertiseChoice(2, List.of(ResourceLocation.parse("checks:stealth"))),
+                        List.of(
+                                new LevelGain(1, 23, Optional.of(2), 0, 2),
+                                new LevelGain(4, 1.5, Optional.empty(), 1, 0)))),
                 true,
                 new StatSheet.Body(
-                        Optional.of(new StatSheet.HealthLine(27.5f, 3, 6.0, 1.5)),
+                        Optional.of(new StatSheet.HealthLine(27.5f, 3, 6.0, 6, 1.5, -1.0)),
                         Optional.of(new StatSheet.ArmorLine(
                                 11,
                                 Optional.of(new StatSheet.ArmorPoints(10, 5, 1, 2, 0)),
@@ -81,6 +86,7 @@ class StatSheetPayloadTest {
                                 1,
                                 2)),
                         Optional.of(new SizeOption(Size.SMALL, 0.6)),
+                        Optional.of(new StatSheet.HitDiceLine(6, 3, 5, 0.5, true)),
                         List.of(
                                 new StatSheet.ExtraLine(Extra.KNOCKBACK, -0.1),
                                 new StatSheet.ExtraLine(Extra.EXHAUSTION, 0.15))));

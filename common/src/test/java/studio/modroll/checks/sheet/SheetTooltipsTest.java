@@ -21,6 +21,7 @@ import studio.modroll.checks.body.Extra;
 import studio.modroll.checks.body.Size;
 import studio.modroll.checks.body.SizeOption;
 import studio.modroll.checks.bonus.BonusPart;
+import studio.modroll.checks.level.LevelGain;
 import studio.modroll.checks.skill.ShippedSkills;
 import studio.modroll.critfall.api.dice.RollMode;
 
@@ -290,31 +291,92 @@ class SheetTooltipsTest {
     @Test
     void healthShowsConAndLevelsOnlyWhenTheyAddSomething() {
         assertEquals(
-                List.of("Your maximum health.", "CON +3: +6 max health", "Levels gained: +4 max health"),
-                strings(SheetTooltips.health(new StatSheet.HealthLine(30f, 3, 6.0, 4.0))));
+                List.of(
+                        "Your maximum health.",
+                        "CON +3: +6 max health",
+                        "Levels after the first (d10 Hit Die): +4 max health"),
+                strings(SheetTooltips.health(new StatSheet.HealthLine(30f, 3, 6.0, 10, 4.0, 0.0))));
         assertEquals(
                 List.of("Your maximum health.", "CON -1: -1.5 max health"),
-                strings(SheetTooltips.health(new StatSheet.HealthLine(18.5f, -1, -1.5, 0.0))));
+                strings(SheetTooltips.health(new StatSheet.HealthLine(18.5f, -1, -1.5, 8, 0.0, 0.0))));
+        assertEquals(
+                "Rounded down to whole hearts: -1 max health",
+                SheetTooltips.health(new StatSheet.HealthLine(22f, 0, 0.0, 8, 3.0, -1.0))
+                        .getLast()
+                        .getString());
     }
 
     @Test
     void bodySectionHasARowPerPartThatIsOn() {
         StatSheet.Body body = new StatSheet.Body(
-                Optional.of(new StatSheet.HealthLine(26f, 3, 6.0, 0.0)),
+                Optional.of(new StatSheet.HealthLine(26f, 3, 6.0, 8, 0.0, 0.0)),
                 Optional.empty(),
                 Optional.of(new SizeOption(Size.SMALL, 0.6)),
+                Optional.of(new StatSheet.HitDiceLine(8, 2, 5, 1.0, true)),
                 List.of());
 
         SheetSection section = SheetTooltips.body(body).orElseThrow();
 
         assertEquals("Body", section.title().getString());
         assertEquals(
-                List.of("Hit Points 26", "Size Small"),
+                List.of("Hit Points 26", "Hit Dice 2/5 d8", "Size Small"),
                 section.rows().stream()
                         .map(row -> row.label().getString() + " " + row.value().getString())
                         .toList());
         assertEquals("Scale ×0.6", section.rows().getLast().tooltip().getLast().getString());
         assertEquals(Optional.empty(), SheetTooltips.body(StatSheet.Body.NONE));
+    }
+
+    @Test
+    void hitDiceTooltipSaysHowRestsUseThem() {
+        assertEquals(
+                List.of(
+                        "Hit Dice: 3/5 (d10)",
+                        "Rest at a lit campfire to heal with them.",
+                        "Sleep to heal fully and get your Hit Dice back."),
+                strings(SheetTooltips.hitDice(new StatSheet.HitDiceLine(10, 3, 5, 1.0, true))));
+        assertEquals(
+                "Sleep to heal fully and get half your Hit Dice back.",
+                longRestLine(new StatSheet.HitDiceLine(10, 3, 5, 0.5, true)));
+        assertEquals(
+                "Sleep to get 25% of your Hit Dice back.",
+                longRestLine(new StatSheet.HitDiceLine(10, 3, 5, 0.25, false)));
+        assertEquals("Sleep to heal fully.", longRestLine(new StatSheet.HitDiceLine(10, 3, 5, 0.0, true)));
+        assertEquals(
+                2,
+                SheetTooltips.hitDice(new StatSheet.HitDiceLine(10, 3, 5, 0.0, false))
+                        .size());
+    }
+
+    private static String longRestLine(StatSheet.HitDiceLine dice) {
+        return SheetTooltips.hitDice(dice).getLast().getString();
+    }
+
+    @Test
+    void levelGainsNameWhatEachLevelGave() {
+        assertEquals(
+                List.of("24 max health", "a Hit Die (d8)", "proficiency bonus +2", "Expertise in 2 skills"),
+                strings(SheetTooltips.levelGain(new LevelGain(1, 24, Optional.of(2), 0, 2), Optional.of(8))));
+        assertEquals(
+                List.of("+1 max health", "an ability score improvement"),
+                strings(SheetTooltips.levelGain(new LevelGain(4, 1, Optional.empty(), 1, 0), Optional.empty())));
+        assertEquals(
+                List.of("2 ability score improvements"),
+                strings(SheetTooltips.levelGain(new LevelGain(6, 0, Optional.empty(), 2, 0), Optional.empty())));
+    }
+
+    @Test
+    void levelTooltipListsExpertiseToChoose() {
+        StatSheet.LevelLine line = new StatSheet.LevelLine(
+                6,
+                1400,
+                1400,
+                Optional.of(2300),
+                new StatSheet.Improvements(0, List.of(List.of(2)), 20),
+                new StatSheet.ExpertiseChoice(2, List.of()),
+                List.of());
+        assertEquals(List.of("1400 / 2300 XP", "Expertise to choose: 2 skills"), strings(SheetTooltips.level(line)));
+        assertTrue(line.choicesPending());
     }
 
     @Test
@@ -342,7 +404,9 @@ class SheetTooltipsTest {
                 xp,
                 levelXp,
                 nextLevelXp,
-                new StatSheet.Improvements(pending, List.of(List.of(2), List.of(1, 1)), 20));
+                new StatSheet.Improvements(pending, List.of(List.of(2), List.of(1, 1)), 20),
+                StatSheet.ExpertiseChoice.NONE,
+                List.of());
     }
 
     private static List<String> strings(List<Component> lines) {

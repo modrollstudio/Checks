@@ -5,7 +5,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import studio.modroll.checks.body.PlayerBodies;
 import studio.modroll.checks.bonus.BonusSources;
 import studio.modroll.checks.creation.CharacterCreation;
@@ -20,6 +22,7 @@ import studio.modroll.checks.exploration.MonsterLore;
 import studio.modroll.checks.exploration.StructureLore;
 import studio.modroll.checks.exploration.Tripwires;
 import studio.modroll.checks.preset.Presets;
+import studio.modroll.checks.rest.Rests;
 import studio.modroll.checks.save.VanillaSaves;
 import studio.modroll.checks.social.GolemAlarms;
 import studio.modroll.checks.social.Insight;
@@ -49,6 +52,7 @@ public final class ServerHooks {
         Climbing.tick(server);
         MonsterLore.tick(server);
         StructureLore.tick(server);
+        Rests.tick(server);
     }
 
     public static void onPlayerJoin(ServerPlayer player) {
@@ -58,13 +62,24 @@ public final class ServerHooks {
         CharacterCreation.onJoin(player);
     }
 
-    /** The first use that acts consumes the click: a check trigger, then a tripwire, then a chest search. */
+    /**
+     * The first use that acts consumes the click: a check trigger, then a tripwire, then a chest search, then a
+     * short rest at a campfire.
+     */
     public static InteractionResult onUseBlock(ServerPlayer player, InteractionHand hand, BlockPos pos) {
         InteractionResult result = CheckTriggers.onUseBlock(player, hand, pos);
         if (!result.consumesAction()) {
             result = Tripwires.onUseBlock(player, hand, pos);
         }
-        return result.consumesAction() ? result : ChestSearches.onUseBlock(player, hand, pos);
+        if (!result.consumesAction()) {
+            result = ChestSearches.onUseBlock(player, hand, pos);
+        }
+        return result.consumesAction() ? result : Rests.onUseBlock(player, hand, pos);
+    }
+
+    /** After damage lands on any living entity, on either loader. */
+    public static void onDamaged(LivingEntity entity, DamageSource source) {
+        Rests.onDamaged(entity, source);
     }
 
     /** A check trigger first, then the social menu. */
@@ -97,5 +112,6 @@ public final class ServerHooks {
         Climbing.clear();
         MonsterLore.clear();
         StructureLore.clear();
+        Rests.clear();
     }
 }

@@ -69,6 +69,7 @@ public final class ScoreService {
                 profileFor(entity),
                 stored(entity, (store, uuid) -> store.getSkillProficiency(uuid, skill.id()), Optional.empty()),
                 characterOf(entity),
+                levelOf(entity),
                 ScoresRuntime.config());
     }
 

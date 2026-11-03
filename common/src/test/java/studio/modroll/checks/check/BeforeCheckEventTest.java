@@ -120,7 +120,8 @@ class BeforeCheckEventTest {
                 defaults.social(),
                 defaults.rollMessages(),
                 defaults.deathMessages(),
-                defaults.exploration()));
+                defaults.exploration(),
+                defaults.rest()));
 
         CheckEvents.fireBefore(event(OptionalInt.of(10), false, false));
 
