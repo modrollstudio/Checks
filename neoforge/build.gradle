@@ -76,7 +76,7 @@ dependencies {
 
     // Critfall consumed as a published Modrinth artifact; implementation puts it on the dev-run
     // runtime classpath so FML loads it as a mod in runClient/gameTestServer.
-    implementation "maven.modrinth:critfall:${critfall_neoforge_modrinth_id}"
+    implementation critfall('neoforge')
 }
 
 def wipeGameTestWorld = tasks.register('wipeGameTestWorld', Delete) {

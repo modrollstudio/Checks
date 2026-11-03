@@ -55,6 +55,11 @@ public class BodyGameTests {
     }
 
     @GameTest(template = TEMPLATE)
+    public void bodyArmorNeverLowersArmorClass(GameTestHelper helper) {
+        BodyScenarios.bodyArmorNeverLowersArmorClass(helper);
+    }
+
+    @GameTest(template = TEMPLATE)
     public void armorClassReachesCritfallRolls(GameTestHelper helper) {
         BodyScenarios.armorClassReachesCritfallRolls(helper);
     }

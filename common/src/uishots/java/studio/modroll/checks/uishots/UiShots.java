@@ -177,6 +177,8 @@ public final class UiShots {
 
     /** A farmer facing the player, close enough to talk to, the player looking straight at it. */
     private static void placeVillager() {
+        // Otherwise chat in the roll shot shows these commands echoed to the player.
+        command("gamerule sendCommandFeedback false");
         command("tp @p 0.5 -60 0.5 0 0");
         command("summon villager 0.5 -60 3 {NoAI:1b,Rotation:[180f,0f],"
                 + "VillagerData:{profession:\"minecraft:farmer\",level:2,type:\"minecraft:plains\"}}");

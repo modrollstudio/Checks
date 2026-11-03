@@ -202,17 +202,17 @@ class SheetTooltipsTest {
                 List.of(
                         "What an attack roll must reach to hit you.",
                         "Base: 10",
-                        "Armor 13: +6 (half, rounded down)",
-                        "Toughness 2: +0 (a quarter, rounded down)",
+                        "Armor 13: +3",
+                        "Toughness 2: +0",
                         "DEX +2 (medium body armor, max +2)"),
-                strings(SheetTooltips.armorClass(armorLine(16, worn(13, 2), 4, ArmorCategory.MEDIUM, 2))));
+                strings(SheetTooltips.armorClass(armorLine(13, worn(13, 3, 2, 0), 4, ArmorCategory.MEDIUM, 2))));
         assertEquals(
                 "DEX +0 (heavy body armor, no DEX)",
-                strings(SheetTooltips.armorClass(armorLine(19, worn(18, 4), 4, ArmorCategory.HEAVY, 0)))
+                strings(SheetTooltips.armorClass(armorLine(15, worn(18, 4, 4, 1), 4, ArmorCategory.HEAVY, 0)))
                         .getLast());
         assertEquals(
                 "DEX +3 (light body armor)",
-                strings(SheetTooltips.armorClass(armorLine(11, worn(3, 0), 3, ArmorCategory.LIGHT, 3)))
+                strings(SheetTooltips.armorClass(armorLine(10, worn(3, 0, 0, 0), 3, ArmorCategory.LIGHT, 3)))
                         .getLast());
     }
 
@@ -220,15 +220,44 @@ class SheetTooltipsTest {
     void armorClassLeavesOutPointsThatAreNotWorn() {
         assertEquals(
                 List.of("What an attack roll must reach to hit you.", "Base: 10", "DEX -1 (no body armor)"),
-                strings(SheetTooltips.armorClass(armorLine(10, worn(0, 0), -1, ArmorCategory.NONE, -1))));
+                strings(SheetTooltips.armorClass(armorLine(10, worn(0, 0, 0, 0), -1, ArmorCategory.NONE, -1))));
         assertEquals(
                 List.of(
                         "What an attack roll must reach to hit you.",
                         "Base: 10",
-                        "Armor 2: +1 (half, rounded down)",
+                        "Armor 2: +0",
                         "DEX +4 (no body armor)"),
-                strings(SheetTooltips.armorClass(armorLine(11, worn(2, 0), 4, ArmorCategory.NONE, 4))),
+                strings(SheetTooltips.armorClass(armorLine(10, worn(2, 0, 0, 0), 4, ArmorCategory.NONE, 4))),
                 "a helmet without body armor keeps all of DEX");
+    }
+
+    @Test
+    void armorClassShowsTheBaseAndPartsCritfallGaveWhateverItsRules() {
+        assertEquals(
+                List.of(
+                        "What an attack roll must reach to hit you.",
+                        "Base: 12",
+                        "Armor 13: +6",
+                        "Toughness 8: +4",
+                        "DEX +0 (heavy body armor, no DEX)"),
+                strings(SheetTooltips.armorClass(new StatSheet.ArmorLine(
+                        22, Optional.of(new StatSheet.ArmorPoints(12, 13, 6, 8, 4)), 4, ArmorCategory.HEAVY, 0, 0, 2))),
+                "a pack's armor_ac_divisor of 2 and toughness_ac_divisor of 2 show as Critfall applied them");
+    }
+
+    @Test
+    void bodyArmorThatWouldLowerArmorClassShowsWhatKeepsItUp() {
+        StatSheet.ArmorLine chainmail = new StatSheet.ArmorLine(11, worn(5, 1, 0, 0), 5, ArmorCategory.MEDIUM, 2, 2, 2);
+        assertEquals(
+                List.of(
+                        "What an attack roll must reach to hit you.",
+                        "Base: 10",
+                        "Armor 5: +1",
+                        "DEX +2 (medium body armor, max +2)",
+                        "Never below your AC without body armor: +2"),
+                strings(SheetTooltips.armorClass(chainmail)),
+                "DEX 20 in a chainmail chestplate: 13 with the cap, 15 without the chestplate");
+        assertEquals(15, chainmail.armorClass());
     }
 
     @Test
@@ -243,16 +272,19 @@ class SheetTooltipsTest {
 
     @Test
     void armorClassIsCritfallsPlusTheDexPart() {
-        assertEquals(18, armorLine(16, worn(13, 0), 4, ArmorCategory.MEDIUM, 2).armorClass());
+        assertEquals(
+                15, armorLine(13, worn(13, 3, 0, 0), 4, ArmorCategory.MEDIUM, 2).armorClass());
     }
 
     private static StatSheet.ArmorLine armorLine(
             int base, Optional<StatSheet.ArmorPoints> worn, int dexModifier, ArmorCategory category, int dexBonus) {
-        return new StatSheet.ArmorLine(base, worn, dexModifier, category, dexBonus, 2);
+        return new StatSheet.ArmorLine(base, worn, dexModifier, category, dexBonus, 0, 2);
     }
 
-    private static Optional<StatSheet.ArmorPoints> worn(double armor, double toughness) {
-        return Optional.of(new StatSheet.ArmorPoints(armor, toughness));
+    /** Points worn with the parts Critfall gave them, over its base 10. */
+    private static Optional<StatSheet.ArmorPoints> worn(
+            double armor, int armorPart, double toughness, int toughnessPart) {
+        return Optional.of(new StatSheet.ArmorPoints(10, armor, armorPart, toughness, toughnessPart));
     }
 
     @Test

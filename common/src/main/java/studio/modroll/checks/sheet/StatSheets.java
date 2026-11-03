@@ -12,7 +12,6 @@ import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.api.CheckKind;
 import studio.modroll.checks.api.ChecksApi;
 import studio.modroll.checks.api.Skill;
-import studio.modroll.checks.body.BodyRules;
 import studio.modroll.checks.body.BodyValues;
 import studio.modroll.checks.body.Extra;
 import studio.modroll.checks.bonus.BonusSources;
@@ -28,6 +27,7 @@ import studio.modroll.checks.level.PlayerLevel;
 import studio.modroll.checks.preset.Presets;
 import studio.modroll.checks.preset.Species;
 import studio.modroll.checks.score.ScoresRuntime;
+import studio.modroll.critfall.api.ArmorClassBreakdown;
 import studio.modroll.critfall.api.RollService;
 
 /**
@@ -90,19 +90,30 @@ public final class StatSheets {
         if (!ChecksModifierProvider.active()) {
             return Optional.empty();
         }
-        int base = RollService.effectiveEntity(player).armorClass();
-        Optional<StatSheet.ArmorPoints> worn = worn(player, base);
+        ArmorClassBreakdown breakdown = RollService.armorClassBreakdown(player);
+        Optional<StatSheet.ArmorPoints> worn = worn(player, breakdown);
         return BodyValues.armorClass(player)
                 .map(armor -> new StatSheet.ArmorLine(
-                        base, worn, armor.dexModifier(), armor.category(), armor.bonus(), settings.mediumMaxDex()));
+                        breakdown.total(),
+                        worn,
+                        armor.dexModifier(),
+                        armor.category(),
+                        armor.dexBonus(),
+                        armor.floorBonus(),
+                        settings.mediumMaxDex()));
     }
 
-    /** The armor and toughness, while Critfall's AC is the one it derives from them, so the parts add up. */
-    private static Optional<StatSheet.ArmorPoints> worn(ServerPlayer player, int base) {
-        double armor = player.getAttributeValue(Attributes.ARMOR);
-        double toughness = player.getAttributeValue(Attributes.ARMOR_TOUGHNESS);
-        int derived = BodyRules.BASE_ARMOR_CLASS + BodyRules.armorPart(armor) + BodyRules.toughnessPart(toughness);
-        return derived == base ? Optional.of(new StatSheet.ArmorPoints(armor, toughness)) : Optional.empty();
+    /** Critfall's parts, while its AC is the one it derives from the armor and toughness. */
+    private static Optional<StatSheet.ArmorPoints> worn(ServerPlayer player, ArmorClassBreakdown breakdown) {
+        if (!breakdown.derived()) {
+            return Optional.empty();
+        }
+        return Optional.of(new StatSheet.ArmorPoints(
+                breakdown.base(),
+                player.getAttributeValue(Attributes.ARMOR),
+                breakdown.armorPart(),
+                player.getAttributeValue(Attributes.ARMOR_TOUGHNESS),
+                breakdown.toughnessPart()));
     }
 
     private static Optional<StatSheet.LevelLine> level(ServerPlayer player) {

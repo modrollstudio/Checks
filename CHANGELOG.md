@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.4 — 2026-11-03 (alpha)
+
+Requires Critfall 0.2.18 or newer.
+
+- Armor class follows Critfall 0.2.18's armor rule: 10, plus a quarter of your armor and a quarter of your toughness, each rounded down, then your DEX.
+- The Armor Class tooltip takes its numbers from Critfall itself, so it always matches the AC attacks roll against, even when a pack changes Critfall's `armor_ac_divisor` or `toughness_ac_divisor`. Its armor and toughness lines read `Armor 13: +3`.
+- Putting on armor never lowers your AC. When a chestplate's DEX cap would leave you below your AC without it, you keep the higher one: DEX 20 in a chainmail chestplate is AC 15, not 13. The Armor Class tooltip shows the difference on its own line, e.g. `Never below your AC without body armor: +2`.
+- A 0.1.4 client and a 0.1.3 server (or the other way round) refuse to connect when joining, with a message naming the version to install.
+
 ## 0.1.3 — 2026-10-20 (alpha)
 
 Requires Critfall 0.2.14 or newer.
