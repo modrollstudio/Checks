@@ -48,6 +48,7 @@ public final class StatSheetScreen extends Screen {
     private static final Component CREATE_CHARACTER = Component.translatable("screen.checks.create_character");
     private static final Component IDENTITY_SEPARATOR = Component.translatable("screen.checks.identity.separator");
     private static final Component LEVEL_UP = Component.translatable("screen.checks.level_up");
+    private static final Component LEVELS = Component.translatable("screen.checks.levels");
 
     private static final int GAP = SheetLayout.GAP;
     private static final int LINE = SheetLayout.LINE;
@@ -110,14 +111,18 @@ public final class StatSheetScreen extends Screen {
     }
 
     /**
-     * Opens on arrival unless the player has opened another screen since pressing the key; a sheet sent
-     * after an improvement replaces the open sheet or choice screen.
+     * Opens on arrival unless the player has opened another screen since pressing the key; a sheet sent after a
+     * choice replaces the open sheet, and from the Level up! panel or a choice screen goes back to the panel.
      */
     public static void open(StatSheet sheet) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.screen == null
-                || minecraft.screen instanceof StatSheetScreen
-                || minecraft.screen instanceof ImprovementScreen) {
+        Screen current = minecraft.screen;
+        boolean levelling = current instanceof LevelUpScreen
+                || current instanceof ImprovementScreen
+                || current instanceof ExpertiseScreen;
+        if (levelling && sheet.level().isPresent()) {
+            minecraft.setScreen(new LevelUpScreen(new StatSheetScreen(sheet), sheet));
+        } else if (current == null || current instanceof StatSheetScreen || levelling) {
             minecraft.setScreen(new StatSheetScreen(sheet));
         }
     }
@@ -189,14 +194,11 @@ public final class StatSheetScreen extends Screen {
         if (sheet.creationAvailable()) {
             buttons.add(new FooterButton(CREATE_CHARACTER, button -> CharacterCreationScreen.requestOpen()));
         }
-        if (pendingImprovements() > 0) {
-            buttons.add(new FooterButton(LEVEL_UP, button -> minecraft.setScreen(new ImprovementScreen(this, sheet))));
-        }
+        sheet.level()
+                .ifPresent(line -> buttons.add(new FooterButton(
+                        line.choicesPending() ? LEVEL_UP : LEVELS,
+                        button -> minecraft.setScreen(new LevelUpScreen(this, sheet)))));
         return buttons;
-    }
-
-    private int pendingImprovements() {
-        return sheet.level().map(line -> line.improvements().pending()).orElse(0);
     }
 
     private int tabLabelWidth() {

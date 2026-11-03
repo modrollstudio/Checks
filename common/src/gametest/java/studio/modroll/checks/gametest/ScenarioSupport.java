@@ -161,7 +161,8 @@ final class ScenarioSupport {
                         live.social(),
                         live.rollMessages(),
                         live.deathMessages(),
-                        live.exploration()),
+                        live.exploration(),
+                        live.rest()),
                 body);
     }
 
@@ -200,7 +201,8 @@ final class ScenarioSupport {
                         live.social(),
                         live.rollMessages(),
                         live.deathMessages(),
-                        live.exploration()),
+                        live.exploration(),
+                        live.rest()),
                 body);
     }
 
@@ -212,7 +214,8 @@ final class ScenarioSupport {
                 defaults.xpThresholds(),
                 defaults.proficiencyBonuses(),
                 defaults.xpSources(),
-                defaults.improvements());
+                defaults.improvements(),
+                defaults.expertise());
     }
 
     static <T> T withBackgrounds(Map<ResourceLocation, Background> patched, Supplier<T> body) {
@@ -265,7 +268,8 @@ final class ScenarioSupport {
                         live.social(),
                         live.rollMessages(),
                         live.deathMessages(),
-                        live.exploration()),
+                        live.exploration(),
+                        live.rest()),
                 body);
     }
 
@@ -289,7 +293,8 @@ final class ScenarioSupport {
                         live.social(),
                         live.rollMessages(),
                         live.deathMessages(),
-                        live.exploration()),
+                        live.exploration(),
+                        live.rest()),
                 body);
     }
 
@@ -313,7 +318,8 @@ final class ScenarioSupport {
                         live.social(),
                         live.rollMessages(),
                         live.deathMessages(),
-                        live.exploration()),
+                        live.exploration(),
+                        live.rest()),
                 body);
     }
 
@@ -337,7 +343,8 @@ final class ScenarioSupport {
                         live.social(),
                         live.rollMessages(),
                         live.deathMessages(),
-                        live.exploration()),
+                        live.exploration(),
+                        live.rest()),
                 body);
     }
 
@@ -367,7 +374,8 @@ final class ScenarioSupport {
                         live.social(),
                         live.rollMessages(),
                         live.deathMessages(),
-                        live.exploration()),
+                        live.exploration(),
+                        live.rest()),
                 body);
     }
 
@@ -391,7 +399,8 @@ final class ScenarioSupport {
                         patched,
                         live.rollMessages(),
                         live.deathMessages(),
-                        live.exploration()),
+                        live.exploration(),
+                        live.rest()),
                 body);
     }
 
@@ -415,7 +424,8 @@ final class ScenarioSupport {
                         live.social(),
                         patched,
                         live.deathMessages(),
-                        live.exploration()),
+                        live.exploration(),
+                        live.rest()),
                 body);
     }
 
@@ -475,7 +485,8 @@ final class ScenarioSupport {
                         live.social(),
                         live.rollMessages(),
                         patched,
-                        live.exploration()),
+                        live.exploration(),
+                        live.rest()),
                 body);
     }
 
@@ -499,6 +510,32 @@ final class ScenarioSupport {
                         live.social(),
                         live.rollMessages(),
                         live.deathMessages(),
+                        patched,
+                        live.rest()),
+                body);
+    }
+
+    static <T> T withRest(ScoresConfig.RestSettings patched, Supplier<T> body) {
+        ScoresConfig live = ScoresRuntime.config();
+        return withConfig(
+                new ScoresConfig(
+                        live.playerDefaults(),
+                        live.derivation(),
+                        live.profilesEnabled(),
+                        live.skillsEnabled(),
+                        live.proficiency(),
+                        live.critfall(),
+                        live.statScreenEnabled(),
+                        live.creation(),
+                        live.levelling(),
+                        live.extensions(),
+                        live.body(),
+                        live.saves(),
+                        live.traits(),
+                        live.social(),
+                        live.rollMessages(),
+                        live.deathMessages(),
+                        live.exploration(),
                         patched),
                 body);
     }

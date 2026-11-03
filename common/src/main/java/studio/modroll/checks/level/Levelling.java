@@ -11,15 +11,18 @@ import java.util.function.UnaryOperator;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import studio.modroll.checks.ClientPayloads;
 import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.api.LevelUpEvent;
+import studio.modroll.checks.api.Proficiency;
 import studio.modroll.checks.creation.CharacterBuild;
 import studio.modroll.checks.creation.CharacterCreation;
 import studio.modroll.checks.creation.PresetChoices;
 import studio.modroll.checks.data.ScoresConfig;
+import studio.modroll.checks.data.SkillStore;
 import studio.modroll.checks.preset.ClassPreset;
 import studio.modroll.checks.preset.Presets;
 import studio.modroll.checks.score.ScoreService;
@@ -104,8 +107,42 @@ public final class Levelling {
         return rejection;
     }
 
+    /**
+     * Gives Expertise in {@code skills}, if the server accepts the choice. Either way the player's stat sheet is sent
+     * again, so the screen shows the outcome.
+     */
+    public static Optional<ImprovementRejection> chooseExpertise(ServerPlayer player, List<ResourceLocation> skills) {
+        Optional<ImprovementRejection> rejection = checkExpertise(player, skills);
+        rejection.ifPresentOrElse(
+                reason -> player.sendSystemMessage(
+                        reason.message(settings().improvements()).copy().withStyle(ChatFormatting.RED)),
+                () -> {
+                    LevelStore store = LevelStore.get(player.server);
+                    UUID uuid = player.getUUID();
+                    store.set(uuid, store.level(uuid).withExpertise(skills));
+                    player.sendSystemMessage(Component.translatable("checks.level.expertise_chosen"));
+                });
+        StatSheets.forPlayer(player).ifPresent(sheet -> ClientPayloads.send(player, new StatSheetPayload(sheet)));
+        return rejection;
+    }
+
     public static void reset(MinecraftServer server, UUID player) {
         LevelStore.get(server).reset(player);
+    }
+
+    /** Expertise needs proficiency already, from the character or a command; an unknown skill has none. */
+    private static Optional<ImprovementRejection> checkExpertise(ServerPlayer player, List<ResourceLocation> skills) {
+        if (!enabled()) {
+            return Optional.of(ImprovementRejection.LEVELLING_DISABLED);
+        }
+        int pending = LevelRules.pendingExpertise(
+                LevelStore.get(player.server).level(player.getUUID()), classId(player), settings());
+        return LevelRules.validateExpertise(
+                skills,
+                id -> SkillStore.find(id)
+                        .map(skill -> ScoreService.skillProficiency(player, skill) == Proficiency.PROFICIENT)
+                        .orElse(false),
+                pending);
     }
 
     private static Optional<ImprovementRejection> checkImprovement(ServerPlayer player, List<Integer> increases) {
@@ -116,8 +153,8 @@ public final class Levelling {
         for (Ability ability : Ability.values()) {
             scores.put(ability, ScoreService.abilityScore(player, ability));
         }
-        int pending =
-                LevelRules.pendingImprovements(LevelStore.get(player.server).level(player.getUUID()), settings());
+        int pending = LevelRules.pendingImprovements(
+                LevelStore.get(player.server).level(player.getUUID()), classId(player), settings());
         return LevelRules.validateImprovement(
                 increases, scores, pending, settings().improvements());
     }
@@ -127,9 +164,6 @@ public final class Levelling {
         LevelStore store = LevelStore.get(player.server);
         PlayerLevel before = store.level(player.getUUID());
         PlayerLevel after = update.apply(before);
-        for (int level = before.level() + 1; level <= after.level(); level++) {
-            after = withClassHitDie(player, after, level);
-        }
         store.set(player.getUUID(), after);
         for (int level = before.level() + 1; level <= after.level(); level++) {
             LevelUpEvent event = new LevelUpEvent(player, level - 1, level);
@@ -140,29 +174,35 @@ public final class Levelling {
         }
     }
 
-    private static PlayerLevel withClassHitDie(ServerPlayer player, PlayerLevel level, int atLevel) {
-        return classPreset(player)
-                .map(preset -> level.withHitDie(atLevel, preset.hitDie()))
-                .orElse(level);
-    }
-
-    private static Optional<ClassPreset> classPreset(ServerPlayer player) {
+    /** The confirmed character's class id while presets are on; empty for a Custom class or none. */
+    public static Optional<ResourceLocation> classId(ServerPlayer player) {
         if (!ScoresRuntime.config().creation().presets().enabled()) {
             return Optional.empty();
         }
         return CharacterCreation.activeBuild(player)
                 .map(CharacterBuild::choices)
-                .flatMap(PresetChoices::classPreset)
-                .flatMap(Presets.CLASSES::find);
+                .flatMap(PresetChoices::classPreset);
+    }
+
+    /** The confirmed character's class preset while presets are on, if it is loaded. */
+    public static Optional<ClassPreset> classPreset(ServerPlayer player) {
+        return classId(player).flatMap(Presets.CLASSES::find);
     }
 
     private static void announce(ServerPlayer player, PlayerLevel before, PlayerLevel after) {
         player.server
                 .getPlayerList()
                 .broadcastSystemMessage(levelUpLine(player.getDisplayName(), after.level()), false);
-        if (LevelRules.pendingImprovements(after, settings()) > LevelRules.pendingImprovements(before, settings())) {
+        Optional<ResourceLocation> classId = classId(player);
+        if (LevelRules.pendingImprovements(after, classId, settings())
+                > LevelRules.pendingImprovements(before, classId, settings())) {
             player.sendSystemMessage(Component.translatable(
                     "checks.level.improvement_ready", Component.keybind("key.checks.stat_sheet")));
+        }
+        if (LevelRules.pendingExpertise(after, classId, settings())
+                > LevelRules.pendingExpertise(before, classId, settings())) {
+            player.sendSystemMessage(
+                    Component.translatable("checks.level.expertise_ready", Component.keybind("key.checks.stat_sheet")));
         }
     }
 

@@ -13,6 +13,8 @@ import studio.modroll.checks.api.SheetSection;
 import studio.modroll.checks.body.Extra;
 import studio.modroll.checks.body.SizeOption;
 import studio.modroll.checks.bonus.BonusPart;
+import studio.modroll.checks.level.LevelGain;
+import studio.modroll.checks.level.Levels;
 import studio.modroll.checks.preset.PresetKind;
 import studio.modroll.critfall.api.dice.RollMode;
 
@@ -45,7 +47,10 @@ public final class SheetTooltips {
         return lines;
     }
 
-    /** Hit points, armor class and size, each row explaining where its value comes from; empty with none on. */
+    /**
+     * Hit points, Hit Dice, armor class and size, each row explaining where its value comes from; empty with none
+     * on.
+     */
     public static Optional<SheetSection> body(StatSheet.Body body) {
         List<SheetRow> rows = new ArrayList<>();
         body.health()
@@ -53,6 +58,11 @@ public final class SheetTooltips {
                         Component.translatable(KEY + "health.label"),
                         Component.literal(SheetText.decimal(health.maxHealth())),
                         health(health))));
+        body.hitDice()
+                .ifPresent(dice -> rows.add(new SheetRow(
+                        Component.translatable(KEY + "hit_dice.label"),
+                        Component.translatable(KEY + "hit_dice.value", dice.left(), dice.total(), dice.sides()),
+                        hitDice(dice))));
         body.armor()
                 .ifPresent(armor -> rows.add(new SheetRow(
                         Component.translatable(KEY + "armor_class.label"),
@@ -76,9 +86,42 @@ public final class SheetTooltips {
                 SheetText.signed(health.conModifier()),
                 SheetText.signed(health.conHealth())));
         if (health.levelHealth() != 0) {
-            lines.add(Component.translatable(KEY + "health.levels", SheetText.signed(health.levelHealth())));
+            lines.add(Component.translatable(
+                    KEY + "health.levels", health.hitDie(), SheetText.signed(health.levelHealth())));
+        }
+        if (health.rounding() != 0) {
+            lines.add(Component.translatable(KEY + "health.whole_hearts", SheetText.signed(health.rounding())));
         }
         return lines;
+    }
+
+    /** The pool, and in a line each how a short and a long rest use it. */
+    static List<Component> hitDice(StatSheet.HitDiceLine dice) {
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.translatable(KEY + "hit_dice", dice.left(), dice.total(), dice.sides()));
+        lines.add(Component.translatable(KEY + "hit_dice.short_rest"));
+        longRest(dice).ifPresent(lines::add);
+        return lines;
+    }
+
+    /**
+     * What sleeping does, by the real settings: {@code Sleep to heal fully and get half your Hit Dice back.} at
+     * 0.5; empty when it does nothing.
+     */
+    private static Optional<Component> longRest(StatSheet.HitDiceLine dice) {
+        String heal = dice.healsFully() ? "heal_" : "";
+        double fraction = dice.regainFraction();
+        String key = KEY + "hit_dice.long_rest.";
+        if (fraction >= 1.0) {
+            return Optional.of(Component.translatable(key + heal + "all"));
+        }
+        if (fraction == 0.5) {
+            return Optional.of(Component.translatable(key + heal + "half"));
+        }
+        if (fraction > 0.0) {
+            return Optional.of(Component.translatable(key + heal + "part", Math.round(fraction * 100)));
+        }
+        return dice.healsFully() ? Optional.of(Component.translatable(key + "heal")) : Optional.empty();
     }
 
     /**
@@ -198,7 +241,38 @@ public final class SheetTooltips {
         if (pending > 0) {
             lines.add(Component.translatable(KEY + "improvements", pending));
         }
+        if (line.expertise().pending() > 0) {
+            lines.add(Component.translatable(KEY + "expertise", line.expertise().pending()));
+        }
         return lines;
+    }
+
+    /**
+     * What one level gave, e.g. {@code +2 max health}, {@code Hit Die (d10)}, {@code Proficiency bonus +3},
+     * {@code Ability score improvement} and {@code Expertise in 2 skills}; {@code hitDie} is empty while Hit Dice are
+     * off.
+     */
+    public static List<Component> levelGain(LevelGain gain, Optional<Integer> hitDie) {
+        List<Component> parts = new ArrayList<>();
+        if (gain.health() != 0) {
+            String health = gain.level() == Levels.MIN_LEVEL
+                    ? SheetText.decimal(gain.health())
+                    : SheetText.signed(gain.health());
+            parts.add(Component.translatable(KEY + "gain.health", health));
+        }
+        hitDie.ifPresent(sides -> parts.add(Component.translatable(KEY + "gain.hit_die", sides)));
+        gain.proficiencyBonus()
+                .ifPresent(bonus ->
+                        parts.add(Component.translatable(KEY + "gain.proficiency_bonus", SheetText.signed(bonus))));
+        if (gain.improvements() == 1) {
+            parts.add(Component.translatable(KEY + "gain.improvement"));
+        } else if (gain.improvements() > 1) {
+            parts.add(Component.translatable(KEY + "gain.improvements", gain.improvements()));
+        }
+        if (gain.expertise() > 0) {
+            parts.add(Component.translatable(KEY + "gain.expertise", gain.expertise()));
+        }
+        return parts;
     }
 
     /** What the dot before a save or skill means. */

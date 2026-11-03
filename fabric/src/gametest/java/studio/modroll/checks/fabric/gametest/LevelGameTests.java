@@ -59,11 +59,6 @@ public class LevelGameTests implements FabricGameTest {
     }
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
-    public void levelUpRecordsTheClassHitDie(GameTestHelper helper) {
-        LevelScenarios.levelUpRecordsTheClassHitDie(helper);
-    }
-
-    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
     public void sheetShowsLevel(GameTestHelper helper) {
         LevelScenarios.sheetShowsLevel(helper);
     }
@@ -71,5 +66,20 @@ public class LevelGameTests implements FabricGameTest {
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
     public void levelSurvivesRelogAndSave(GameTestHelper helper) {
         LevelScenarios.levelSurvivesRelogAndSave(helper);
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void classImprovementsAreCappedAtTheNumberEarned(GameTestHelper helper) {
+        LevelScenarios.classImprovementsAreCappedAtTheNumberEarned(helper);
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void expertiseDoublesTheProficiencyBonus(GameTestHelper helper) {
+        LevelScenarios.expertiseDoublesTheProficiencyBonus(helper);
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void levelUpPanelListsWhatEachLevelGave(GameTestHelper helper) {
+        LevelScenarios.levelUpPanelListsWhatEachLevelGave(helper);
     }
 }

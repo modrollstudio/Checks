@@ -46,6 +46,10 @@ A skill or save proficiency, highest first:
 3. a datapack profile's `proficiency.skills` / `proficiency.saves`
 4. `none`
 
+A skill a player chose Expertise in while levelling (Rogues and Bards, see
+[levelling.md](levelling.md#expertise)) goes from `proficient` to `expertise`, whichever step made it
+proficient.
+
 ## Commands
 
 Both require op (permission level 2).

@@ -12,6 +12,7 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
@@ -46,8 +47,10 @@ import studio.modroll.checks.data.ScoresConfigLoader;
 import studio.modroll.checks.exploration.ClimbingPayload;
 import studio.modroll.checks.exploration.LeapPayload;
 import studio.modroll.checks.fabric.mixin.MobAccessor;
+import studio.modroll.checks.level.ExpertisePayload;
 import studio.modroll.checks.level.ImprovementPayload;
 import studio.modroll.checks.level.Levelling;
+import studio.modroll.checks.rest.Rests;
 import studio.modroll.checks.score.ScoresRuntime;
 import studio.modroll.checks.sheet.StatSheetPayload;
 import studio.modroll.checks.sheet.StatSheetRequestPayload;
@@ -89,6 +92,10 @@ public final class ChecksFabric implements ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(
                 ImprovementPayload.TYPE,
                 (payload, context) -> Levelling.improve(context.player(), payload.increases()));
+        PayloadTypeRegistry.playC2S().register(ExpertisePayload.TYPE, ExpertisePayload.STREAM_CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(
+                ExpertisePayload.TYPE,
+                (payload, context) -> Levelling.chooseExpertise(context.player(), payload.skills()));
 
         CommandRegistrationCallback.EVENT.register(
                 (dispatcher, registryAccess, environment) -> ChecksCommands.register(dispatcher));
@@ -96,6 +103,17 @@ public final class ChecksFabric implements ModInitializer {
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> ServerHooks.onServerStopping());
         registerTriggers();
         ServerTickEvents.END_SERVER_TICK.register(ServerHooks::onServerTick);
+        ServerLivingEntityEvents.AFTER_DAMAGE.register((entity, source, baseDamage, damageTaken, blocked) -> {
+            if (!blocked) {
+                ServerHooks.onDamaged(entity, source);
+            }
+        });
+        AttackEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
+            if (player instanceof ServerPlayer serverPlayer) {
+                Rests.onAttack(serverPlayer);
+            }
+            return InteractionResult.PASS;
+        });
         ServerLivingEntityEvents.ALLOW_DEATH.register(
                 (entity, source, amount) -> !TraitHooks.survivesDeath(entity, source));
         PayloadTypeRegistry.playS2C().register(DarkvisionPayload.TYPE, DarkvisionPayload.STREAM_CODEC);

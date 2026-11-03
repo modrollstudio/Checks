@@ -14,6 +14,7 @@ import studio.modroll.checks.body.Extra;
 import studio.modroll.checks.body.SizeOption;
 import studio.modroll.checks.bonus.BonusPart;
 import studio.modroll.checks.creation.PresetChoices;
+import studio.modroll.checks.level.LevelGain;
 
 /**
  * One player's server-resolved values for the stat screen; the client only displays them.
@@ -74,9 +75,25 @@ public record StatSheet(
 
     /**
      * {@code levelXp} is the total XP the current level needed and {@code nextLevelXp} the total the next
-     * one needs, empty at the top level.
+     * one needs, empty at the top level; {@code gains} is what each level up to this one gave.
      */
-    public record LevelLine(int level, int xp, int levelXp, Optional<Integer> nextLevelXp, Improvements improvements) {
+    public record LevelLine(
+            int level,
+            int xp,
+            int levelXp,
+            Optional<Integer> nextLevelXp,
+            Improvements improvements,
+            ExpertiseChoice expertise,
+            List<LevelGain> gains) {
+
+        public LevelLine {
+            gains = List.copyOf(gains);
+        }
+
+        /** Whether an improvement or Expertise waits to be chosen. */
+        public boolean choicesPending() {
+            return improvements.pending() > 0 || expertise.pending() > 0;
+        }
 
         /** How far the XP is from this level's threshold to the next, {@code 0..1}; full at the top level. */
         public float progress() {
@@ -95,19 +112,46 @@ public record StatSheet(
         }
     }
 
+    /** How many skills wait to be chosen for Expertise, and the skills the player could pick now. */
+    public record ExpertiseChoice(int pending, List<ResourceLocation> options) {
+
+        public static final ExpertiseChoice NONE = new ExpertiseChoice(0, List.of());
+
+        public ExpertiseChoice {
+            options = List.copyOf(options);
+        }
+    }
+
     /** Each part is empty, and each extra left out, while its switch is off. */
     public record Body(
-            Optional<HealthLine> health, Optional<ArmorLine> armor, Optional<SizeOption> size, List<ExtraLine> extras) {
+            Optional<HealthLine> health,
+            Optional<ArmorLine> armor,
+            Optional<SizeOption> size,
+            Optional<HitDiceLine> hitDice,
+            List<ExtraLine> extras) {
 
-        public static final Body NONE = new Body(Optional.empty(), Optional.empty(), Optional.empty(), List.of());
+        public static final Body NONE =
+                new Body(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), List.of());
 
         public Body {
             extras = List.copyOf(extras);
         }
     }
 
-    /** {@code maxHealth} is the player's whole max health; the rest is what CON and levels add to it. */
-    public record HealthLine(float maxHealth, int conModifier, double conHealth, double levelHealth) {}
+    /**
+     * {@code maxHealth} is the player's whole max health; the rest is what CON and the levels after the first, with
+     * the class's {@code hitDie}, add to it, and what rounding down to whole hearts takes off ({@code rounding}, zero
+     * or less).
+     */
+    public record HealthLine(
+            float maxHealth, int conModifier, double conHealth, int hitDie, double levelHealth, double rounding) {}
+
+    /**
+     * The Hit Dice pool: {@code left} of {@code total} dice with {@code sides}. A long rest gives back
+     * {@code regainFraction} of them and heals fully when {@code healsFully}; both are 0 and false while long rests are
+     * off.
+     */
+    public record HitDiceLine(int sides, int left, int total, double regainFraction, boolean healsFully) {}
 
     /**
      * {@link #armorClass} is what attacks roll against: Critfall's {@code baseArmorClass} plus {@code dexBonus},
@@ -201,18 +245,40 @@ public record StatSheet(
             Improvements::maxScore,
             Improvements::new);
 
-    private static final StreamCodec<ByteBuf, LevelLine> LEVEL_LINE = StreamCodec.composite(
+    private static final StreamCodec<ByteBuf, ExpertiseChoice> EXPERTISE = StreamCodec.composite(
             ByteBufCodecs.VAR_INT,
-            LevelLine::level,
-            ByteBufCodecs.VAR_INT,
-            LevelLine::xp,
-            ByteBufCodecs.VAR_INT,
-            LevelLine::levelXp,
-            ByteBufCodecs.optional(ByteBufCodecs.VAR_INT),
-            LevelLine::nextLevelXp,
-            IMPROVEMENTS,
-            LevelLine::improvements,
-            LevelLine::new);
+            ExpertiseChoice::pending,
+            ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            ExpertiseChoice::options,
+            ExpertiseChoice::new);
+
+    private static final StreamCodec<ByteBuf, List<LevelGain>> GAINS =
+            LevelGain.STREAM_CODEC.apply(ByteBufCodecs.list());
+
+    // Written by hand: StreamCodec.composite stops at six fields.
+    private static final StreamCodec<ByteBuf, LevelLine> LEVEL_LINE =
+            StreamCodec.of(StatSheet::writeLevel, StatSheet::readLevel);
+
+    private static void writeLevel(ByteBuf buffer, LevelLine line) {
+        ByteBufCodecs.VAR_INT.encode(buffer, line.level());
+        ByteBufCodecs.VAR_INT.encode(buffer, line.xp());
+        ByteBufCodecs.VAR_INT.encode(buffer, line.levelXp());
+        ByteBufCodecs.optional(ByteBufCodecs.VAR_INT).encode(buffer, line.nextLevelXp());
+        IMPROVEMENTS.encode(buffer, line.improvements());
+        EXPERTISE.encode(buffer, line.expertise());
+        GAINS.encode(buffer, line.gains());
+    }
+
+    private static LevelLine readLevel(ByteBuf buffer) {
+        return new LevelLine(
+                ByteBufCodecs.VAR_INT.decode(buffer),
+                ByteBufCodecs.VAR_INT.decode(buffer),
+                ByteBufCodecs.VAR_INT.decode(buffer),
+                ByteBufCodecs.optional(ByteBufCodecs.VAR_INT).decode(buffer),
+                IMPROVEMENTS.decode(buffer),
+                EXPERTISE.decode(buffer),
+                GAINS.decode(buffer));
+    }
 
     private static final StreamCodec<ByteBuf, HealthLine> HEALTH_LINE = StreamCodec.composite(
             ByteBufCodecs.FLOAT,
@@ -221,9 +287,26 @@ public record StatSheet(
             HealthLine::conModifier,
             ByteBufCodecs.DOUBLE,
             HealthLine::conHealth,
+            ByteBufCodecs.VAR_INT,
+            HealthLine::hitDie,
             ByteBufCodecs.DOUBLE,
             HealthLine::levelHealth,
+            ByteBufCodecs.DOUBLE,
+            HealthLine::rounding,
             HealthLine::new);
+
+    private static final StreamCodec<ByteBuf, HitDiceLine> HIT_DICE_LINE = StreamCodec.composite(
+            ByteBufCodecs.VAR_INT,
+            HitDiceLine::sides,
+            ByteBufCodecs.VAR_INT,
+            HitDiceLine::left,
+            ByteBufCodecs.VAR_INT,
+            HitDiceLine::total,
+            ByteBufCodecs.DOUBLE,
+            HitDiceLine::regainFraction,
+            ByteBufCodecs.BOOL,
+            HitDiceLine::healsFully,
+            HitDiceLine::new);
 
     private static final StreamCodec<ByteBuf, ArmorPoints> ARMOR_POINTS = StreamCodec.composite(
             ByteBufCodecs.VAR_INT,
@@ -276,6 +359,8 @@ public record StatSheet(
             Body::armor,
             ByteBufCodecs.optional(SizeOption.STREAM_CODEC),
             Body::size,
+            ByteBufCodecs.optional(HIT_DICE_LINE),
+            Body::hitDice,
             EXTRA_LINE.apply(ByteBufCodecs.list()),
             Body::extras,
             Body::new);

@@ -65,11 +65,6 @@ public class LevelGameTests {
     }
 
     @GameTest(template = TEMPLATE)
-    public void levelUpRecordsTheClassHitDie(GameTestHelper helper) {
-        LevelScenarios.levelUpRecordsTheClassHitDie(helper);
-    }
-
-    @GameTest(template = TEMPLATE)
     public void sheetShowsLevel(GameTestHelper helper) {
         LevelScenarios.sheetShowsLevel(helper);
     }
@@ -77,5 +72,20 @@ public class LevelGameTests {
     @GameTest(template = TEMPLATE)
     public void levelSurvivesRelogAndSave(GameTestHelper helper) {
         LevelScenarios.levelSurvivesRelogAndSave(helper);
+    }
+
+    @GameTest(template = TEMPLATE)
+    public void classImprovementsAreCappedAtTheNumberEarned(GameTestHelper helper) {
+        LevelScenarios.classImprovementsAreCappedAtTheNumberEarned(helper);
+    }
+
+    @GameTest(template = TEMPLATE)
+    public void expertiseDoublesTheProficiencyBonus(GameTestHelper helper) {
+        LevelScenarios.expertiseDoublesTheProficiencyBonus(helper);
+    }
+
+    @GameTest(template = TEMPLATE)
+    public void levelUpPanelListsWhatEachLevelGave(GameTestHelper helper) {
+        LevelScenarios.levelUpPanelListsWhatEachLevelGave(helper);
     }
 }

@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.Consumer;
+import net.minecraft.resources.ResourceLocation;
 import studio.modroll.checks.Checks;
 import studio.modroll.checks.ability.Abilities;
 import studio.modroll.checks.api.Ability;
@@ -37,7 +38,7 @@ public final class ScoresConfigLoader {
 
     public static final String DEFAULT_FILE = """
             {
-              "format_version": 1,
+              "format_version": 2,
               "player_defaults": { "str": 10, "dex": 10, "con": 10, "int": 10, "wis": 10, "cha": 10 },
               "derivation": {
                 "enabled": true,
@@ -95,8 +96,14 @@ public final class ScoresConfigLoader {
                 "advancements": { "enabled": true, "xp": 25 },
                 "ability_improvements": {
                   "levels": [4, 8, 12, 16, 19],
+                  "class_levels": { "checks:fighter": [6, 14], "checks:rogue": [10] },
                   "options": [[2], [1, 1]],
                   "max_score": 20
+                },
+                "expertise": {
+                  "enabled": true,
+                  "skills_per_level": 2,
+                  "class_levels": { "checks:rogue": [1, 6], "checks:bard": [3, 10] }
                 }
               },
               "events": { "enabled": true },
@@ -107,7 +114,14 @@ public final class ScoresConfigLoader {
               "health": {
                 "enabled": true,
                 "per_con_point": 2,
-                "per_level": { "enabled": false, "multiplier": 0.2 }
+                "whole_hearts": true,
+                "per_level": {
+                  "enabled": true,
+                  "multiplier": 0.2,
+                  "con_per_level": true,
+                  "min_per_level": 1,
+                  "custom_hit_die": 8
+                }
               },
               "armor_class": { "enabled": true, "medium_max_dex": 2 },
               "size": { "enabled": true },
@@ -283,6 +297,17 @@ public final class ScoresConfigLoader {
                 "taming": { "enabled": true, "dc": 12 },
                 "hunger": { "enabled": true, "per_point": 0.05, "max_reduction": 0.25 },
                 "ailments": { "enabled": true, "per_point": 0.05, "max_reduction": 0.25 }
+              },
+              "rest": {
+                "hit_dice": { "enabled": true, "heal_multiplier": 1.0, "min_heal": 1 },
+                "short_rest": { "enabled": true, "ticks": 1000, "campfire_radius": 3, "monster_range": 8, "monster_height": 5 },
+                "long_rest": {
+                  "enabled": true,
+                  "regain_fraction": 1.0,
+                  "min_regain": 1,
+                  "heal_to_full": true,
+                  "recharges_traits": true
+                }
               }
             }
             """;
@@ -298,10 +323,23 @@ public final class ScoresConfigLoader {
                 return ScoresConfig.DEFAULTS;
             }
             JsonObject json = JsonParser.parseString(Files.readString(file)).getAsJsonObject();
+            if (ScoresMigration.migrate(json)) {
+                saveMigrated(file, json);
+            }
             return parse(json, Checks.LOG::warn);
         } catch (IOException | JsonParseException | IllegalStateException e) {
             Checks.LOG.error("Could not read {} — using default scores config: {}", file, e.toString());
             return ScoresConfig.DEFAULTS;
+        }
+    }
+
+    /** Rewrites a file {@link ScoresMigration} just moved, so the move happens once. The config applies either way. */
+    private static void saveMigrated(Path file, JsonObject json) {
+        try {
+            Files.writeString(file, ScoresFileFormat.write(json));
+            Checks.LOG.info(ScoresMigration.MESSAGE, file);
+        } catch (IOException e) {
+            Checks.LOG.warn("Could not save {} after moving it to format_version 2: {}", file, e.toString());
         }
     }
 
@@ -340,6 +378,7 @@ public final class ScoresConfigLoader {
         ScoresConfig.RollMessageSettings rollMessages = parseRollMessages(j.object("roll_messages"));
         ScoresConfig.DeathMessageSettings deathMessages = parseDeathMessages(j.object("death_messages"));
         ScoresConfig.ExplorationSettings exploration = ExplorationConfigParser.parse(j.object("exploration"));
+        ScoresConfig.RestSettings rest = parseRest(j.object("rest"));
 
         j.finish();
         return new ScoresConfig(
@@ -359,7 +398,35 @@ public final class ScoresConfigLoader {
                 social,
                 rollMessages,
                 deathMessages,
-                exploration);
+                exploration,
+                rest);
+    }
+
+    private static ScoresConfig.RestSettings parseRest(LenientJson json) {
+        ScoresConfig.RestSettings defaults = ScoresConfig.DEFAULTS.rest();
+        LenientJson hitDice = json.object("hit_dice");
+        LenientJson shortRest = json.object("short_rest");
+        LenientJson longRest = json.object("long_rest");
+        ScoresConfig.ShortRestSettings shortDefaults = defaults.shortRest();
+        ScoresConfig.LongRestSettings longDefaults = defaults.longRest();
+        return new ScoresConfig.RestSettings(
+                new ScoresConfig.HitDiceSettings(
+                        hitDice.getBool("enabled", defaults.hitDice().enabled()),
+                        nonNegative(
+                                hitDice, "heal_multiplier", defaults.hitDice().healMultiplier()),
+                        nonNegative(hitDice, "min_heal", defaults.hitDice().minHeal())),
+                new ScoresConfig.ShortRestSettings(
+                        shortRest.getBool("enabled", shortDefaults.enabled()),
+                        atLeastOne(shortRest, "ticks", shortDefaults.ticks()),
+                        nonNegative(shortRest, "campfire_radius", shortDefaults.campfireRadius()),
+                        nonNegative(shortRest, "monster_range", shortDefaults.monsterRange()),
+                        nonNegative(shortRest, "monster_height", shortDefaults.monsterHeight())),
+                new ScoresConfig.LongRestSettings(
+                        longRest.getBool("enabled", longDefaults.enabled()),
+                        fraction(longRest, "regain_fraction", longDefaults.regainFraction()),
+                        nonNegative(longRest, "min_regain", longDefaults.minRegain()),
+                        longRest.getBool("heal_to_full", longDefaults.healToFull()),
+                        longRest.getBool("recharges_traits", longDefaults.rechargesTraits())));
     }
 
     private static ScoresConfig.DeathMessageSettings parseDeathMessages(LenientJson json) {
@@ -451,7 +518,11 @@ public final class ScoresConfigLoader {
                 json.getBool("enabled", defaults.enabled()),
                 nonNegative(json, "per_con_point", defaults.perConPoint()),
                 perLevel.getBool("enabled", defaults.perLevelEnabled()),
-                nonNegative(perLevel, "multiplier", defaults.perLevelMultiplier()));
+                nonNegative(perLevel, "multiplier", defaults.perLevelMultiplier()),
+                perLevel.getBool("con_per_level", defaults.conPerLevel()),
+                nonNegative(perLevel, "min_per_level", defaults.minPerLevel()),
+                atLeastOne(perLevel, "custom_hit_die", defaults.customHitDie()),
+                json.getBool("whole_hearts", defaults.wholeHearts()));
     }
 
     private static ScoresConfig.ArmorClassSettings parseArmorClass(
@@ -513,7 +584,39 @@ public final class ScoresConfigLoader {
                 parseXpThresholds(json, defaults.xpThresholds()),
                 parseProficiencyBonuses(json, defaults.proficiencyBonuses()),
                 parseXpSources(json, defaults.xpSources()),
-                parseImprovements(json.object("ability_improvements"), defaults.improvements()));
+                parseImprovements(json.object("ability_improvements"), defaults.improvements()),
+                parseExpertise(json.object("expertise"), defaults.expertise()));
+    }
+
+    private static ScoresConfig.ExpertiseSettings parseExpertise(
+            LenientJson json, ScoresConfig.ExpertiseSettings defaults) {
+        return new ScoresConfig.ExpertiseSettings(
+                json.getBool("enabled", defaults.enabled()),
+                nonNegative(json, "skills_per_level", defaults.skillsPerLevel()),
+                parseClassLevels(json, defaults.classLevels()));
+    }
+
+    /**
+     * Class ids to levels; a key that is not an id is skipped with a warning, and so is a level outside the
+     * level range. Listing the key replaces the whole default map.
+     */
+    private static Map<ResourceLocation, List<Integer>> parseClassLevels(
+            LenientJson json, Map<ResourceLocation, List<Integer>> defaults) {
+        if (!json.has("class_levels")) {
+            return defaults;
+        }
+        LenientJson classes = json.object("class_levels");
+        Map<ResourceLocation, List<Integer>> levels = new HashMap<>();
+        for (String key : classes.keys()) {
+            ResourceLocation id = ResourceLocation.tryParse(key);
+            List<Integer> parsed = levelList(classes, key, List.of());
+            if (id == null) {
+                classes.warn("skipped class '" + key + "': not a class id");
+                continue;
+            }
+            levels.put(id, parsed);
+        }
+        return levels;
     }
 
     /** One total per level, starting at 0 for level 1 and never decreasing. */
@@ -580,14 +683,15 @@ public final class ScoresConfigLoader {
     private static ScoresConfig.ImprovementSettings parseImprovements(
             LenientJson json, ScoresConfig.ImprovementSettings defaults) {
         return new ScoresConfig.ImprovementSettings(
-                parseImprovementLevels(json, defaults.levels()),
+                levelList(json, "levels", defaults.levels()),
+                parseClassLevels(json, defaults.classLevels()),
                 parseBonusOptions(json, "options", defaults.options()),
                 parseMaxScore(json, "max_score", defaults.maxScore()));
     }
 
     /** A level outside the level range is skipped with a warning; repeats count once. */
-    private static List<Integer> parseImprovementLevels(LenientJson json, List<Integer> defaultLevels) {
-        Optional<List<Integer>> levels = json.optionalIntList("levels");
+    private static List<Integer> levelList(LenientJson json, String key, List<Integer> defaultLevels) {
+        Optional<List<Integer>> levels = json.optionalIntList(key);
         if (levels.isEmpty()) {
             return defaultLevels;
         }
@@ -596,7 +700,7 @@ public final class ScoresConfigLoader {
             if (Levels.inRange(level)) {
                 valid.add(level);
             } else {
-                json.warn("skipped improvement level " + level + ": outside " + Levels.MIN_LEVEL + ".."
+                json.warn("skipped level " + level + " in '" + key + "': outside " + Levels.MIN_LEVEL + ".."
                         + Levels.MAX_LEVEL);
             }
         }

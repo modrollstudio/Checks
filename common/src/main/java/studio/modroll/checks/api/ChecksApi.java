@@ -2,6 +2,7 @@ package studio.modroll.checks.api;
 
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
@@ -10,6 +11,7 @@ import studio.modroll.checks.check.CheckEvents;
 import studio.modroll.checks.check.CheckRolls;
 import studio.modroll.checks.data.SkillStore;
 import studio.modroll.checks.level.Levelling;
+import studio.modroll.checks.rest.Rests;
 import studio.modroll.checks.score.ScoreService;
 import studio.modroll.critfall.api.RollService;
 import studio.modroll.critfall.api.dice.RollMode;
@@ -96,6 +98,20 @@ public final class ChecksApi {
      */
     public static void onLevelUp(Consumer<LevelUpEvent> listener) {
         Levelling.addListener(listener);
+    }
+
+    /**
+     * While {@code blocker} answers true for a player, they can't start a short rest, and a short rest under way
+     * breaks before it spends any Hit Die; asked on the server thread every tick a player rests. Meant for Initiative's fights.
+     * Register once, during mod construction.
+     */
+    public static void addRestBlocker(Predicate<ServerPlayer> blocker) {
+        Rests.addBlocker(blocker);
+    }
+
+    /** The Hit Dice the player has left to spend; 0 while Hit Dice are off. */
+    public static int hitDiceLeft(ServerPlayer player) {
+        return Rests.hitDiceLeft(player);
     }
 
     /**

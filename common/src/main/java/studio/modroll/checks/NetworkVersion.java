@@ -15,7 +15,7 @@ import studio.modroll.checks.text.FallbackText;
  */
 public final class NetworkVersion {
 
-    public static final int CURRENT = 3;
+    public static final int CURRENT = 4;
 
     private NetworkVersion() {}
 

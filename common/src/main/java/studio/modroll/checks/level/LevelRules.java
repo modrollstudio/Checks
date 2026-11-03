@@ -1,10 +1,15 @@
 package studio.modroll.checks.level;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.IntToDoubleFunction;
+import java.util.function.Predicate;
+import net.minecraft.resources.ResourceLocation;
 import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.data.ScoresConfig.ImprovementSettings;
 import studio.modroll.checks.data.ScoresConfig.LevellingSettings;
@@ -12,7 +17,8 @@ import studio.modroll.checks.data.ScoresConfig.LevellingSettings;
 /**
  * Levelling arithmetic, free of Minecraft so it is unit-testable. XP only ever raises the level; a set
  * level moves the XP to that level's threshold unless it already lies within the level. Improvements
- * earned are derived from the level, so lowering and raising a level never grants one twice.
+ * and Expertise earned are derived from the level and class, so lowering and raising a level never grants
+ * one twice.
  */
 public final class LevelRules {
 
@@ -52,12 +58,82 @@ public final class LevelRules {
         return settings.proficiencyBonuses().get(level - Levels.MIN_LEVEL);
     }
 
+    /** The improvements the shared levels and the class's own earn up to {@code level}. */
+    public static int earnedImprovements(int level, Optional<ResourceLocation> classId, LevellingSettings settings) {
+        return reached(settings.improvements().levelsFor(classId), level);
+    }
+
     /** Improvements earned up to the player's level that they have not chosen yet. */
-    public static int pendingImprovements(PlayerLevel current, LevellingSettings settings) {
-        long earned = settings.improvements().levels().stream()
-                .filter(level -> level <= current.level())
-                .count();
-        return (int) Math.max(0, earned - current.improvements().size());
+    public static int pendingImprovements(
+            PlayerLevel current, Optional<ResourceLocation> classId, LevellingSettings settings) {
+        return Math.max(
+                0,
+                earnedImprovements(current.level(), classId, settings)
+                        - current.improvements().size());
+    }
+
+    /** The skills the class's Expertise levels let the character pick, up to {@code level}. */
+    public static int earnedExpertise(int level, Optional<ResourceLocation> classId, LevellingSettings settings) {
+        return reached(settings.expertise().levelsFor(classId), level)
+                * settings.expertise().skillsPerLevel();
+    }
+
+    public static int pendingExpertise(
+            PlayerLevel current, Optional<ResourceLocation> classId, LevellingSettings settings) {
+        return Math.max(
+                0,
+                earnedExpertise(current.level(), classId, settings)
+                        - current.expertise().size());
+    }
+
+    /**
+     * Checks a choice of {@code skills} for Expertise: one to {@code pending} different skills, each one the
+     * character is proficient in and has no Expertise in yet.
+     */
+    public static Optional<ImprovementRejection> validateExpertise(
+            List<ResourceLocation> skills, Predicate<ResourceLocation> proficient, int pending) {
+        if (pending <= 0) {
+            return Optional.of(ImprovementRejection.NO_EXPERTISE_PENDING);
+        }
+        if (skills.isEmpty() || skills.size() > pending || Set.copyOf(skills).size() != skills.size()) {
+            return Optional.of(ImprovementRejection.WRONG_EXPERTISE);
+        }
+        if (!skills.stream().allMatch(proficient)) {
+            return Optional.of(ImprovementRejection.NOT_PROFICIENT);
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * What each level up to {@code level} gave: the max health it added, {@code healthAt} being what the levels
+     * add at each level (all of level 1's max health for level 1), the proficiency bonus where it rose, and the
+     * improvements and Expertise it earned.
+     */
+    public static List<LevelGain> gains(
+            int level,
+            Optional<ResourceLocation> classId,
+            LevellingSettings settings,
+            IntToDoubleFunction healthAt,
+            double levelOneHealth) {
+        List<LevelGain> gains = new ArrayList<>();
+        for (int at = Levels.MIN_LEVEL; at <= level; at++) {
+            int bonus = proficiencyBonus(at, settings);
+            boolean rose = at == Levels.MIN_LEVEL || bonus != proficiencyBonus(at - 1, settings);
+            double health = at == Levels.MIN_LEVEL
+                    ? levelOneHealth
+                    : healthAt.applyAsDouble(at) - healthAt.applyAsDouble(at - 1);
+            gains.add(new LevelGain(
+                    at,
+                    health,
+                    rose ? Optional.of(bonus) : Optional.empty(),
+                    earnedImprovements(at, classId, settings) - earnedImprovements(at - 1, classId, settings),
+                    earnedExpertise(at, classId, settings) - earnedExpertise(at - 1, classId, settings)));
+        }
+        return gains;
+    }
+
+    private static int reached(List<Integer> levels, int level) {
+        return (int) levels.stream().filter(at -> at <= level).count();
     }
 
     /**

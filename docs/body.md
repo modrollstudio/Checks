@@ -9,14 +9,28 @@ Checks still rolls no dice: the AC part reaches Critfall through its modifier pr
 
 - **CON:** the CON modifier times `health.per_con_point` hit points (default `2`): CON 16 (+3) gives
   +6 (three hearts), CON 6 (-2) gives -4.
-- **Levels (off by default):** with `health.per_level.enabled`, each level gained adds its recorded
-  class hit die's fixed 5e value (`sides / 2 + 1`, so a d10 is 6) times `health.per_level.multiplier`
-  (default `0.2`), rounded down over all levels. Level 1 is Minecraft's own 20 HP; levels gained
-  without a class (Custom) or while presets were off recorded no hit die and add nothing (see
-  [levelling.md](levelling.md)). A d10 Fighter at level 5 with the default multiplier gets
-  `floor(4 × 6 × 0.2) = +4`.
-- **Traits:** a species trait with `extra_health` (Dwarven Toughness: half a hit point per level)
-  adds its own modifier, `checks:trait_health` (see [traits.md](traits.md)).
+- **Levels:** level 1 is Minecraft's own 20 HP plus CON. Each level after it adds the class's hit die's
+  fixed 5e value (`sides / 2 + 1`, so a d10 is 6) plus the CON modifier, at least
+  `health.per_level.min_per_level` (default `1`), times `health.per_level.multiplier` (default `0.2`),
+  rounded down over all levels. The die is the current class's, for every level whenever it was gained;
+  a Custom class, no class, or presets off use `health.per_level.custom_hit_die` (default `8`).
+  `con_per_level: false` leaves CON out of the per level part. A CON increase raises the levels already
+  gained too, as in 5e, since max health is worked out live.
+
+  | Max health | L1 | L5 | L10 | L20 |
+  | --- | --- | --- | --- | --- |
+  | d8, CON 10 | 20 | 24 | 28 | 38 |
+  | d8, CON 16 | 26 | 32 | 40 | 56 |
+  | d12, CON 10 | 20 | 24 | 32 | 46 |
+  | d12, CON 16 | 26 | 34 | 44 | 64 |
+
+- **Traits:** a species trait with `extra_health` (Dwarven Toughness: one hit point per level, as in 5e)
+  is scaled by the same `health.per_level.multiplier`: a dwarf gets one more hit point every five
+  levels by default (see [traits.md](traits.md)).
+- **Whole hearts:** all the max health Checks adds (CON, levels and traits together) is rounded down
+  to an even number, so the last heart is never half empty. A level that adds a single hit point shows
+  only once the next one completes the heart. The hit points tooltip shows what the rounding took off,
+  e.g. `Rounded down to whole hearts: -1 max health`. `health.whole_hearts: false` keeps odd numbers.
 
 Health and the extras below apply to **players** only. They update within a tick of any change: a
 command, character creation, a level, an improvement, a `/reload`. Current health never exceeds the
@@ -134,7 +148,8 @@ saved data, and health above the vanilla max is capped as usual.
 ## Stat screen
 
 The stat screen shows a **Body** section, under the passive scores, with hit points, armor class and
-size, each explaining where it comes from on hover, e.g. `CON +3: +6 max health` or `DEX +2 (medium body armor, max +2)`. The AC row
+size, each explaining where it comes from on hover, e.g. `CON +3: +6 max health` or `DEX +2 (medium body armor, max +2)`, and
+the Hit Dice left (see [rests.md](rests.md)). The AC row
 appears while Checks supplies Critfall's modifiers. Each ability box lists its extras, e.g.
 `Mining speed +15%`. See [stat-screen.md](stat-screen.md).
 
@@ -144,7 +159,14 @@ appears while Checks supplies Critfall's modifiers. Each ability box lists its e
 "health": {
   "enabled": true,
   "per_con_point": 2,
-  "per_level": { "enabled": false, "multiplier": 0.2 }
+  "whole_hearts": true,
+  "per_level": {
+    "enabled": true,
+    "multiplier": 0.2,
+    "con_per_level": true,
+    "min_per_level": 1,
+    "custom_hit_die": 8
+  }
 },
 "armor_class": { "enabled": true, "medium_max_dex": 2 },
 "size": { "enabled": true },
@@ -158,13 +180,20 @@ appears while Checks supplies Critfall's modifiers. Each ability box lists its e
 }
 ```
 
-A negative number falls back to its default with a warning.
+A negative number, or a `custom_hit_die` below 1, falls back to its default with a warning.
+
+Before 0.2.0 health per level was off by default. A `scores.json` from then (`format_version` 1) is moved
+to `format_version` 2 once, on load, with a line in the log: the move turns `health.per_level.enabled`
+on and changes nothing else. Set it back to `false` afterwards to keep the old rule; the file is not
+moved again.
 
 ## Toggles
 
 - `health.enabled: false` removes the max health modifier; current health drops within the vanilla
   max.
-- `health.per_level.enabled` (default `false`) adds the hit dice of levels gained.
+- `health.per_level.enabled: false` stops levels adding max health. Traits that add health per level
+  still do.
+- `health.whole_hearts: false` stops rounding max health down to whole hearts.
 - `armor_class.enabled: false` makes Checks answer nothing for AC, so Critfall uses its own.
   `critfall.enabled: false` turns off every Critfall modifier, AC included.
 - `size.enabled: false` returns every player to normal size. So does

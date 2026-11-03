@@ -14,6 +14,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.VanillaGameEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
@@ -21,6 +22,7 @@ import net.neoforged.neoforge.event.entity.living.LivingKnockBackEvent;
 import net.neoforged.neoforge.event.entity.living.LivingUseTotemEvent;
 import net.neoforged.neoforge.event.entity.player.AdvancementEvent;
 import net.neoforged.neoforge.event.entity.player.ArrowLooseEvent;
+import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerXpEvent;
@@ -53,9 +55,11 @@ import studio.modroll.checks.exploration.Leaps;
 import studio.modroll.checks.exploration.Sneaking;
 import studio.modroll.checks.exploration.client.ClientClimbing;
 import studio.modroll.checks.exploration.client.ClientLeaps;
+import studio.modroll.checks.level.ExpertisePayload;
 import studio.modroll.checks.level.ImprovementPayload;
 import studio.modroll.checks.level.Levelling;
 import studio.modroll.checks.neoforge.client.ChecksNeoForgeClient;
+import studio.modroll.checks.rest.Rests;
 import studio.modroll.checks.save.VanillaSaves;
 import studio.modroll.checks.score.ScoresRuntime;
 import studio.modroll.checks.sheet.StatSheetPayload;
@@ -115,6 +119,8 @@ public final class ChecksNeoForge {
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, ChecksNeoForge::onArrowLoose);
         // Lowest priority, and skipped when cancelled, so a save scales what other mods settled on.
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, ChecksNeoForge::onIncomingDamage);
+        NeoForge.EVENT_BUS.addListener(ChecksNeoForge::onDamaged);
+        NeoForge.EVENT_BUS.addListener(ChecksNeoForge::onAttack);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, ChecksNeoForge::onKnockBack);
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, ChecksNeoForge::onExplosionKnockback);
         // Lowest priority, and skipped when cancelled, so a last stand is spent only on a death nothing else stopped.
@@ -122,6 +128,16 @@ public final class ChecksNeoForge {
         // NeoForge asks about the totem before LivingDeathEvent; Fabric's ALLOW_DEATH comes before the totem.
         // Keeping the totem while a last stand is ready lets the death event spend the last stand first.
         NeoForge.EVENT_BUS.addListener(EventPriority.LOWEST, ChecksNeoForge::onUseTotem);
+    }
+
+    private static void onDamaged(LivingDamageEvent.Post event) {
+        ServerHooks.onDamaged(event.getEntity(), event.getSource());
+    }
+
+    private static void onAttack(AttackEntityEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            Rests.onAttack(player);
+        }
     }
 
     private static void onIncomingDamage(LivingIncomingDamageEvent event) {
@@ -281,6 +297,11 @@ public final class ChecksNeoForge {
                         ImprovementPayload.STREAM_CODEC,
                         (payload, context) ->
                                 asServerPlayer(context, player -> Levelling.improve(player, payload.increases())))
+                .playToServer(
+                        ExpertisePayload.TYPE,
+                        ExpertisePayload.STREAM_CODEC,
+                        (payload, context) ->
+                                asServerPlayer(context, player -> Levelling.chooseExpertise(player, payload.skills())))
                 .playToClient(
                         RollLinePayload.TYPE,
                         RollLinePayload.STREAM_CODEC,

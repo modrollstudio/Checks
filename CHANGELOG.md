@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.2.0 — unreleased (alpha)
+
+Requires Critfall 0.2.18 or newer.
+
+- Hit points per level are on: each level after the first adds your class's hit die (a d10 is 6) plus your CON modifier, at least 1, times 0.2, rounded down. A level 20 d8 character with CON 10 has 38 max health, a d12 with CON 16 has 64. The die is your current class's for every level, so levels gained before you made your character count too; a Custom class or none uses a d8. Existing `scores.json` files are moved to `format_version` 2 once, with a line in the log, which turns `health.per_level.enabled` on; set it back to `false` for the old rule.
+- Dwarven Toughness is 5e's one hit point per level, scaled like the other per level hit points: one more every five levels.
+- Fighters earn extra ability score improvements at levels 6 and 14, Rogues at 10 (`levelling.ability_improvements.class_levels`). Only as many improvements apply as your level and class earn, so changing class can set one aside until you are that class again.
+- Expertise: Rogues pick two skills they are proficient in at levels 1 and 6, Bards at 3 and 10, and their proficiency bonus counts twice on them (`levelling.expertise`).
+- Hit Dice: one per level, your class's die. Use a lit campfire with an empty hand for a short rest of about 50 seconds. When it is done it spends Hit Dice for you, one at a time, until you are at full health or out of dice; each heals its roll plus your CON modifier, at least 1, and one chat line says how many were spent and how much they healed. The rest breaks if you take damage, attack, leave the fire, the fire goes out, a monster comes near, or another mod says you are in a fight (`ChecksApi.addRestBlocker`, for Initiative's encounters).
+- Sleeping through the night is a long rest, as in the 2024 rules: it heals you fully, gives back all your spent Hit Dice and readies once-a-day traits such as Relentless Endurance. `rest.long_rest.regain_fraction: 0.5` gives back half instead, as in the 2014 rules. The Hit Dice tooltip says what sleeping does on your server.
+- Max health from Checks is rounded down to whole hearts, so the last heart is never half empty (`health.whole_hearts`).
+- The character sheet shows your Hit Dice next to your hit points, and the hit points tooltip names your class's hit die.
+- The Level up! panel lists what each level gave (max health, a Hit Die, proficiency bonus, improvements, Expertise), with a button for each choice waiting. Without one waiting, the sheet's button reads Levels.
+- For other mods: `ChecksApi.addRestBlocker` and `ChecksApi.hitDiceLeft`.
+- A 0.2.0 client and a 0.1.4 server (or the other way round) refuse to connect when joining.
+
 ## 0.1.4 — 2026-11-03 (alpha)
 
 Requires Critfall 0.2.18 or newer.

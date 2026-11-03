@@ -34,6 +34,13 @@ public final class TraitUses extends SavedData {
         setDirty();
     }
 
+    /** Readies every once-a-day trait of the player's, as a long rest does. */
+    public void recharge(UUID player) {
+        if (lastUses.remove(player) != null) {
+            setDirty();
+        }
+    }
+
     /** Ready when never used, or {@code rechargeTicks} after the last use. */
     public static boolean ready(Optional<Long> lastUse, long now, int rechargeTicks) {
         return lastUse.map(last -> now - last >= rechargeTicks).orElse(true);

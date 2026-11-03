@@ -26,6 +26,7 @@
       "studio.modroll.checks.fabric.gametest.PerformanceGameTests",
       "studio.modroll.checks.fabric.gametest.PresetGameTests",
       "studio.modroll.checks.fabric.gametest.ProficiencyGameTests",
+      "studio.modroll.checks.fabric.gametest.RestGameTests",
       "studio.modroll.checks.fabric.gametest.RollMessageGameTests",
       "studio.modroll.checks.fabric.gametest.SaveGameTests",
       "studio.modroll.checks.fabric.gametest.ScoreGameTests",

@@ -27,7 +27,8 @@ import studio.modroll.checks.trait.TraitEffectType;
  * and the profile for scores and skill and save proficiency, while character creation is enabled; what
  * its presets grant (background bonuses and skills, class saves) counts only while presets are on too.
  * While levelling is enabled, a player's chosen ability score improvements add to their score below the
- * command value, and their level's proficiency bonus replaces the profile and config default. Stored
+ * command value, as many as their level and class earn, and their level's proficiency bonus replaces the
+ * profile and config default; Expertise they chose raises a skill they are proficient in. Stored
  * player values, characters and levels are empty for non-players.
  */
 public final class ScoreResolver {
@@ -49,9 +50,12 @@ public final class ScoreResolver {
                     .map(build ->
                             build.score(ability) + activeGrants(build, config).bonus(ability))
                     .orElseGet(() -> profileScore.orElse(config.playerDefault(ability)));
+            Optional<ResourceLocation> classId = activeClass(character, config);
             int improved = base
                     + activeLevel(level, config)
-                            .map(stored -> stored.improvementBonus(ability))
+                            .map(stored -> stored.improvementBonus(
+                                    ability,
+                                    LevelRules.earnedImprovements(stored.level(), classId, config.levelling())))
                             .orElse(0);
             return Abilities.clamp(storedPlayerScore.orElse(improved));
         }
@@ -95,14 +99,21 @@ public final class ScoreResolver {
             Optional<EntityScoreProfile> profile,
             Optional<Proficiency> storedPlayerLevel,
             Optional<CharacterBuild> character,
+            Optional<PlayerLevel> level,
             ScoresConfig config) {
+        Optional<ResourceLocation> classId = activeClass(character, config);
+        boolean expert = activeLevel(level, config)
+                .map(stored -> stored.expertise(LevelRules.earnedExpertise(stored.level(), classId, config.levelling()))
+                        .contains(skill.id()))
+                .orElse(false);
         Optional<Proficiency> characterLevel = activeCharacter(character, config)
                 .filter(build -> build.skills().contains(skill.id())
                         || activeGrants(build, config).skills().contains(skill.id())
                         || activeTraitSkills(build, config).contains(skill.id()))
                 .map(build -> Proficiency.PROFICIENT);
-        return resolveLevel(
+        Proficiency resolved = resolveLevel(
                 profile, storedPlayerLevel.or(() -> characterLevel), config, p -> p.skillProficiency(skill));
+        return expert && resolved == Proficiency.PROFICIENT ? Proficiency.EXPERTISE : resolved;
     }
 
     public static Proficiency resolveSaveProficiency(
@@ -134,6 +145,13 @@ public final class ScoreResolver {
 
     private static Optional<CharacterBuild> activeCharacter(Optional<CharacterBuild> character, ScoresConfig config) {
         return config.creation().enabled() ? character : Optional.empty();
+    }
+
+    /** The character's class while presets are on; empty for a Custom class. */
+    private static Optional<ResourceLocation> activeClass(Optional<CharacterBuild> character, ScoresConfig config) {
+        return activeCharacter(character, config)
+                .filter(build -> config.creation().presets().enabled())
+                .flatMap(build -> build.choices().classPreset());
     }
 
     private static Optional<PlayerLevel> activeLevel(Optional<PlayerLevel> level, ScoresConfig config) {

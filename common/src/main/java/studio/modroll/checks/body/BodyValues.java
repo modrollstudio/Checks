@@ -10,7 +10,7 @@ import studio.modroll.checks.creation.PresetChoices;
 import studio.modroll.checks.critfall.CritfallArmorClass;
 import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.level.Levelling;
-import studio.modroll.checks.level.PlayerLevel;
+import studio.modroll.checks.preset.ClassPreset;
 import studio.modroll.checks.preset.Presets;
 import studio.modroll.checks.score.ScoreService;
 import studio.modroll.checks.score.ScoresRuntime;
@@ -25,8 +25,11 @@ public final class BodyValues {
 
     private BodyValues() {}
 
-    /** The max health CON gives, and the hit dice of the levels gained when those count too. */
-    public record HealthBonus(int conModifier, double conHealth, double levelHealth) {
+    /**
+     * The max health CON gives, and what the levels after the first add with the class's {@code hitDie} when those
+     * count too.
+     */
+    public record HealthBonus(int conModifier, double conHealth, int hitDie, double levelHealth) {
 
         public double total() {
             return conHealth + levelHealth;
@@ -46,15 +49,41 @@ public final class BodyValues {
     }
 
     public static Optional<HealthBonus> health(ServerPlayer player) {
+        return health(player, Levelling.activeLevel(player).level());
+    }
+
+    private static Optional<HealthBonus> health(ServerPlayer player, int level) {
         ScoresConfig.HealthSettings settings = settings().health();
         if (!settings.enabled()) {
             return Optional.empty();
         }
         int conModifier = ScoreService.modifier(player, Ability.CONSTITUTION);
-        PlayerLevel level = Levelling.activeLevel(player);
-        double levelHealth =
-                settings.perLevelEnabled() ? BodyRules.levelHealth(level.level(), level.hitDice(), settings) : 0.0;
-        return Optional.of(new HealthBonus(conModifier, BodyRules.conHealth(conModifier, settings), levelHealth));
+        int hitDie = hitDie(player);
+        double levelHealth = levelHealth(level, hitDie, conModifier, settings);
+        return Optional.of(
+                new HealthBonus(conModifier, BodyRules.conHealth(conModifier, settings), hitDie, levelHealth));
+    }
+
+    /** The current class's hit die; a Custom class, no class, or presets off use the custom hit die. */
+    public static int hitDie(ServerPlayer player) {
+        return Levelling.classPreset(player)
+                .map(ClassPreset::hitDie)
+                .orElse(settings().health().customHitDie());
+    }
+
+    /** All the max health Checks adds: CON, the levels and traits, in whole hearts while that is on. */
+    public static double maxHealthBonus(ServerPlayer player) {
+        return maxHealthBonus(player, Levelling.activeLevel(player).level());
+    }
+
+    /** {@link #maxHealthBonus(ServerPlayer)} at {@code level}, as the player is now; for listing what each level gave. */
+    public static double maxHealthBonus(ServerPlayer player, int level) {
+        double bonus = health(player, level).map(HealthBonus::total).orElse(0.0) + traitHealth(player, level);
+        return settings().health().wholeHearts() ? BodyRules.wholeHearts(bonus) : bonus;
+    }
+
+    private static double levelHealth(int level, int hitDie, int conModifier, ScoresConfig.HealthSettings settings) {
+        return settings.perLevelEnabled() ? BodyRules.levelHealth(level, hitDie, conModifier, settings) : 0.0;
     }
 
     /** The confirmed character's species size, while sizes and presets are on. */
@@ -71,9 +100,14 @@ public final class BodyValues {
 
     /** What the species' extra health traits add at the player's level, each rounded down. */
     public static double traitHealth(ServerPlayer player) {
-        int level = Levelling.activeLevel(player).level();
+        return traitHealth(player, Levelling.activeLevel(player).level());
+    }
+
+    /** Scaled by the per level health multiplier, as the hit dice are. */
+    private static double traitHealth(ServerPlayer player, int level) {
+        double multiplier = settings().health().perLevelMultiplier();
         return Traits.effects(player, TraitEffect.ExtraHealth.class).stream()
-                .mapToDouble(health -> BodyRules.levelHealth(level, health.perLevel()))
+                .mapToDouble(health -> BodyRules.levelHealth(level, health.perLevel() * multiplier))
                 .sum();
     }
 

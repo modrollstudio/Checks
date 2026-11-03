@@ -5,7 +5,7 @@
 
 ```json
 {
-  "format_version": 1,
+  "format_version": 2,
   "player_defaults": { "str": 10, "dex": 10, "con": 10, "int": 10, "wis": 10, "cha": 10 },
   "derivation": {
     "enabled": true,
@@ -63,8 +63,14 @@
     "advancements": { "enabled": true, "xp": 25 },
     "ability_improvements": {
       "levels": [4, 8, 12, 16, 19],
+      "class_levels": { "checks:fighter": [6, 14], "checks:rogue": [10] },
       "options": [[2], [1, 1]],
       "max_score": 20
+    },
+    "expertise": {
+      "enabled": true,
+      "skills_per_level": 2,
+      "class_levels": { "checks:rogue": [1, 6], "checks:bard": [3, 10] }
     }
   },
   "events": { "enabled": true },
@@ -75,7 +81,14 @@
   "health": {
     "enabled": true,
     "per_con_point": 2,
-    "per_level": { "enabled": false, "multiplier": 0.2 }
+    "whole_hearts": true,
+    "per_level": {
+      "enabled": true,
+      "multiplier": 0.2,
+      "con_per_level": true,
+      "min_per_level": 1,
+      "custom_hit_die": 8
+    }
   },
   "armor_class": { "enabled": true, "medium_max_dex": 2 },
   "size": { "enabled": true },
@@ -251,9 +264,24 @@
     "taming": { "enabled": true, "dc": 12 },
     "hunger": { "enabled": true, "per_point": 0.05, "max_reduction": 0.25 },
     "ailments": { "enabled": true, "per_point": 0.05, "max_reduction": 0.25 }
+  },
+  "rest": {
+    "hit_dice": { "enabled": true, "heal_multiplier": 1.0, "min_heal": 1 },
+    "short_rest": { "enabled": true, "ticks": 1000, "campfire_radius": 3, "monster_range": 8, "monster_height": 5 },
+    "long_rest": {
+      "enabled": true,
+      "regain_fraction": 1.0,
+      "min_regain": 1,
+      "heal_to_full": true,
+      "recharges_traits": true
+    }
   }
 }
 ```
+
+`format_version` is `2` since Checks 0.2.0. An older file is moved to it once, on load, with a line in
+the log; the move turns `health.per_level.enabled` on, since `false` was only the old shipped default,
+and changes nothing else (see [body.md](body.md#config)).
 
 A wrong-typed value falls back to its default with a warning. A score outside `1..30` or a
 `proficiency.default_bonus` outside `0..10` is clamped with a warning. A file that is not valid JSON
@@ -308,8 +336,13 @@ species, backgrounds and classes; see [presets.md](presets.md#config).
 
 ## Levelling
 
-`levelling` sets up character levels: the XP table, the proficiency bonus per level, the XP sources
-and ability score improvements. See [levelling.md](levelling.md#config).
+`levelling` sets up character levels: the XP table, the proficiency bonus per level, the XP sources,
+ability score improvements (shared and per class) and Expertise. See [levelling.md](levelling.md#config).
+
+## Rests
+
+`rest` sets up Hit Dice, short rests at a campfire and long rests from sleeping through the night, each
+with its own `enabled` switch. See [rests.md](rests.md#config).
 
 ## Critfall
 
@@ -320,7 +353,7 @@ and ability score improvements. See [levelling.md](levelling.md#config).
 ## Body
 
 `health`, `armor_class`, `size` and `attribute_extras` set up what scores do to a player's body:
-max health from CON (and optionally levels), DEX in AC by armor weight, species size, and the STR,
+max health from CON and levels, DEX in AC by armor weight, species size, and the STR,
 DEX and CON extras. Each part and each extra has its own `enabled` switch. See [body.md](body.md#config).
 
 ## Vanilla saves
@@ -399,8 +432,12 @@ disadvantage takes away (see [bonus-sources.md](bonus-sources.md#passive-scores)
 - `creation.presets.enabled: false` offers no species, backgrounds or classes and ignores what
   confirmed characters' presets granted. See [presets.md](presets.md#toggle).
 - `levelling.enabled: false` stops XP and level changes, gives players the flat proficiency bonus
-  and ignores chosen ability score improvements, keeping stored levels. See
-  [levelling.md](levelling.md#toggle).
+  and ignores chosen ability score improvements and Expertise, keeping stored levels. See
+  [levelling.md](levelling.md#toggle). `levelling.expertise.enabled: false` turns Expertise off alone.
+- `health.per_level.enabled: false` stops levels adding max health, and `health.whole_hearts: false` keeps
+  odd max health. See [body.md](body.md#toggles).
+- `rest.hit_dice.enabled`, `rest.short_rest.enabled` and `rest.long_rest.enabled` turn Hit Dice, short
+  rests and long rests off. See [rests.md](rests.md#toggles).
 - `events.enabled: false` stops calling check event listeners, so other mods and scripts can no
   longer change or cancel rolls. See [api.md](api.md#check-events).
 - `bonus_sources.enabled: false` ignores every datapack bonus source. See

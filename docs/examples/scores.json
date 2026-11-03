@@ -1,5 +1,5 @@
 {
-  "format_version": 1,
+  "format_version": 2,
   "player_defaults": { "str": 10, "dex": 10, "con": 10, "int": 10, "wis": 10, "cha": 10 },
   "derivation": {
     "enabled": true,
@@ -57,8 +57,14 @@
     "advancements": { "enabled": true, "xp": 25 },
     "ability_improvements": {
       "levels": [4, 8, 12, 16, 19],
+      "class_levels": { "checks:fighter": [6, 14], "checks:rogue": [10] },
       "options": [[2], [1, 1]],
       "max_score": 20
+    },
+    "expertise": {
+      "enabled": true,
+      "skills_per_level": 2,
+      "class_levels": { "checks:rogue": [1, 6], "checks:bard": [3, 10] }
     }
   },
   "events": { "enabled": true },
@@ -69,7 +75,14 @@
   "health": {
     "enabled": true,
     "per_con_point": 2,
-    "per_level": { "enabled": false, "multiplier": 0.2 }
+    "whole_hearts": true,
+    "per_level": {
+      "enabled": true,
+      "multiplier": 0.2,
+      "con_per_level": true,
+      "min_per_level": 1,
+      "custom_hit_die": 8
+    }
   },
   "armor_class": { "enabled": true, "medium_max_dex": 2 },
   "size": { "enabled": true },
@@ -245,5 +258,16 @@
     "taming": { "enabled": true, "dc": 12 },
     "hunger": { "enabled": true, "per_point": 0.05, "max_reduction": 0.25 },
     "ailments": { "enabled": true, "per_point": 0.05, "max_reduction": 0.25 }
+  },
+  "rest": {
+    "hit_dice": { "enabled": true, "heal_multiplier": 1.0, "min_heal": 1 },
+    "short_rest": { "enabled": true, "ticks": 1000, "campfire_radius": 3, "monster_range": 8, "monster_height": 5 },
+    "long_rest": {
+      "enabled": true,
+      "regain_fraction": 1.0,
+      "min_regain": 1,
+      "heal_to_full": true,
+      "recharges_traits": true
+    }
   }
 }

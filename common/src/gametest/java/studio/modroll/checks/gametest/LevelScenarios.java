@@ -47,6 +47,9 @@ import net.minecraft.world.level.GameType;
 import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.api.ChecksApi;
 import studio.modroll.checks.api.LevelUpEvent;
+import studio.modroll.checks.api.Proficiency;
+import studio.modroll.checks.api.Skill;
+import studio.modroll.checks.body.PlayerBodies;
 import studio.modroll.checks.creation.CharacterBuild;
 import studio.modroll.checks.creation.CharacterStore;
 import studio.modroll.checks.creation.CreationMethod;
@@ -54,6 +57,7 @@ import studio.modroll.checks.creation.PresetChoices;
 import studio.modroll.checks.creation.PresetGrants;
 import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.level.ImprovementRejection;
+import studio.modroll.checks.level.LevelGain;
 import studio.modroll.checks.level.LevelRules;
 import studio.modroll.checks.level.LevelStore;
 import studio.modroll.checks.level.Levelling;
@@ -76,7 +80,12 @@ public final class LevelScenarios {
     private static final float LETHAL = 100f;
     private static final ResourceLocation RECIPE =
             ResourceLocation.withDefaultNamespace("recipes/building_blocks/stone_bricks");
-    private static final ResourceLocation FIGHTER = ResourceLocation.parse("checks:fighter");
+    private static final Optional<ResourceLocation> FIGHTER = Optional.of(ResourceLocation.parse("checks:fighter"));
+    private static final Optional<ResourceLocation> ROGUE = Optional.of(ResourceLocation.parse("checks:rogue"));
+    private static final ResourceLocation STEALTH = ResourceLocation.parse("checks:stealth");
+    private static final ResourceLocation PERCEPTION = ResourceLocation.parse("checks:perception");
+    private static final ResourceLocation ATHLETICS = ResourceLocation.parse("checks:athletics");
+    private static final ResourceLocation ARCANA = ResourceLocation.parse("checks:arcana");
     private static final List<Integer> PLUS_TWO_STR = List.of(2, 0, 0, 0, 0, 0);
     private static final List<Integer> PLUS_ONE_STR_DEX = List.of(1, 1, 0, 0, 0, 0);
 
@@ -436,24 +445,150 @@ public final class LevelScenarios {
         helper.succeed();
     }
 
-    /** A Fighter levelling up records its d10 for each level gained. */
-    public static void levelUpRecordsTheClassHitDie(GameTestHelper helper) {
-        ServerPlayer player = login(helper, newProfile("checks-lv-hitdie"));
+    /**
+     * A Fighter earns improvements at 4 and 6 as well as the shared levels; once a Custom class earns only the one
+     * at level 4, only the first improvement chosen applies, and as a Fighter again both do.
+     */
+    public static void classImprovementsAreCappedAtTheNumberEarned(GameTestHelper helper) {
+        ServerPlayer player = login(helper, newProfile("checks-lv-class-asi"));
         try {
-            CharacterStore.get(player.server).update(player.getUUID(), character -> character.withBuild(fighter()));
-            levelled(() -> {
-                run(helper, "checks level " + player.getScoreboardName() + " set 3");
+            levelled(() -> unprofiled(() -> {
+                CharacterStore.get(player.server)
+                        .update(player.getUUID(), character -> character.withBuild(build(FIGHTER, Set.of())));
+                Levelling.setLevel(player, 6);
+                expectEquals(helper, 2, pending(player), "a level 6 Fighter's pending improvements");
+                expect(helper, Levelling.improve(player, PLUS_TWO_STR).isEmpty(), "the first improvement");
+                expect(helper, Levelling.improve(player, PLUS_TWO_STR).isEmpty(), "the Fighter's own improvement");
+                expectRejected(helper, player, PLUS_TWO_STR, ImprovementRejection.NONE_PENDING);
+                expectEquals(helper, 14, ChecksApi.abilityScore(player, Ability.STRENGTH), "STR with both");
+
+                CharacterStore.get(player.server)
+                        .update(player.getUUID(), character -> character.withBuild(build(Optional.empty(), Set.of())));
+                expectEquals(helper, 12, ChecksApi.abilityScore(player, Ability.STRENGTH), "STR as a Custom class");
+                expectEquals(helper, 0, pending(player), "pending as a Custom class");
+
+                CharacterStore.get(player.server)
+                        .update(player.getUUID(), character -> character.withBuild(build(FIGHTER, Set.of())));
+                expectEquals(helper, 14, ChecksApi.abilityScore(player, Ability.STRENGTH), "STR as a Fighter again");
                 return null;
-            });
-            expect(
-                    helper,
-                    storedLevel(player).hitDice().equals(Map.of(2, 10, 3, 10)),
-                    "hit dice must be d10 at levels 2 and 3, were "
-                            + storedLevel(player).hitDice());
+            }));
         } finally {
             logout(helper, player);
         }
         helper.succeed();
+    }
+
+    /**
+     * A level 1 Rogue picks two skills they are proficient in for Expertise, which doubles the proficiency bonus on
+     * them; a skill without proficiency, one already chosen, or more than are waiting is refused. A level 6 Rogue
+     * gets two more; another class has none, and its chosen skills fall back to proficient.
+     */
+    public static void expertiseDoublesTheProficiencyBonus(GameTestHelper helper) {
+        ServerPlayer player = login(helper, newProfile("checks-lv-expertise"));
+        Skill stealth = ChecksApi.skill(STEALTH).orElseThrow();
+        try {
+            levelled(() -> unprofiled(() -> {
+                CharacterStore.get(player.server)
+                        .update(
+                                player.getUUID(),
+                                character -> character.withBuild(build(ROGUE, Set.of(STEALTH, PERCEPTION, ATHLETICS))));
+                StatSheet.ExpertiseChoice choice = sheetLevel(player).expertise();
+                expectEquals(helper, 2, choice.pending(), "a level 1 Rogue's Expertise to choose");
+                expect(
+                        helper,
+                        choice.options().equals(List.of(ATHLETICS, PERCEPTION, STEALTH)),
+                        "the sheet must offer the proficient skills, offered " + choice.options());
+                expectEquals(helper, 2, ChecksApi.skillModifier(player, stealth), "Stealth before Expertise");
+
+                expectExpertiseRejected(helper, player, List.of(ARCANA), ImprovementRejection.NOT_PROFICIENT);
+                expectExpertiseRejected(
+                        helper, player, List.of(STEALTH, STEALTH), ImprovementRejection.WRONG_EXPERTISE);
+                expectExpertiseRejected(
+                        helper, player, List.of(STEALTH, PERCEPTION, ATHLETICS), ImprovementRejection.WRONG_EXPERTISE);
+                expect(
+                        helper,
+                        Levelling.chooseExpertise(player, List.of(STEALTH)).isEmpty(),
+                        "Expertise in Stealth");
+                expect(
+                        helper,
+                        ChecksApi.skillProficiency(player, stealth) == Proficiency.EXPERTISE,
+                        "Stealth must have Expertise");
+                expectEquals(helper, 4, ChecksApi.skillModifier(player, stealth), "Stealth with Expertise");
+                expectExpertiseRejected(helper, player, List.of(STEALTH), ImprovementRejection.NOT_PROFICIENT);
+                expect(
+                        helper,
+                        Levelling.chooseExpertise(player, List.of(PERCEPTION)).isEmpty(),
+                        "the second pick");
+                expectExpertiseRejected(helper, player, List.of(ATHLETICS), ImprovementRejection.NO_EXPERTISE_PENDING);
+
+                Levelling.setLevel(player, 6);
+                expectEquals(helper, 2, sheetLevel(player).expertise().pending(), "a level 6 Rogue's new Expertise");
+
+                CharacterStore.get(player.server)
+                        .update(
+                                player.getUUID(),
+                                character ->
+                                        character.withBuild(build(FIGHTER, Set.of(STEALTH, PERCEPTION, ATHLETICS))));
+                expect(
+                        helper,
+                        ChecksApi.skillProficiency(player, stealth) == Proficiency.PROFICIENT,
+                        "a Fighter's Stealth must fall back to proficient");
+                expectEquals(helper, 0, sheetLevel(player).expertise().pending(), "a Fighter's Expertise to choose");
+                return null;
+            }));
+        } finally {
+            logout(helper, player);
+        }
+        helper.succeed();
+    }
+
+    /**
+     * The Level up! panel lists each level: a level 6 Rogue's level 1 gives Expertise and the starting proficiency
+     * bonus, 4 an improvement, 5 a higher bonus and 6 more Expertise. A d8 adds 1 a level, in whole hearts: nothing at
+     * level 2, a heart at level 3. The health they list adds up to the max health.
+     */
+    public static void levelUpPanelListsWhatEachLevelGave(GameTestHelper helper) {
+        ServerPlayer player = login(helper, newProfile("checks-lv-gains"));
+        try {
+            List<LevelGain> gains = levelled(() -> unprofiled(() -> {
+                CharacterStore.get(player.server)
+                        .update(player.getUUID(), character -> character.withBuild(build(ROGUE, Set.of(STEALTH))));
+                Levelling.setLevel(player, 6);
+                PlayerBodies.sync(player);
+                return sheetLevel(player).gains();
+            }));
+            expectEquals(helper, 6, gains.size(), "levels listed");
+            expect(
+                    helper,
+                    gains.get(0).equals(new LevelGain(1, 20, Optional.of(2), 0, 2)),
+                    "level 1 must give 20 max health, +2 and two Expertise, gave " + gains.get(0));
+            expect(helper, gains.get(1).health() == 0.0, "level 2 must add no whole heart, added " + gains.get(1));
+            expect(helper, gains.get(2).health() == 2.0, "level 3 must add a heart, added " + gains.get(2));
+            expectEquals(helper, 1, gains.get(3).improvements(), "level 4 improvements");
+            expect(helper, gains.get(4).proficiencyBonus().equals(Optional.of(3)), "level 5 bonus " + gains.get(4));
+            expectEquals(helper, 2, gains.get(5).expertise(), "level 6 Expertise");
+            double total = gains.stream().mapToDouble(LevelGain::health).sum();
+            expect(
+                    helper,
+                    total == player.getMaxHealth(),
+                    "the gains must add up to " + player.getMaxHealth() + ", were " + total);
+        } finally {
+            logout(helper, player);
+        }
+        helper.succeed();
+    }
+
+    private static void expectExpertiseRejected(
+            GameTestHelper helper, ServerPlayer player, List<ResourceLocation> skills, ImprovementRejection expected) {
+        Optional<ImprovementRejection> rejection = Levelling.chooseExpertise(player, skills);
+        expect(
+                helper,
+                rejection.equals(Optional.of(expected)),
+                skills + " must be rejected as " + expected + ", was " + rejection);
+    }
+
+    private static StatSheet.LevelLine sheetLevel(ServerPlayer player) {
+        return StatSheets.forPlayer(player).orElseThrow().level().orElseThrow();
     }
 
     /** The sheet carries the level, XP, both thresholds and pending improvements. */
@@ -502,7 +637,7 @@ public final class LevelScenarios {
         }
 
         saveWorldData(helper);
-        PlayerLevel expected = new PlayerLevel(4, 320, List.of(Map.of(Ability.STRENGTH, 2)), Map.of());
+        PlayerLevel expected = new PlayerLevel(4, 320, List.of(Map.of(Ability.STRENGTH, 2)), List.of(), 0);
         PlayerLevel fromDisk = savedLevelStore(helper).level(profile.getId());
         expect(helper, fromDisk.equals(expected), "the world save must hold " + expected + ", was " + fromDisk);
 
@@ -519,7 +654,8 @@ public final class LevelScenarios {
                 DEFAULTS.xpThresholds(),
                 DEFAULTS.proficiencyBonuses(),
                 sources,
-                DEFAULTS.improvements());
+                DEFAULTS.improvements(),
+                DEFAULTS.expertise());
     }
 
     private static void collectOrb(GameTestHelper helper, ServerPlayer player, int value) {
@@ -583,14 +719,15 @@ public final class LevelScenarios {
     }
 
     private static int pending(ServerPlayer player) {
-        return LevelRules.pendingImprovements(storedLevel(player), DEFAULTS);
+        return LevelRules.pendingImprovements(storedLevel(player), Levelling.classId(player), DEFAULTS);
     }
 
     private static PlayerLevel storedLevel(ServerPlayer player) {
         return LevelStore.get(player.server).level(player.getUUID());
     }
 
-    private static CharacterBuild fighter() {
+    /** All scores 10, proficient in {@code skills}, of {@code classId} (empty for a Custom class). */
+    private static CharacterBuild build(Optional<ResourceLocation> classId, Set<ResourceLocation> skills) {
         Map<Ability, Integer> scores = new EnumMap<>(Ability.class);
         for (Ability ability : Ability.values()) {
             scores.put(ability, 10);
@@ -598,8 +735,8 @@ public final class LevelScenarios {
         return new CharacterBuild(
                 CreationMethod.STANDARD_ARRAY,
                 scores,
-                Set.of(),
-                new PresetChoices(Optional.empty(), Optional.empty(), Optional.of(FIGHTER), Optional.empty()),
+                skills,
+                new PresetChoices(Optional.empty(), Optional.empty(), classId, Optional.empty()),
                 PresetGrants.NONE);
     }
 }

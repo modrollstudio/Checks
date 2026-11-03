@@ -1,6 +1,5 @@
 package studio.modroll.checks.body;
 
-import java.util.Map;
 import java.util.Optional;
 import studio.modroll.checks.data.ScoresConfig;
 
@@ -37,20 +36,38 @@ public final class BodyRules {
     }
 
     /**
-     * Each level gained, up to {@code level}, with a recorded hit die adds that die's fixed 5e value
-     * ({@code sides / 2 + 1}) times the multiplier; rounded down to whole hit points.
+     * What each level after the first adds: the hit die's fixed value ({@code sides / 2 + 1}), plus the CON modifier
+     * when {@code con_per_level} is on, at least {@code min_per_level}.
      */
-    public static double levelHealth(int level, Map<Integer, Integer> hitDice, ScoresConfig.HealthSettings settings) {
-        double total = hitDice.entrySet().stream()
-                .filter(entry -> entry.getKey() <= level)
-                .mapToDouble(entry -> (entry.getValue() / 2 + 1) * settings.perLevelMultiplier())
-                .sum();
-        return Math.floor(total);
+    public static int perLevel(int hitDie, int conModifier, ScoresConfig.HealthSettings settings) {
+        int con = settings.conPerLevel() ? conModifier : 0;
+        return Math.max(settings.minPerLevel(), hitDie / 2 + 1 + con);
+    }
+
+    /** Levels 2 to {@code level} each add {@link #perLevel} times the multiplier; rounded down to whole hit points. */
+    public static double levelHealth(int level, int hitDie, int conModifier, ScoresConfig.HealthSettings settings) {
+        int levelsAfterFirst = Math.max(0, level - 1);
+        return Math.floor(levelsAfterFirst * perLevel(hitDie, conModifier, settings) * settings.perLevelMultiplier());
     }
 
     /** {@code perLevel} hit points for each character level, rounded down to whole hit points. */
     public static double levelHealth(int level, double perLevel) {
         return Math.floor(level * perLevel);
+    }
+
+    /** {@code bonus} rounded down to an even number of hit points, so the last heart is never half empty. */
+    public static double wholeHearts(double bonus) {
+        return 2 * Math.floor(bonus / 2);
+    }
+
+    /** What spending a Hit Die heals: the roll plus the CON modifier, at least {@code min}, times the multiplier. */
+    public static float hitDieHealing(int rolled, int conModifier, int min, double multiplier) {
+        return (float) (Math.max(min, rolled + conModifier) * multiplier);
+    }
+
+    /** The Hit Dice a long rest gives back: {@code fraction} of the level, rounded down, at least {@code min}. */
+    public static int hitDiceRegained(int level, double fraction, int min) {
+        return Math.max(min, (int) Math.floor(level * fraction));
     }
 
     public static double extraAmount(int modifier, ScoresConfig.ExtraSetting setting) {
