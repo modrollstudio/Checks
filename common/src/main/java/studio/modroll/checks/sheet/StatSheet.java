@@ -111,8 +111,9 @@ public record StatSheet(
 
     /**
      * {@link #armorClass} is what attacks roll against: Critfall's {@code baseArmorClass} plus {@code dexBonus},
-     * the part of {@code dexModifier} the body armor's {@code category} allows. {@code worn} is the armor and
-     * toughness Critfall derived its AC from; empty when something else, such as an entity profile, set it.
+     * the part of {@code dexModifier} the body armor's {@code category} allows, plus {@code floorBonus}, which keeps
+     * that cap from leaving AC below what it is without the body armor. {@code worn} is how Critfall
+     * derived its AC from the armor and toughness; empty when something else, such as an entity profile, set it.
      */
     public record ArmorLine(
             int baseArmorClass,
@@ -120,15 +121,20 @@ public record StatSheet(
             int dexModifier,
             ArmorCategory category,
             int dexBonus,
+            int floorBonus,
             int mediumMaxDex) {
 
         public int armorClass() {
-            return baseArmorClass + dexBonus;
+            return baseArmorClass + dexBonus + floorBonus;
         }
     }
 
-    /** The player's armor and armor toughness attributes: every worn piece's points, summed. */
-    public record ArmorPoints(double armor, double toughness) {}
+    /**
+     * Critfall's own breakdown of an AC it derived: its {@code base} plus what the player's {@code armor} and
+     * {@code toughness} attributes (every worn piece's points, summed) add, as {@code armorPart} and
+     * {@code toughnessPart}. Critfall works the parts out, so the sheet never copies its formula.
+     */
+    public record ArmorPoints(int base, double armor, int armorPart, double toughness, int toughnessPart) {}
 
     public record ExtraLine(Extra extra, double amount) {}
 
@@ -220,22 +226,45 @@ public record StatSheet(
             HealthLine::new);
 
     private static final StreamCodec<ByteBuf, ArmorPoints> ARMOR_POINTS = StreamCodec.composite(
-            ByteBufCodecs.DOUBLE, ArmorPoints::armor, ByteBufCodecs.DOUBLE, ArmorPoints::toughness, ArmorPoints::new);
+            ByteBufCodecs.VAR_INT,
+            ArmorPoints::base,
+            ByteBufCodecs.DOUBLE,
+            ArmorPoints::armor,
+            ByteBufCodecs.VAR_INT,
+            ArmorPoints::armorPart,
+            ByteBufCodecs.DOUBLE,
+            ArmorPoints::toughness,
+            ByteBufCodecs.VAR_INT,
+            ArmorPoints::toughnessPart,
+            ArmorPoints::new);
 
-    private static final StreamCodec<ByteBuf, ArmorLine> ARMOR_LINE = StreamCodec.composite(
-            ByteBufCodecs.VAR_INT,
-            ArmorLine::baseArmorClass,
-            ByteBufCodecs.optional(ARMOR_POINTS),
-            ArmorLine::worn,
-            ByteBufCodecs.VAR_INT,
-            ArmorLine::dexModifier,
-            ArmorCategory.STREAM_CODEC,
-            ArmorLine::category,
-            ByteBufCodecs.VAR_INT,
-            ArmorLine::dexBonus,
-            ByteBufCodecs.VAR_INT,
-            ArmorLine::mediumMaxDex,
-            ArmorLine::new);
+    private static final StreamCodec<ByteBuf, Optional<ArmorPoints>> OPTIONAL_ARMOR_POINTS =
+            ByteBufCodecs.optional(ARMOR_POINTS);
+
+    // Written by hand: StreamCodec.composite stops at six fields.
+    private static final StreamCodec<ByteBuf, ArmorLine> ARMOR_LINE =
+            StreamCodec.of(StatSheet::writeArmor, StatSheet::readArmor);
+
+    private static void writeArmor(ByteBuf buffer, ArmorLine armor) {
+        ByteBufCodecs.VAR_INT.encode(buffer, armor.baseArmorClass());
+        OPTIONAL_ARMOR_POINTS.encode(buffer, armor.worn());
+        ByteBufCodecs.VAR_INT.encode(buffer, armor.dexModifier());
+        ArmorCategory.STREAM_CODEC.encode(buffer, armor.category());
+        ByteBufCodecs.VAR_INT.encode(buffer, armor.dexBonus());
+        ByteBufCodecs.VAR_INT.encode(buffer, armor.floorBonus());
+        ByteBufCodecs.VAR_INT.encode(buffer, armor.mediumMaxDex());
+    }
+
+    private static ArmorLine readArmor(ByteBuf buffer) {
+        return new ArmorLine(
+                ByteBufCodecs.VAR_INT.decode(buffer),
+                OPTIONAL_ARMOR_POINTS.decode(buffer),
+                ByteBufCodecs.VAR_INT.decode(buffer),
+                ArmorCategory.STREAM_CODEC.decode(buffer),
+                ByteBufCodecs.VAR_INT.decode(buffer),
+                ByteBufCodecs.VAR_INT.decode(buffer),
+                ByteBufCodecs.VAR_INT.decode(buffer));
+    }
 
     private static final StreamCodec<ByteBuf, ExtraLine> EXTRA_LINE = StreamCodec.composite(
             Extra.STREAM_CODEC, ExtraLine::extra, ByteBufCodecs.DOUBLE, ExtraLine::amount, ExtraLine::new);
