@@ -52,6 +52,7 @@ import studio.modroll.checks.trait.TraitUses;
  * GameTest bodies for Hit Dice and rests. The campfire sits well above the test's own structure, so no monster from a
  * neighbouring test is within the rest's monster range; each test takes it away again. A short rest lasts its shipped
  * 1000 ticks unless a test shortens it, and a shortened one is finished by calling the tick under that setting.
+ * That tick finishes every player's rest on the server, so each test that calls it runs in a batch of its own.
  */
 public final class RestScenarios {
 

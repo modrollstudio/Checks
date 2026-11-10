@@ -249,6 +249,7 @@
     }
   },
   "roll_messages": { "enabled": true, "duration_ticks": 240 },
+  "player_rolls": { "enabled": true, "radius": 16 },
   "death_messages": { "enabled": true, "window_ticks": 1200 },
   "exploration": {
     "leap": { "enabled": true, "dc": 12, "boost": 0.15, "min_drop": 3 },
@@ -401,6 +402,14 @@ round. A client without Checks gets only the roll, as vanilla's action bar messa
 seconds, so it fits on one line. `enabled: false` sends every client that roll-only action bar
 message.
 
+## Player rolls
+
+`player_rolls` lets players without op use `/checks roll` for their own character:
+`/checks roll stealth` or `/checks roll stealth 15` (naming themselves works too). The result shows
+to them and to every player within `radius` blocks (default 16, not negative), with their name.
+Rolling for anyone else stays op only.
+`enabled: false` makes `/checks roll` op only again.
+
 ## Death messages
 
 `death_messages` tells a story instead of vanilla's death message when a player dies within
@@ -472,10 +481,11 @@ disadvantage takes away (see [bonus-sources.md](bonus-sources.md#passive-scores)
   [death-messages.md](death-messages.md).
 - `roll_messages.enabled: false` shows only the roll, in the action bar for vanilla's three seconds,
   on every client.
+- `player_rolls.enabled: false` makes `/checks roll` op only. See [Player rolls](#player-rolls).
 
 ## Commands
 
-Every command except `help` and `get` requires op (permission level 2).
+Every command except `help`, `get` and a player's own `roll` requires op (permission level 2).
 
 - `/checks help [command]` lists every `/checks` command you have permission for, each with its
   syntax and a one-line description below it; clicking one puts that command in the chat box.
@@ -489,8 +499,11 @@ Every command except `help` and `get` requires op (permission level 2).
   score (`1..30`), skill bonus (`-30..30`) or proficiency bonus (`0..10`).
 - `/checks prof <player> <skill/ability> <none/proficient/expertise>` sets and persists a player's
   skill or save proficiency (see [proficiency.md](proficiency.md#commands)).
-- `/checks roll <target> <ability/skill> [dc]` rolls a check, optionally against a DC, and prints
-  the roll (see [api.md](api.md#checks-roll)). Its result is the total, for `execute store result`.
+- `/checks roll <ability/skill> [dc]` rolls a check for the player who runs it, optionally against a
+  DC, and players nearby see the result (see [Player rolls](#player-rolls)). Players without op can
+  use it. `/checks roll <target> <ability/skill> [dc]` rolls for a target and prints the roll to the
+  op who ran it (see [api.md](api.md#checks-roll)). The result is the total, for
+  `execute store result`.
 - `/checks check <target> <ability/skill> <dc>` rolls a check against a DC for datapacks: a success
   returns 1, a failure fails the command, so `execute store success` and `execute store result`
   record 1 or 0 (see [api.md](api.md#checks-check)).

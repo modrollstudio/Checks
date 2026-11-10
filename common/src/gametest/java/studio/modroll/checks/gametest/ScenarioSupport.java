@@ -162,7 +162,8 @@ final class ScenarioSupport {
                         live.rollMessages(),
                         live.deathMessages(),
                         live.exploration(),
-                        live.rest()),
+                        live.rest(),
+                        live.playerRolls()),
                 body);
     }
 
@@ -202,7 +203,8 @@ final class ScenarioSupport {
                         live.rollMessages(),
                         live.deathMessages(),
                         live.exploration(),
-                        live.rest()),
+                        live.rest(),
+                        live.playerRolls()),
                 body);
     }
 
@@ -269,7 +271,8 @@ final class ScenarioSupport {
                         live.rollMessages(),
                         live.deathMessages(),
                         live.exploration(),
-                        live.rest()),
+                        live.rest(),
+                        live.playerRolls()),
                 body);
     }
 
@@ -294,7 +297,8 @@ final class ScenarioSupport {
                         live.rollMessages(),
                         live.deathMessages(),
                         live.exploration(),
-                        live.rest()),
+                        live.rest(),
+                        live.playerRolls()),
                 body);
     }
 
@@ -319,7 +323,8 @@ final class ScenarioSupport {
                         live.rollMessages(),
                         live.deathMessages(),
                         live.exploration(),
-                        live.rest()),
+                        live.rest(),
+                        live.playerRolls()),
                 body);
     }
 
@@ -344,7 +349,8 @@ final class ScenarioSupport {
                         live.rollMessages(),
                         live.deathMessages(),
                         live.exploration(),
-                        live.rest()),
+                        live.rest(),
+                        live.playerRolls()),
                 body);
     }
 
@@ -375,7 +381,8 @@ final class ScenarioSupport {
                         live.rollMessages(),
                         live.deathMessages(),
                         live.exploration(),
-                        live.rest()),
+                        live.rest(),
+                        live.playerRolls()),
                 body);
     }
 
@@ -400,7 +407,8 @@ final class ScenarioSupport {
                         live.rollMessages(),
                         live.deathMessages(),
                         live.exploration(),
-                        live.rest()),
+                        live.rest(),
+                        live.playerRolls()),
                 body);
     }
 
@@ -425,7 +433,8 @@ final class ScenarioSupport {
                         patched,
                         live.deathMessages(),
                         live.exploration(),
-                        live.rest()),
+                        live.rest(),
+                        live.playerRolls()),
                 body);
     }
 
@@ -486,7 +495,8 @@ final class ScenarioSupport {
                         live.rollMessages(),
                         patched,
                         live.exploration(),
-                        live.rest()),
+                        live.rest(),
+                        live.playerRolls()),
                 body);
     }
 
@@ -511,7 +521,8 @@ final class ScenarioSupport {
                         live.rollMessages(),
                         live.deathMessages(),
                         patched,
-                        live.rest()),
+                        live.rest(),
+                        live.playerRolls()),
                 body);
     }
 
@@ -536,7 +547,8 @@ final class ScenarioSupport {
                         live.rollMessages(),
                         live.deathMessages(),
                         live.exploration(),
-                        patched),
+                        patched,
+                        live.playerRolls()),
                 body);
     }
 

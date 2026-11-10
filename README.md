@@ -34,6 +34,8 @@ without it.
 - **Skills in play**: talk, haggle, lie, threaten or pickpocket villagers, traders and piglins;
   leap, climb, sneak, disarm tripwires, search chests and recall monster lore.
 - **Species traits**: darkvision, resistances, rerolls, a last stand and more.
+- **Rolls in chat**: `/checks roll stealth` or `/checks roll stealth 15` rolls a check for your own
+  character, and players nearby see the result.
 - **Datapacks and API**: presets, skills, mob scores, bonus sources and check triggers are datapack
   JSON, and other mods read scores and roll checks through `ChecksApi`.
 

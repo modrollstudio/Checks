@@ -39,6 +39,7 @@ import studio.modroll.checks.bonus.BonusSources;
 import studio.modroll.checks.check.RollText;
 import studio.modroll.checks.check.StatIds;
 import studio.modroll.checks.creation.CharacterCreation;
+import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.data.SkillStore;
 import studio.modroll.checks.level.Levelling;
 import studio.modroll.checks.level.Levels;
@@ -73,6 +74,8 @@ public final class ChecksCommands {
             new DynamicCommandExceptionType(id -> FallbackText.of("commands.checks.error.unknown_proficiency", id));
     private static final SimpleCommandExceptionType EXPERTISE_ON_SAVE =
             new SimpleCommandExceptionType(FallbackText.of("commands.checks.error.expertise_on_save"));
+    private static final SimpleCommandExceptionType ROLL_FOR_OTHERS =
+            new SimpleCommandExceptionType(FallbackText.of("commands.checks.error.roll_for_others"));
     private static final SimpleCommandExceptionType LEVELLING_DISABLED =
             new SimpleCommandExceptionType(FallbackText.of("commands.checks.error.levelling_disabled"));
 
@@ -100,13 +103,20 @@ public final class ChecksCommands {
                                         .then(Commands.argument("level", StringArgumentType.word())
                                                 .suggests(PROFICIENCY_SUGGESTIONS)
                                                 .executes(ChecksCommands::setProficiency)))))
+                // The short form comes first: "roll stealth 15" also parses as a target named "stealth" rolling
+                // a stat "15", and Brigadier keeps the first registered of two branches that read the whole line.
                 .then(Commands.literal("roll")
-                        .requires(source -> source.hasPermission(OP_PERMISSION_LEVEL))
+                        .requires(ChecksCommands::mayRoll)
+                        .then(statArgument()
+                                .executes(ctx -> roll(ctx, ctx.getSource().getPlayerOrException()))
+                                .then(Commands.argument("dc", IntegerArgumentType.integer())
+                                        .executes(ctx -> rollAgainstDc(
+                                                ctx, ctx.getSource().getPlayerOrException()))))
                         .then(Commands.argument("target", EntityArgument.entity())
                                 .then(statArgument()
-                                        .executes(ChecksCommands::roll)
+                                        .executes(ctx -> roll(ctx, rollTarget(ctx)))
                                         .then(Commands.argument("dc", IntegerArgumentType.integer())
-                                                .executes(ChecksCommands::rollAgainstDc)))))
+                                                .executes(ctx -> rollAgainstDc(ctx, rollTarget(ctx)))))))
                 .then(Commands.literal("check")
                         .requires(source -> ScoresRuntime.config().extensions().checkCommand()
                                 && source.hasPermission(OP_PERMISSION_LEVEL))
@@ -244,17 +254,55 @@ public final class ChecksCommands {
         return Command.SINGLE_SUCCESS;
     }
 
-    private static int roll(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+    /**
+     * Ops may roll for anyone; while player rolls are on, any player may roll for their own character, by leaving
+     * out the target or naming themselves.
+     */
+    private static boolean mayRoll(CommandSourceStack source) {
+        return source.hasPermission(OP_PERMISSION_LEVEL)
+                || (ScoresRuntime.config().playerRolls().enabled() && source.isPlayer());
+    }
+
+    private static LivingEntity rollTarget(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         LivingEntity target = livingTarget(ctx);
+        if (!ctx.getSource().hasPermission(OP_PERMISSION_LEVEL)
+                && target != ctx.getSource().getPlayer()) {
+            throw ROLL_FOR_OTHERS.create();
+        }
+        return target;
+    }
+
+    /**
+     * A player rolling for their own character, while player rolls are on, shows the result to every player
+     * within the radius, themselves included. Any other roll replies to its source alone.
+     */
+    private static void announceRoll(CommandContext<CommandSourceStack> ctx, LivingEntity target, Component line) {
+        ScoresConfig.PlayerRollSettings settings = ScoresRuntime.config().playerRolls();
+        if (!settings.enabled()
+                || !(target instanceof ServerPlayer roller)
+                || roller != ctx.getSource().getPlayer()) {
+            reply(ctx, line);
+            return;
+        }
+        double radiusSqr = settings.radius() * settings.radius();
+        for (ServerPlayer player : roller.serverLevel().players()) {
+            if (player.distanceToSqr(roller) <= radiusSqr) {
+                player.sendSystemMessage(line);
+            }
+        }
+    }
+
+    private static int roll(CommandContext<CommandSourceStack> ctx, LivingEntity target) throws CommandSyntaxException {
         Stat stat = stat(ctx);
         OpenRoll roll = ChecksApi.roll(target, stat);
         RollResult result = roll.result();
         if (roll.canceled()) {
-            reply(ctx, canceled(target, stat));
+            announceRoll(ctx, target, canceled(target, stat));
             return result.total();
         }
-        reply(
+        announceRoll(
                 ctx,
+                target,
                 FallbackText.of(
                         "commands.checks.roll.result",
                         target.getName(),
@@ -265,12 +313,12 @@ public final class ChecksCommands {
         return result.total();
     }
 
-    private static int rollAgainstDc(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-        LivingEntity target = livingTarget(ctx);
+    private static int rollAgainstDc(CommandContext<CommandSourceStack> ctx, LivingEntity target)
+            throws CommandSyntaxException {
         Stat stat = stat(ctx);
         int dc = IntegerArgumentType.getInteger(ctx, "dc");
         CheckRoll roll = ChecksApi.check(target, stat, dc);
-        reply(ctx, describeCheck(target, stat, roll));
+        announceRoll(ctx, target, describeCheck(target, stat, roll));
         return roll.result().saveTotal();
     }
 
