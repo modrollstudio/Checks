@@ -6,6 +6,7 @@ import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 import studio.modroll.checks.Checks;
 import studio.modroll.checks.gametest.CheckScenarios;
+import studio.modroll.checks.gametest.PlayerRollScenarios;
 
 /** NeoForge registration shim: delegates to the shared {@link CheckScenarios} bodies. */
 @GameTestHolder(Checks.MOD_ID)
@@ -67,6 +68,26 @@ public class CheckGameTests {
     @GameTest(template = TEMPLATE)
     public void rollCommandReturnsTotal(GameTestHelper helper) {
         CheckScenarios.rollCommandReturnsTotal(helper);
+    }
+
+    @GameTest(template = TEMPLATE)
+    public void aPlayerRollsForThemselvesAndPlayersNearbySeeIt(GameTestHelper helper) {
+        PlayerRollScenarios.aPlayerRollsForThemselvesAndPlayersNearbySeeIt(helper);
+    }
+
+    @GameTest(template = TEMPLATE)
+    public void theShortFormRollsForThePlayerWhoRunsIt(GameTestHelper helper) {
+        PlayerRollScenarios.theShortFormRollsForThePlayerWhoRunsIt(helper);
+    }
+
+    @GameTest(template = TEMPLATE)
+    public void aPlayerCannotRollForAnotherPlayer(GameTestHelper helper) {
+        PlayerRollScenarios.aPlayerCannotRollForAnotherPlayer(helper);
+    }
+
+    @GameTest(template = TEMPLATE)
+    public void playerRollsOffMakeTheCommandOpOnly(GameTestHelper helper) {
+        PlayerRollScenarios.playerRollsOffMakeTheCommandOpOnly(helper);
     }
 
     @GameTest(template = TEMPLATE)

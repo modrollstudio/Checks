@@ -8,22 +8,22 @@ import studio.modroll.checks.gametest.RestScenarios;
 /** Fabric registration shim: delegates to the shared {@link RestScenarios} bodies. */
 public class RestGameTests implements FabricGameTest {
 
-    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE, batch = "rest_short")
     public void aShortRestSpendsHitDiceUntilFullHealth(GameTestHelper helper) {
         RestScenarios.aShortRestSpendsHitDiceUntilFullHealth(helper);
     }
 
-    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE, batch = "rest_no_dice")
     public void aShortRestWithoutHitDiceHealsNothing(GameTestHelper helper) {
         RestScenarios.aShortRestWithoutHitDiceHealsNothing(helper);
     }
 
-    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE, batch = "rest_min_heal")
     public void aHitDieHealsAtLeastOne(GameTestHelper helper) {
         RestScenarios.aHitDieHealsAtLeastOne(helper);
     }
 
-    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE, batch = "rest_breaks")
     public void aShortRestBreaks(GameTestHelper helper) {
         RestScenarios.aShortRestBreaks(helper);
     }

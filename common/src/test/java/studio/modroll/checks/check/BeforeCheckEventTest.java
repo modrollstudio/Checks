@@ -121,7 +121,8 @@ class BeforeCheckEventTest {
                 defaults.rollMessages(),
                 defaults.deathMessages(),
                 defaults.exploration(),
-                defaults.rest()));
+                defaults.rest(),
+                defaults.playerRolls()));
 
         CheckEvents.fireBefore(event(OptionalInt.of(10), false, false));
 

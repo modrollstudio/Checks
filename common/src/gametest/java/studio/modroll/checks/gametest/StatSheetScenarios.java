@@ -149,7 +149,8 @@ public final class StatSheetScenarios {
                 live.rollMessages(),
                 live.deathMessages(),
                 live.exploration(),
-                live.rest());
+                live.rest(),
+                live.playerRolls());
     }
 
     private static void expectAbilities(GameTestHelper helper, StatSheet sheet) {

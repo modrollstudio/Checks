@@ -243,6 +243,7 @@
     }
   },
   "roll_messages": { "enabled": true, "duration_ticks": 240 },
+  "player_rolls": { "enabled": true, "radius": 16 },
   "death_messages": { "enabled": true, "window_ticks": 1200 },
   "exploration": {
     "leap": { "enabled": true, "dc": 12, "boost": 0.15, "min_drop": 3 },

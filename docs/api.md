@@ -247,9 +247,9 @@ No automated test loads KubeJS. To check the bindings by hand on a NeoForge dev 
 
 1. Copy the three files from `docs/examples/kubejs/` into `neoforge/run/kubejs/server_scripts/`.
 2. Start a world and give yourself op.
-3. Crouch and run `/checks roll @s stealth`: chat says `Sneaking: advantage on Stealth.` once.
+3. Crouch and run `/checks roll stealth`: chat says `Sneaking: advantage on Stealth.` once.
 4. Right-click with a stick: chat shows an Athletics check against DC 12, success or failure.
-5. Run `/checks roll @s str` until a natural 20 comes up: chat says `Natural 20 on str!`.
+5. Run `/checks roll str` until a natural 20 comes up: chat says `Natural 20 on str!`.
 6. Run `/reload` and repeat step 3: the line still appears once, so no listener registered twice.
 
 ## Testing
@@ -260,12 +260,15 @@ roll order: both advantage dice of one roll, then the next roll; the initiator b
 
 ## `/checks roll`
 
-`/checks roll <target> <ability/skill> [dc]` rolls a check through this API and prints it, for
+`/checks roll <ability/skill> [dc]` rolls a check through this API for the player who runs it, and
+`/checks roll <target> <ability/skill> [dc]` for a target. It prints the roll, for
 example `Zombie rolls stealth vs DC 15: d20 13 (+5) = 18, success`. Under advantage or disadvantage
 it names the mode and shows both d20s: `Zombie rolls stealth vs DC 15: advantage, d20 17 and 4, keeps
 17 (+5) = 22, success`. Without a DC it is an open roll.
 Its command result is the total, so `execute store result` records it. A roll a listener cancels
-prints that it was canceled. Requires op (permission level 2).
+prints that it was canceled. Rolling for a target requires op (permission level 2). While
+`player_rolls` is on, any player may roll for their own character, and that roll shows to every
+player nearby (see [scores-config.md](scores-config.md#player-rolls)).
 
 ## `/checks check`
 

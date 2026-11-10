@@ -248,7 +248,8 @@ public final class CheckScenarios {
                 live.rollMessages(),
                 live.deathMessages(),
                 live.exploration(),
-                live.rest());
+                live.rest(),
+                live.playerRolls());
 
         withConfig(
                 skillsOff,

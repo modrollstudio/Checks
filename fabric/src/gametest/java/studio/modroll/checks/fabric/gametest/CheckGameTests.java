@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.gametest.v1.FabricGameTest;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import studio.modroll.checks.gametest.CheckScenarios;
+import studio.modroll.checks.gametest.PlayerRollScenarios;
 
 /** Fabric registration shim: delegates to the shared {@link CheckScenarios} bodies. */
 public class CheckGameTests implements FabricGameTest {
@@ -61,6 +62,26 @@ public class CheckGameTests implements FabricGameTest {
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
     public void rollCommandReturnsTotal(GameTestHelper helper) {
         CheckScenarios.rollCommandReturnsTotal(helper);
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void aPlayerRollsForThemselvesAndPlayersNearbySeeIt(GameTestHelper helper) {
+        PlayerRollScenarios.aPlayerRollsForThemselvesAndPlayersNearbySeeIt(helper);
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void theShortFormRollsForThePlayerWhoRunsIt(GameTestHelper helper) {
+        PlayerRollScenarios.theShortFormRollsForThePlayerWhoRunsIt(helper);
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void aPlayerCannotRollForAnotherPlayer(GameTestHelper helper) {
+        PlayerRollScenarios.aPlayerCannotRollForAnotherPlayer(helper);
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void playerRollsOffMakeTheCommandOpOnly(GameTestHelper helper) {
+        PlayerRollScenarios.playerRollsOffMakeTheCommandOpOnly(helper);
     }
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)

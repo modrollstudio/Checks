@@ -282,6 +282,7 @@ public final class ScoresConfigLoader {
                 }
               },
               "roll_messages": { "enabled": true, "duration_ticks": 240 },
+              "player_rolls": { "enabled": true, "radius": 16 },
               "death_messages": { "enabled": true, "window_ticks": 1200 },
               "exploration": {
                 "leap": { "enabled": true, "dc": 12, "boost": 0.15, "min_drop": 3 },
@@ -379,6 +380,7 @@ public final class ScoresConfigLoader {
         ScoresConfig.DeathMessageSettings deathMessages = parseDeathMessages(j.object("death_messages"));
         ScoresConfig.ExplorationSettings exploration = ExplorationConfigParser.parse(j.object("exploration"));
         ScoresConfig.RestSettings rest = parseRest(j.object("rest"));
+        ScoresConfig.PlayerRollSettings playerRolls = parsePlayerRolls(j.object("player_rolls"));
 
         j.finish();
         return new ScoresConfig(
@@ -399,7 +401,8 @@ public final class ScoresConfigLoader {
                 rollMessages,
                 deathMessages,
                 exploration,
-                rest);
+                rest,
+                playerRolls);
     }
 
     private static ScoresConfig.RestSettings parseRest(LenientJson json) {
@@ -433,6 +436,12 @@ public final class ScoresConfigLoader {
         ScoresConfig.DeathMessageSettings defaults = ScoresConfig.DEFAULTS.deathMessages();
         return new ScoresConfig.DeathMessageSettings(
                 json.getBool("enabled", defaults.enabled()), nonNegative(json, "window_ticks", defaults.windowTicks()));
+    }
+
+    private static ScoresConfig.PlayerRollSettings parsePlayerRolls(LenientJson json) {
+        ScoresConfig.PlayerRollSettings defaults = ScoresConfig.DEFAULTS.playerRolls();
+        return new ScoresConfig.PlayerRollSettings(
+                json.getBool("enabled", defaults.enabled()), nonNegative(json, "radius", defaults.radius()));
     }
 
     private static ScoresConfig.RollMessageSettings parseRollMessages(LenientJson json) {

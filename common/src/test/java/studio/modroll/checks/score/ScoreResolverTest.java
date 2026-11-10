@@ -47,7 +47,8 @@ class ScoreResolverTest {
             CONFIG.rollMessages(),
             CONFIG.deathMessages(),
             CONFIG.exploration(),
-            CONFIG.rest());
+            CONFIG.rest(),
+            CONFIG.playerRolls());
 
     @Test
     void mobUsesProfileWhenPresent() {
@@ -115,7 +116,8 @@ class ScoreResolverTest {
                 CONFIG.rollMessages(),
                 CONFIG.deathMessages(),
                 CONFIG.exploration(),
-                CONFIG.rest());
+                CONFIG.rest(),
+                CONFIG.playerRolls());
         assertEquals(
                 10,
                 ScoreResolver.resolveScore(
@@ -215,7 +217,8 @@ class ScoreResolverTest {
                 CONFIG.rollMessages(),
                 CONFIG.deathMessages(),
                 CONFIG.exploration(),
-                CONFIG.rest());
+                CONFIG.rest(),
+                CONFIG.playerRolls());
         assertEquals(0, ScoreResolver.resolveSkillBonus(STEALTH, skillProfile(3), OptionalInt.of(5), noSkills));
     }
 
@@ -443,7 +446,8 @@ class ScoreResolverTest {
                 CONFIG.rollMessages(),
                 CONFIG.deathMessages(),
                 CONFIG.exploration(),
-                CONFIG.rest());
+                CONFIG.rest(),
+                CONFIG.playerRolls());
     }
 
     private static ScoresConfig withProficiency(boolean enabled, int defaultBonus) {
@@ -465,7 +469,8 @@ class ScoreResolverTest {
                 CONFIG.rollMessages(),
                 CONFIG.deathMessages(),
                 CONFIG.exploration(),
-                CONFIG.rest());
+                CONFIG.rest(),
+                CONFIG.playerRolls());
     }
 
     @Test
@@ -648,7 +653,8 @@ class ScoreResolverTest {
                 CONFIG.rollMessages(),
                 CONFIG.deathMessages(),
                 CONFIG.exploration(),
-                CONFIG.rest());
+                CONFIG.rest(),
+                CONFIG.playerRolls());
     }
 
     private static int playerStrength(Optional<CharacterBuild> character, ScoresConfig config) {
@@ -710,7 +716,8 @@ class ScoreResolverTest {
                 CONFIG.rollMessages(),
                 CONFIG.deathMessages(),
                 CONFIG.exploration(),
-                CONFIG.rest());
+                CONFIG.rest(),
+                CONFIG.playerRolls());
     }
 
     private static Optional<EntityScoreProfile> abilities(String abilities) {

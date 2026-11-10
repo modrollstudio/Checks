@@ -113,10 +113,12 @@ class ChecksHelpTest {
         run("checks help roll", OP);
         assertEquals(
                 List.of(
-                        "/checks roll <target> <ability/skill> [dc]",
-                        "Rolls d20 plus the target's modifier for that ability or skill and prints the roll. With a"
-                                + " DC it also says whether the check succeeds; meeting the DC succeeds.",
-                        "Example: /checks roll @s stealth 15"),
+                        "/checks roll <ability/skill> [dc]",
+                        "Rolls d20 plus your modifier for that ability or skill and prints the roll; players nearby"
+                                + " see it. With a DC it also says whether the check succeeds; meeting the DC"
+                                + " succeeds. Ops can name a target to roll for it instead: /checks roll <target>"
+                                + " <ability/skill> [dc].",
+                        "Example: /checks roll stealth 15"),
                 output);
     }
 
