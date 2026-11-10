@@ -1,6 +1,14 @@
 # Changelog
 
-## 0.2.0 — unreleased (alpha)
+## 0.2.1 — unreleased (alpha)
+
+Requires Critfall 0.2.18 or newer.
+
+- `/checks roll <ability/skill> [dc]` rolls for the player who runs it, such as `/checks roll stealth 15`, and players without op can use it. The dice still go through Critfall. Rolling for a target (`/checks roll <target> <ability/skill> [dc]`) stays op only; players may name themselves.
+- A player's own roll shows to them and to every player within 16 blocks, with their name (`player_rolls.radius`).
+- `player_rolls.enabled: false` makes `/checks roll` op only again.
+
+## 0.2.0 — 2026-11-04 (alpha)
 
 Requires Critfall 0.2.18 or newer.
 

@@ -41,7 +41,8 @@ public record ScoresConfig(
         RollMessageSettings rollMessages,
         DeathMessageSettings deathMessages,
         ExplorationSettings exploration,
-        RestSettings rest) {
+        RestSettings rest,
+        PlayerRollSettings playerRolls) {
 
     public static final int FORMAT_VERSION = 2;
 
@@ -261,6 +262,12 @@ public record ScoresConfig(
      * without Checks, it shows for vanilla's three seconds.
      */
     public record RollMessageSettings(boolean enabled, int durationTicks) {}
+
+    /**
+     * {@code /checks roll} for players without op: while {@code enabled}, a player may roll for their own
+     * character, and the result is shown to them and to every player within {@code radius} blocks.
+     */
+    public record PlayerRollSettings(boolean enabled, double radius) {}
 
     /**
      * Story death messages: a player who dies within {@code windowTicks} of a related Checks event (caught
@@ -692,7 +699,8 @@ public record ScoresConfig(
             new RestSettings(
                     new HitDiceSettings(true, 1.0, 1),
                     new ShortRestSettings(true, 1000, 3, 8, 5),
-                    new LongRestSettings(true, 1.0, 1, true, true)));
+                    new LongRestSettings(true, 1.0, 1, true, true)),
+            new PlayerRollSettings(true, 16.0));
 
     private static Deal defaultDeal() {
         return new Deal(

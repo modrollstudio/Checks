@@ -14,22 +14,22 @@ public class RestGameTests {
 
     private static final String TEMPLATE = "empty";
 
-    @GameTest(template = TEMPLATE)
+    @GameTest(template = TEMPLATE, batch = "rest_short")
     public void aShortRestSpendsHitDiceUntilFullHealth(GameTestHelper helper) {
         RestScenarios.aShortRestSpendsHitDiceUntilFullHealth(helper);
     }
 
-    @GameTest(template = TEMPLATE)
+    @GameTest(template = TEMPLATE, batch = "rest_no_dice")
     public void aShortRestWithoutHitDiceHealsNothing(GameTestHelper helper) {
         RestScenarios.aShortRestWithoutHitDiceHealsNothing(helper);
     }
 
-    @GameTest(template = TEMPLATE)
+    @GameTest(template = TEMPLATE, batch = "rest_min_heal")
     public void aHitDieHealsAtLeastOne(GameTestHelper helper) {
         RestScenarios.aHitDieHealsAtLeastOne(helper);
     }
 
-    @GameTest(template = TEMPLATE)
+    @GameTest(template = TEMPLATE, batch = "rest_breaks")
     public void aShortRestBreaks(GameTestHelper helper) {
         RestScenarios.aShortRestBreaks(helper);
     }
