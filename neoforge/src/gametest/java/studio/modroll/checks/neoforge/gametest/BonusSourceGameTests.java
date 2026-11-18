@@ -7,7 +7,6 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 import studio.modroll.checks.Checks;
 import studio.modroll.checks.gametest.BonusSourceScenarios;
 
-/** NeoForge registration shim: delegates to the shared {@link BonusSourceScenarios} bodies. */
 @GameTestHolder(Checks.MOD_ID)
 @PrefixGameTestTemplate(false)
 public class BonusSourceGameTests {

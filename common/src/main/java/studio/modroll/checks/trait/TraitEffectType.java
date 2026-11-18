@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 
-/** The fixed set of things a trait can do; each has its own switch under {@code traits} in {@code scores.json}. */
 public enum TraitEffectType {
     VANILLA_SAVE_ADVANTAGE,
     ROLL_BONUS,
@@ -17,7 +16,6 @@ public enum TraitEffectType {
     SKILL_CHOICES,
     ATTRIBUTE;
 
-    /** The {@code type} in trait JSON and the key under {@code traits} in {@code scores.json}. */
     public String id() {
         return name().toLowerCase(Locale.ROOT);
     }

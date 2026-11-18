@@ -12,9 +12,8 @@ import net.minecraft.world.level.saveddata.SavedData;
 import studio.modroll.checks.PlayerSavedData;
 
 /**
- * Each player's health as of their last save, in Checks' own world-level {@link SavedData}. Vanilla
- * caps the health it loads at the unmodified max, before Checks' modifiers are back, so this is what
- * lets health above it survive a relog. Without Checks the file is simply never read.
+ * Vanilla caps loaded health at the unmodified max, before Checks' modifiers are back, so this keeps health above it
+ * across a relog.
  */
 public final class HealthStore extends SavedData {
 

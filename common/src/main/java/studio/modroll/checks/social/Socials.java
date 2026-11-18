@@ -13,26 +13,16 @@ import studio.modroll.checks.score.ScoresRuntime;
 import studio.modroll.checks.text.FallbackText;
 import studio.modroll.checks.text.Names;
 
-/**
- * Social skill uses, called from each loader's payload and interaction hooks. The server checks everything
- * the client sends: the entity must be in reach, and an action available on it, when the request arrives.
- */
 public final class Socials {
 
-    /** As vanilla's own check on an entity interaction packet. */
     private static final double REACH_BUFFER = 1.0;
 
     private Socials() {}
 
-    /** Social time is game time, which keeps counting across restarts. */
     public static long now(MinecraftServer server) {
         return server.overworld().getGameTime();
     }
 
-    /**
-     * The menu for the entity; empty while social uses are off or when it is not in reach. When nothing
-     * there can be talked to, the player is told so instead.
-     */
     public static Optional<SocialMenu> menu(ServerPlayer player, int entityId) {
         if (!ScoresRuntime.config().social().enabled()) {
             return Optional.empty();
@@ -45,7 +35,6 @@ public final class Socials {
         return menu;
     }
 
-    /** Tries {@code action} on the entity, or tells the player why it is not available. */
     public static void act(ServerPlayer player, int entityId, SocialAction action) {
         inReach(player, entityId).ifPresent(entity -> SocialOptions.option(player, entity, action)
                 .ifPresent(option -> {
@@ -67,7 +56,6 @@ public final class Socials {
         return Optional.of(living);
     }
 
-    /** A trader that refuses the player shakes its head instead of trading; consumes the interaction then. */
     public static InteractionResult onUseEntity(ServerPlayer player, InteractionHand hand, Entity entity) {
         if (!(entity instanceof AbstractVillager trader) || !refuses(player, trader)) {
             return InteractionResult.PASS;
@@ -80,10 +68,6 @@ public final class Socials {
         return InteractionResult.SUCCESS;
     }
 
-    /**
-     * Whether the trader refuses the player over something a switched-on action did to it, or, while
-     * witnesses are on, that it saw done to another villager.
-     */
     public static boolean refuses(ServerPlayer player, AbstractVillager trader) {
         ScoresConfig.SocialSettings settings = ScoresRuntime.config().social();
         SocialMemory memory = SocialMemory.get(player.server);
@@ -94,10 +78,6 @@ public final class Socials {
                                 && memory.refusesAsWitness(player.getUUID(), trader.getUUID(), now, settings::active)));
     }
 
-    /**
-     * Whether piglins take the entity for a gold wearer: a player a made Deception check disguised, or a
-     * made Performance charmed.
-     */
     public static boolean disguised(LivingEntity entity) {
         if (!(entity instanceof ServerPlayer player)) {
             return false;

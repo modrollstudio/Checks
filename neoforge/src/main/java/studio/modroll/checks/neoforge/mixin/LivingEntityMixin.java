@@ -11,11 +11,7 @@ import studio.modroll.checks.exploration.Ailments;
 import studio.modroll.checks.save.VanillaSaves;
 import studio.modroll.checks.trait.TraitHooks;
 
-/**
- * NeoForge's mob effect events cannot change an effect's duration; every effect added passes through here.
- * LivingChangeTargetEvent fires only when a target is set, while every goal and brain targeting check asks
- * {@code canAttack}, which also makes a mob drop a target it may no longer attack, as on Fabric.
- */
+/** NeoForge's effect events can't change an effect's duration, and its target event fires only when a target is set. */
 @Mixin(LivingEntity.class)
 abstract class LivingEntityMixin {
 

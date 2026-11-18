@@ -10,10 +10,6 @@ import net.minecraft.locale.Language;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.util.FormattedCharSequence;
 
-/**
- * Makes the mod's en_us lang file the active {@link Language}, for tests that read translated text, or
- * an empty one, as on a client without Checks.
- */
 public final class ModLang {
 
     private static final Path EN_US = Path.of("src/main/resources/assets/checks/lang/en_us.json");

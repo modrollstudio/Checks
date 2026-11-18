@@ -71,7 +71,6 @@ public final class ChecksNeoForgeClient {
                 VanillaGuiLayers.OVERLAY_MESSAGE, Checks.id("roll_lines"), ChecksNeoForgeClient::renderRollLines);
     }
 
-    /** On the action bar, which NeoForge raises over status bars taller than vanilla's. */
     private static void renderRollLines(GuiGraphics graphics, DeltaTracker deltaTracker) {
         Gui gui = Minecraft.getInstance().gui;
         GuiAccessor overlay = (GuiAccessor) gui;

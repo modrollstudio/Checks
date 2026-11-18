@@ -30,10 +30,6 @@ import studio.modroll.checks.trait.TraitEffectType;
 import studio.modroll.critfall.api.dice.DiceExpression;
 import studio.modroll.critfall.api.dice.DiceParseException;
 
-/**
- * Reads {@code config/checks/scores.json}, creating it with the defaults when missing. A bad value
- * falls back to its default with a warning; an unreadable file means all defaults.
- */
 public final class ScoresConfigLoader {
 
     public static final String DEFAULT_FILE = """
@@ -622,10 +618,6 @@ public final class ScoresConfigLoader {
                 json.getBool("enabled", defaults.enabled()), parseClassLevels(json, defaults.classLevels()));
     }
 
-    /**
-     * Class ids to levels; a key that is not an id is skipped with a warning, and so is a level outside the
-     * level range. Listing the key replaces the whole default map.
-     */
     private static Map<ResourceLocation, List<Integer>> parseClassLevels(
             LenientJson json, Map<ResourceLocation, List<Integer>> defaults) {
         if (!json.has("class_levels")) {
@@ -645,7 +637,6 @@ public final class ScoresConfigLoader {
         return levels;
     }
 
-    /** One total per level, starting at 0 for level 1 and never decreasing. */
     private static List<Integer> parseXpThresholds(LenientJson json, List<Integer> defaultThresholds) {
         Optional<List<Integer>> thresholds = json.optionalIntList("xp_thresholds");
         if (thresholds.isEmpty()) {
@@ -715,7 +706,6 @@ public final class ScoresConfigLoader {
                 parseMaxScore(json, "max_score", defaults.maxScore()));
     }
 
-    /** A level outside the level range is skipped with a warning; repeats count once. */
     private static List<Integer> levelList(LenientJson json, String key, List<Integer> defaultLevels) {
         Optional<List<Integer>> levels = json.optionalIntList(key);
         if (levels.isEmpty()) {
@@ -754,7 +744,6 @@ public final class ScoresConfigLoader {
                 parseMaxScore(json, "bonus_max_score", defaults.bonusMaxScore()));
     }
 
-    /** Each option is a non-empty list of positive bonuses; a bad option is skipped with a warning. */
     private static List<List<Integer>> parseBonusOptions(
             LenientJson json, String key, List<List<Integer>> defaultOptions) {
         Optional<List<List<Integer>>> options = json.optionalIntLists(key);
@@ -782,7 +771,6 @@ public final class ScoresConfigLoader {
         return max;
     }
 
-    /** Unknown ids are skipped; a list naming no known method allows them all. */
     private static List<CreationMethod> parseMethods(LenientJson json, List<CreationMethod> defaults) {
         if (!json.has("methods")) {
             return defaults;
@@ -826,7 +814,6 @@ public final class ScoresConfigLoader {
         return new PointBuy(budget, costs);
     }
 
-    /** Keys are scores, values their non-negative point cost; a bad entry is skipped with a warning. */
     private static Map<Integer, Integer> parseCosts(LenientJson json) {
         Map<Integer, Integer> costs = new HashMap<>();
         for (String key : json.keys()) {
@@ -875,7 +862,6 @@ public final class ScoresConfigLoader {
                 parseSaveAbilities(json.object("save_abilities"), defaults.saveAbilities()));
     }
 
-    /** Listed save keys override the defaults; an unknown ability is skipped with a warning. */
     private static Map<String, Ability> parseSaveAbilities(LenientJson json, Map<String, Ability> defaults) {
         Map<String, Ability> saveAbilities = new HashMap<>(defaults);
         for (String saveKey : json.keys()) {

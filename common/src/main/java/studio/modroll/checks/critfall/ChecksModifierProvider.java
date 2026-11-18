@@ -14,20 +14,14 @@ import studio.modroll.critfall.api.AttackDelivery;
 import studio.modroll.critfall.api.ModifierProvider;
 import studio.modroll.critfall.api.RollService;
 
-/**
- * Supplies Critfall's attack, damage and save modifiers and the DEX part of AC from Checks scores.
- * Entities it does not cover get empty answers, which keep Critfall's own values.
- */
+/** Entities it does not cover get empty answers, which keep Critfall's own values. */
 public final class ChecksModifierProvider implements ModifierProvider {
 
     private static final ChecksModifierProvider INSTANCE = new ChecksModifierProvider();
 
     private ChecksModifierProvider() {}
 
-    /**
-     * Holds Critfall's single provider slot while enabled and frees it while disabled. Another mod's
-     * provider is never replaced or removed, so a {@code /reload} cannot take the slot back from it.
-     */
+    /** Another mod's provider is never replaced or removed, so a {@code /reload} cannot take the slot back from it. */
     public static void sync(ScoresConfig.CritfallSettings settings) {
         Optional<ModifierProvider> current = RollService.modifierProvider();
         if (!settings.enabled()) {
@@ -68,7 +62,7 @@ public final class ChecksModifierProvider implements ModifierProvider {
         return OptionalInt.of(ScoreService.saveModifier(entity, ability));
     }
 
-    /** DEX by the 5e armor rules; Critfall's own AC already counts the armor itself. */
+    /** Critfall's own AC already counts the armor itself. */
     @Override
     public OptionalInt acModifier(LivingEntity defender, LivingEntity attacker) {
         if (!covers(defender)) {
@@ -79,14 +73,12 @@ public final class ChecksModifierProvider implements ModifierProvider {
                 .orElse(OptionalInt.empty());
     }
 
-    /** Whether Checks holds Critfall's provider slot, so its answers reach Critfall's rolls. */
     public static boolean active() {
         return RollService.modifierProvider()
                 .filter(provider -> provider == INSTANCE)
                 .isPresent();
     }
 
-    /** STR for melee, DEX for projectile and thrown; spells have none. */
     static Optional<Ability> weaponAbility(AttackDelivery delivery) {
         return switch (delivery) {
             case MELEE -> Optional.of(Ability.STRENGTH);

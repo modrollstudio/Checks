@@ -5,7 +5,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import studio.modroll.checks.Checks;
 
-/** Server to client: the requesting player's own stat sheet. */
 public record StatSheetPayload(StatSheet sheet) implements CustomPacketPayload {
 
     public static final CustomPacketPayload.Type<StatSheetPayload> TYPE =

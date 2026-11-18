@@ -44,12 +44,6 @@ import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.social.SocialAction;
 import studio.modroll.critfall.api.CombatSuppression;
 
-/**
- * GameTest bodies for story death messages: a player killed shortly after a related Checks event gets a
- * line from that story's pool on the death screen, sent with an English fallback. The message is read
- * from the packet the server sends the dying player. Players are new survival players with every score 10
- * against unprofiled targets.
- */
 public final class DeathStoryScenarios {
 
     private static final int NAT_ONE = 1;
@@ -62,7 +56,6 @@ public final class DeathStoryScenarios {
 
     private DeathStoryScenarios() {}
 
-    /** Caught pickpocketing, then killed by a golem: the story names the item reached for. */
     public static void caughtPickpocketKilledByAGolem(GameTestHelper helper) {
         Victim victim = victim(helper, "story-pickpocket");
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -82,7 +75,6 @@ public final class DeathStoryScenarios {
         helper.succeed();
     }
 
-    /** A golem with a custom name is named by it alone. */
     public static void failedThreatKilledByAGolem(GameTestHelper helper) {
         Victim victim = victim(helper, "story-threat");
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -111,7 +103,6 @@ public final class DeathStoryScenarios {
         helper.succeed();
     }
 
-    /** The DEX save against the killing blast itself fails. */
     public static void failedDexSaveKilledByAnExplosion(GameTestHelper helper) {
         Victim victim = victim(helper, "story-blast");
         try {
@@ -128,7 +119,6 @@ public final class DeathStoryScenarios {
         helper.succeed();
     }
 
-    /** An orc's Relentless Endurance keeps them up once; the next killing blow tells the story. */
     public static void diedWithTheLastStandSpent(GameTestHelper helper) {
         Victim victim = victim(helper, "story-last-stand");
         ServerPlayer orc = victim.player();
@@ -147,7 +137,6 @@ public final class DeathStoryScenarios {
         helper.succeed();
     }
 
-    /** Past the window, the death gets vanilla's message. */
     public static void storiesEndWithTheWindow(GameTestHelper helper) {
         Victim victim = victim(helper, "story-late");
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -166,7 +155,6 @@ public final class DeathStoryScenarios {
         });
     }
 
-    /** A death the story does not explain, a golem story ended by a fall, gets vanilla's message. */
     public static void storiesOnlyTellDeathsTheyExplain(GameTestHelper helper) {
         Victim victim = victim(helper, "story-unrelated");
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -196,10 +184,8 @@ public final class DeathStoryScenarios {
         helper.succeed();
     }
 
-    /** A player and every packet the server sends them. */
     private record Victim(ServerPlayer player, List<Packet<?>> sent) {
 
-        /** Outside Critfall's combat, so a mob's blow always lands with the full amount. */
         void dieFrom(DamageSource source) {
             List<UUID> fighters = Stream.of(player, source.getEntity())
                     .filter(Objects::nonNull)
@@ -226,7 +212,6 @@ public final class DeathStoryScenarios {
         }
     }
 
-    /** A survival player in front of the target spot, past spawn protection. */
     private static Victim victim(GameTestHelper helper, String name) {
         List<Packet<?>> sent = new ArrayList<>();
         ServerPlayer player = loginWatched(helper, newProfile(name), sent);

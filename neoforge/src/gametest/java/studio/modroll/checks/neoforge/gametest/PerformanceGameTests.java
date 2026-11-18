@@ -7,9 +7,7 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 import studio.modroll.checks.Checks;
 import studio.modroll.checks.gametest.PerformanceScenarios;
 
-/** NeoForge registration shim: delegates to the shared {@link PerformanceScenarios} bodies. The on-guard one runs in a batch
- * of its own: its alarm reaches past its structure.
- */
+/** The on guard test runs in a batch of its own: its alarm reaches past its structure. */
 @GameTestHolder(Checks.MOD_ID)
 @PrefixGameTestTemplate(false)
 public class PerformanceGameTests {

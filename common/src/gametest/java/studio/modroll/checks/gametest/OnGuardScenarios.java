@@ -30,13 +30,6 @@ import studio.modroll.checks.social.SocialMenu;
 import studio.modroll.checks.social.Socials;
 import studio.modroll.critfall.api.dice.RollMode;
 
-/**
- * GameTest bodies for villagers on guard during a golem alarm, and wary after it. In the {@code wide}
- * structure, each in a batch of its own: an alarm and its guarded area reach far past the structure. A
- * caught pickpocket on the villager at the target spot raises the alarm through the golem next to it; the
- * neighbour a step away is the one the player then talks to. Players are new survival players with every
- * score 10 against unprofiled villagers, and Plead and Lie keep their default DC of 15.
- */
 public final class OnGuardScenarios {
 
     private static final int NAT_ONE = 1;
@@ -51,7 +44,6 @@ public final class OnGuardScenarios {
     private static final int BRIEF_ALARM_TICKS = 5;
     private static final int AFTER_THE_BRIEF_ALARM = 10;
     private static final int SHORT_REFUSAL_TICKS = 40;
-    /** Past half the short refusal, not past all of it. */
     private static final int PAST_HALF_THE_REFUSAL = 30;
 
     private static final double WITNESS_RADIUS = 6;
@@ -59,11 +51,6 @@ public final class OnGuardScenarios {
 
     private OnGuardScenarios() {}
 
-    /**
-     * During the alarm the neighbour offers Plead and Lie instead of Persuade and Deceive, and greys out
-     * Pickpocket and Intimidate, which do nothing when tried. Each plea can be made once: a failed one
-     * leaves the alarm on, and trying again does nothing.
-     */
     public static void onGuardVillagersOfferPleaAndLieOnce(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "guard-menu", IN_FRONT);
         Villager victim = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -106,10 +93,6 @@ public final class OnGuardScenarios {
         helper.succeed();
     }
 
-    /**
-     * A successful plea ends the alarm: the golems it called stand down, the villagers running from the
-     * player calm down, and the neighbour talks normally again. The refusals stay.
-     */
     public static void aSuccessfulPleaEndsTheAlarm(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "guard-plead", IN_FRONT);
         Villager victim = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -151,7 +134,6 @@ public final class OnGuardScenarios {
         helper.succeed();
     }
 
-    /** A natural 20 plea also halves the time left on the thief's refusals. */
     public static void aNaturalTwentyPleaHalvesTheRefusals(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "guard-twenty", IN_FRONT);
         Villager victim = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -176,7 +158,6 @@ public final class OnGuardScenarios {
         });
     }
 
-    /** A natural 1 lie starts the alarm over at full length and calls the golems nearby again. */
     public static void aNaturalOneLieRestartsTheAlarm(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "guard-one", IN_FRONT);
         Villager victim = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -207,10 +188,6 @@ public final class OnGuardScenarios {
         });
     }
 
-    /**
-     * After the alarm, Pickpocket and Intimidate roll with disadvantage against a villager that thinks badly
-     * of the thief: a d20 of 18 then 2 keeps the 2. Persuade does not, nor does another player.
-     */
     public static void waryVillagersSeeTheThiefComing(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "guard-wary", IN_FRONT);
         ServerPlayer stranger = survivor(helper, "guard-stranger", IN_FRONT);
@@ -239,7 +216,6 @@ public final class OnGuardScenarios {
         });
     }
 
-    /** With on-guard off the menu stays as it was during the alarm; with wariness off nothing rolls worse. */
     public static void onGuardAndWarinessSwitchOff(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "guard-off", IN_FRONT);
         Villager victim = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -271,7 +247,6 @@ public final class OnGuardScenarios {
         helper.succeed();
     }
 
-    /** What the tests change from the shared test settings, which keep the alarm, witnesses and wariness off. */
     private static final class Guard {
         private int alarmTicks = DEFAULTS.golemAlarm().durationTicks();
         private boolean onGuard = true;

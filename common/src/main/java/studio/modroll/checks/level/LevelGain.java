@@ -5,11 +5,6 @@ import java.util.Optional;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
-/**
- * What one level gave: the max health it added (for level 1, all of level 1's), the proficiency bonus when it rose
- * there, how many ability score improvements and Expertise skills it earned, and the attacks per action when Extra
- * Attack raised them there.
- */
 public record LevelGain(
         int level,
         double health,

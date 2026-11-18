@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import studio.modroll.checks.critfall.AttackRolls;
 import studio.modroll.checks.critfall.HazardRolls;
 
-/** Loader-agnostic entrypoint. Each loader module calls {@link #init} once at mod construction. */
 public final class Checks {
 
     public static final String MOD_ID = "checks";

@@ -282,7 +282,6 @@ class SheetTooltipsTest {
         return new StatSheet.ArmorLine(base, worn, dexModifier, category, dexBonus, 0, 2);
     }
 
-    /** Points worn with the parts Critfall gave them, over its base 10. */
     private static Optional<StatSheet.ArmorPoints> worn(
             double armor, int armorPart, double toughness, int toughnessPart) {
         return Optional.of(new StatSheet.ArmorPoints(10, armor, armorPart, toughness, toughnessPart));

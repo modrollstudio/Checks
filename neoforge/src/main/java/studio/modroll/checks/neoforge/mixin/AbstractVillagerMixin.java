@@ -8,11 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import studio.modroll.checks.social.SocialPrices;
 
-/**
- * Neither loader has an event for a player starting or stopping a trade. Villagers and wandering traders
- * both set their trading player here just before sending the offers, after villagers add their reputation
- * prices, and clear it when trading stops.
- */
+/** Neither loader has an event for a player starting or stopping a trade. */
 @Mixin(AbstractVillager.class)
 abstract class AbstractVillagerMixin {
 

@@ -251,7 +251,6 @@ class CreationRulesTest {
 
     @Test
     void skillsOutsideTheClassListAreRejectedWithoutAnOverlap() {
-        // Soldier skills are not on the Wizard list, so every Wizard pick must come from it.
         CreationSubmission submission = new CreationSubmission(
                 CreationMethod.STANDARD_ARRAY,
                 ARRAY,

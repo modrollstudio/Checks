@@ -44,11 +44,6 @@ import studio.modroll.checks.social.ItemArcPayload;
 import studio.modroll.checks.social.SocialAction;
 import studio.modroll.checks.social.SpeechBubblePayload;
 
-/**
- * GameTest bodies for the social feel: speech bubbles and the pickpocketed item, as payloads sent to
- * players with Checks around the target. Players are new survival players with every score 10, facing
- * unprofiled targets whose passive skills are 10; how it all looks is verified by hand.
- */
 public final class SocialFeelScenarios {
 
     private static final int NAT_ONE = 1;
@@ -67,11 +62,6 @@ public final class SocialFeelScenarios {
 
     private record Sent(ServerPlayer to, CustomPacketPayload payload) {}
 
-    /**
-     * Each outcome's line comes from the target kind's pool for it, a caught pickpocket's from the caught
-     * pool; the bubble survives the wire, and a player beyond the radius gets none until the radius
-     * reaches them.
-     */
     public static void speechBubblesFollowTheOutcome(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "feel-bubble", IN_FRONT);
         ServerPlayer far = survivor(helper, "feel-bubble-far", Vec3.atBottomCenterOf(FAR_SPOT));
@@ -149,10 +139,6 @@ public final class SocialFeelScenarios {
         helper.succeed();
     }
 
-    /**
-     * A lifted item flies to the thief, who swings an arm, and the villager says nothing; one that barely
-     * goes unnoticed has the villager stare at the thief; a caught one is snatched back.
-     */
     public static void pickpocketedItemsFlyOrAreSnatchedBack(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "feel-pickpocket", IN_FRONT);
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -202,7 +188,6 @@ public final class SocialFeelScenarios {
         helper.succeed();
     }
 
-    /** With the animation and bubbles off, nothing is sent and no arm swings. */
     public static void feelSwitchesOff(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "feel-off", IN_FRONT);
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -236,10 +221,6 @@ public final class SocialFeelScenarios {
         helper.succeed();
     }
 
-    /**
-     * A failed persuasion angers the villager: a player with Checks hears its angry voice and not
-     * vanilla's no, a player without Checks hears vanilla's no and no voice.
-     */
     public static void voicesReachChecksClientsAndVanillaSoundsTheRest(GameTestHelper helper) {
         List<Packet<?>> toChecks = new ArrayList<>();
         List<Packet<?>> toVanilla = new ArrayList<>();

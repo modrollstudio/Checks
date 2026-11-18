@@ -9,11 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import studio.modroll.checks.save.VanillaSaves;
 
-/**
- * Fabric API has no explosion knockback event; NeoForge fires ExplosionKnockbackEvent at this spot. The
- * push is changed where it is stored, so both the entity's motion and the knockback sent to a player's
- * client use it.
- */
+/** Fabric API has no explosion knockback event. */
 @Mixin(Explosion.class)
 abstract class ExplosionMixin {
 

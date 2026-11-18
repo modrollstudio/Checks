@@ -2,10 +2,6 @@ package studio.modroll.checks.creation;
 
 import java.util.Optional;
 
-/**
- * One player's creation progress: whether the screen was already offered on join, the dice they
- * rolled, and the confirmed build, which locks creation.
- */
 public record PlayerCharacter(boolean prompted, Optional<CharacterRolls> rolls, Optional<CharacterBuild> build) {
 
     public static final PlayerCharacter NONE = new PlayerCharacter(false, Optional.empty(), Optional.empty());

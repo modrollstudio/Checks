@@ -18,12 +18,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import studio.modroll.checks.text.FallbackText;
 
-/**
- * {@code /checks help [command]}. The commands listed are read from the registered command tree and
- * filtered by each one's own permission check, so a source only ever sees what it may run. Every text
- * comes from the lang file: {@code commands.checks.help.<command>.<part>} for each of {@link #PARTS}.
- * Usages split their options with "/", as Minecraft's font draws "|" much like "l".
- */
+/** Usages split their options with "/", as Minecraft's font draws "|" much like "l". */
 public final class ChecksHelp {
 
     public static final String NAME = "help";
@@ -63,7 +58,6 @@ public final class ChecksHelp {
         return commands.size();
     }
 
-    /** A command the source may not run is unknown to it, as in the list. */
     private static int describe(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         String command = StringArgumentType.getString(ctx, COMMAND_ARGUMENT);
         if (!usable(ctx).contains(command)) {
@@ -75,7 +69,6 @@ public final class ChecksHelp {
         return Command.SINGLE_SUCCESS;
     }
 
-    /** The {@code /checks} subcommands the source may run, in registration order. */
     private static List<String> usable(CommandContext<CommandSourceStack> ctx) {
         return ctx.getRootNode().getChild(ChecksCommands.ROOT).getChildren().stream()
                 .filter(node -> node.canUse(ctx.getSource()))

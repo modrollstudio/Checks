@@ -7,7 +7,6 @@ import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.api.Skill;
 import studio.modroll.checks.api.Stat;
 
-/** Looks up a stat by the id commands and datapacks use: an ability id ({@code dex}) or a skill id. */
 public final class StatIds {
 
     private StatIds() {}

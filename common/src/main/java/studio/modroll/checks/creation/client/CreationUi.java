@@ -10,7 +10,6 @@ import net.minecraft.world.item.ItemStack;
 import studio.modroll.checks.preset.KitItem;
 import studio.modroll.checks.ui.Area;
 
-/** Sizes, colours and drawing shared by the creation pages; the panels and banners are {@code Frames}. */
 final class CreationUi {
 
     static final String KEY = "screen.checks.creation.";
@@ -36,7 +35,6 @@ final class CreationUi {
 
     private CreationUi() {}
 
-    /** A proficiency dot: filled, or an empty outline. */
     static void dot(GuiGraphics graphics, Font font, int left, int y, boolean filled, int color) {
         int top = y + (font.lineHeight - DOT) / 2 - 1;
         if (filled) {
@@ -55,7 +53,6 @@ final class CreationUi {
                 .build();
     }
 
-    /** One icon per kit stack with its count, wrapped to {@code width}, each naming its item on hover. */
     static void kit(GuiGraphics graphics, List<KitItem> kit, Area area, CharacterCreationScreen host) {
         int perRow = kitPerRow(area.width());
         for (int i = 0; i < kit.size(); i++) {

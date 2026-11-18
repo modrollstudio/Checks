@@ -30,17 +30,12 @@ import studio.modroll.checks.text.Names;
 import studio.modroll.critfall.api.combat.SaveResult;
 import studio.modroll.critfall.api.dice.RollMode;
 
-/**
- * Rolls a social action through {@link ChecksApi} and carries out its outcome. A roll a listener cancels
- * does nothing and starts no cooldown.
- */
 final class SocialActions {
 
     private static final int NO_MARGIN = 0;
 
     private SocialActions() {}
 
-    /** {@code option} must be available: the caller checked target, trades and cooldown. */
     static void perform(ServerPlayer player, LivingEntity target, SocialMenu.Option option) {
         SocialAction action = option.action();
         ScoresConfig.SocialSettings settings = ScoresRuntime.config().social();
@@ -79,7 +74,6 @@ final class SocialActions {
         announce(player, action.skill(), result, outcome, flavor);
     }
 
-    /** Against the target's passive skill when the action has one, else against the configured DC. */
     private static CheckRoll roll(
             ServerPlayer player,
             LivingEntity target,
@@ -157,7 +151,6 @@ final class SocialActions {
         return crime(player, trader, SocialAction.PICKPOCKET, settings.failure());
     }
 
-    /** A failure the village takes as a crime: villagers who saw it turn on the player too. */
     private static Component crime(
             ServerPlayer player, AbstractVillager trader, SocialAction action, SocialEffect effect) {
         Component flavor = effect(player, trader, action, "failure", effect);
@@ -167,11 +160,6 @@ final class SocialActions {
         return flavor;
     }
 
-    /**
-     * Plead or Lie, once per alarm: a success ends it, a natural 20 also halves what is left of the refusals
-     * the player's thefts and threats earned, and a natural 1 starts it over and calls the golems nearby
-     * again. A failure changes nothing.
-     */
     private static Component deEscalate(
             ServerPlayer player, AbstractVillager trader, SocialAction action, SocialOutcome outcome, double radius) {
         GolemAlarms.markTried(player, action);
@@ -198,7 +186,6 @@ final class SocialActions {
         return effect(player, trader, action, outcome.id(), deal.effect(outcome));
     }
 
-    /** A wandering trader who catches the lie also refuses the player. */
     private static Component deceiveTrader(
             ServerPlayer player,
             AbstractVillager trader,
@@ -258,7 +245,6 @@ final class SocialActions {
         };
     }
 
-    /** A made check sends the mob running, a failed one changes nothing, and a natural 1 sets it on the player. */
     private static Component scare(
             ServerPlayer player,
             PathfinderMob mob,
@@ -313,7 +299,6 @@ final class SocialActions {
                 ComponentUtils.formatList(items, FallbackText.of("checks.list.comma")));
     }
 
-    /** A line from the outcome's pool; each line may use the target's name ({@code %1$s}) and what changed hands. */
     private static Component flavor(LivingEntity target, SocialAction action, String result, Object... items) {
         Object[] args = new Object[items.length + 1];
         args[0] = Names.of(target);
@@ -322,7 +307,6 @@ final class SocialActions {
                 SocialText.flavorPool(action, SocialTarget.of(target), result), target.getRandom(), args);
     }
 
-    /** The roll above the hotbar, with the flavor line below it. */
     static void announce(
             ServerPlayer player, ResourceLocation skill, SaveResult result, SocialOutcome outcome, Component flavor) {
         RollMessages.showResult(

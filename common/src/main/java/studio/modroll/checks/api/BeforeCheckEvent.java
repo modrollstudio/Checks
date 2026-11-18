@@ -5,13 +5,6 @@ import java.util.OptionalInt;
 import net.minecraft.world.entity.LivingEntity;
 import studio.modroll.critfall.api.dice.RollMode;
 
-/**
- * Fired on the server before a check, save or contest side made through {@link ChecksApi} is rolled.
- * Listeners may change the DC, add to the bonus, grant advantage, impose disadvantage, or cancel.
- * Advantage and disadvantage combine the 5e way: having both rolls normally, however many sources
- * grant each. The bonus starts with the entity's bonus sources; the roll mode starts with the caller's
- * mode and the bonus sources' modes.
- */
 public final class BeforeCheckEvent {
 
     private final LivingEntity entity;
@@ -46,12 +39,10 @@ public final class BeforeCheckEvent {
         this.disadvantage = disadvantage;
     }
 
-    /** The entity rolling. */
     public LivingEntity entity() {
         return entity;
     }
 
-    /** For a save, always an {@link Ability}. */
     public Stat stat() {
         return stat;
     }
@@ -60,17 +51,14 @@ public final class BeforeCheckEvent {
         return kind;
     }
 
-    /** The other side of a contest, or the entity whose passive score is the DC. */
     public Optional<LivingEntity> opponent() {
         return opponent;
     }
 
-    /** Empty for a contest side or an open roll. */
     public OptionalInt dc() {
         return dc;
     }
 
-    /** @throws IllegalStateException for a contest side or an open roll, which have no DC */
     public void dc(int value) {
         if (dc.isEmpty()) {
             throw new IllegalStateException("a " + kind + " without a DC cannot be given one");
@@ -78,12 +66,10 @@ public final class BeforeCheckEvent {
         dc = OptionalInt.of(value);
     }
 
-    /** The stat's own modifier: ability, skill or save modifier. */
     public int modifier() {
         return modifier;
     }
 
-    /** What the bonus sources and listeners add on top of {@link #modifier()}. */
     public int bonus() {
         return bonus;
     }
@@ -108,7 +94,6 @@ public final class BeforeCheckEvent {
         return disadvantage;
     }
 
-    /** The mode the d20 is rolled with once advantage and disadvantage are combined. */
     public RollMode mode() {
         if (advantage == disadvantage) {
             return RollMode.NORMAL;
@@ -116,7 +101,6 @@ public final class BeforeCheckEvent {
         return advantage ? RollMode.ADVANTAGE : RollMode.DISADVANTAGE;
     }
 
-    /** Nothing is rolled; see {@link ChecksApi} for what a canceled roll returns. */
     public void cancel() {
         canceled = true;
     }

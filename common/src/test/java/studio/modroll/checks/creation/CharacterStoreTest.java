@@ -160,7 +160,6 @@ class CharacterStoreTest {
         return scores;
     }
 
-    /** A 4d6-drop-lowest style roll: the first face is dropped, the rest are kept. */
     private static RolledScore rolled(int dropped, int... kept) {
         List<DieRoll> dice = new ArrayList<>();
         dice.add(new DieRoll(6, dropped, false));

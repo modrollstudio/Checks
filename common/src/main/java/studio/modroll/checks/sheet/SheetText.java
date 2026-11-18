@@ -22,7 +22,6 @@ import studio.modroll.checks.body.Size;
 import studio.modroll.checks.preset.PresetKind;
 import studio.modroll.checks.text.FallbackText;
 
-/** Lang-file names for the stat and creation screens. */
 public final class SheetText {
 
     private static final String SKILL = "skill";
@@ -58,38 +57,31 @@ public final class SheetText {
         };
     }
 
-    /** The tooltip line naming a skill's governing ability. */
     public static Component skillUses(Ability ability) {
         return Component.translatable("screen.checks.tooltip.skill", abilityName(ability));
     }
 
-    /** {@code checks.skill.<namespace>.<path>}, falling back to the id's last path segment in title case. */
     public static Component skillName(ResourceLocation id) {
         return name(SKILL, id);
     }
 
-    /** The skill name key plus {@code .desc}; empty when no lang file provides one. */
     public static Optional<Component> skillDescription(ResourceLocation id) {
         return description(SKILL, id);
     }
 
-    /** The skill name key plus {@code .use}: the "In this mod:" line; empty for a skill Checks has no use for. */
     public static Optional<Component> skillUse(ResourceLocation id) {
         return ifTranslated(key(SKILL, id) + ".use");
     }
 
-    /** {@code checks.<kind>.<namespace>.<path>} like skills; an empty choice is Custom. */
     public static Component presetName(PresetKind kind, Optional<ResourceLocation> choice) {
         return choice.map(id -> name(kind.id(), id)).orElse(Component.translatable(CUSTOM));
     }
 
-    /** The preset name key plus {@code .desc}, or what Custom means for this kind. */
     public static Optional<Component> presetDescription(PresetKind kind, Optional<ResourceLocation> choice) {
         return choice.map(id -> description(kind.id(), id))
                 .orElse(Optional.of(Component.translatable(CUSTOM + "." + kind.id())));
     }
 
-    /** {@code checks.bonus.<namespace>.<path>}, falling back to the source id's last path segment in title case. */
     public static Component bonusName(ResourceLocation id) {
         return name(BONUS_SOURCE, id);
     }
@@ -102,17 +94,12 @@ public final class SheetText {
         return description(TRAIT, id);
     }
 
-    /**
-     * The background bonus splits in plain words, e.g. {@code Raise one of these by 2 and another by 1,
-     * or all three by 1.} An option that raises every one of {@code abilityCount} abilities says "all".
-     */
     public static Component bonusSplits(List<List<Integer>> options, int abilityCount) {
         List<Component> splits =
                 options.stream().map(option -> split(option, abilityCount)).toList();
         return Component.translatable(BONUS + "sentence", joined(splits, BONUS + "or", BONUS + "or"));
     }
 
-    /** {@code Bonuses left: +1}, or {@code All bonuses used} once a remainder is empty. */
     public static Component bonusesLeft(List<List<Integer>> remainders) {
         if (remainders.contains(List.of())) {
             return Component.translatable(BONUS + "left.none");
@@ -128,7 +115,6 @@ public final class SheetText {
         return Component.translatable(BONUS + "left", joined(alternatives, LIST_OR, LIST_OR));
     }
 
-    /** {@code Highest score in CHA, then CON, DEX, WIS, INT, lowest in STR.} */
     public static Component suggestedOrder(List<Ability> order) {
         List<Component> middle = order.subList(1, order.size() - 1).stream()
                 .map(SheetText::abilityAbbreviation)
@@ -140,7 +126,6 @@ public final class SheetText {
                 abilityAbbreviation(order.getLast()));
     }
 
-    /** Equal bonuses are grouped, largest first: "one of these by 2", "another by 1", "two others by 1 each". */
     private static Component split(List<Integer> option, int abilityCount) {
         Map<Integer, Long> counts = option.stream()
                 .sorted(Comparator.reverseOrder())
@@ -160,17 +145,14 @@ public final class SheetText {
         return Component.translatable(BONUS + (first ? "some" : "others"), number(count), bonus);
     }
 
-    /** Small counts as words ("three"), from the lang file; larger ones as digits. */
     private static Component number(int count) {
         return Component.translatableWithFallback("checks.number." + count, Integer.toString(count));
     }
 
-    /** {@code a, b and c}. */
     public static Component andList(List<Component> items) {
         return joined(items, LIST_COMMA, LIST_AND);
     }
 
-    /** {@code a, b and c}: {@code separatorKey} between items, {@code lastKey} before the last one. */
     private static Component joined(List<Component> items, String separatorKey, String lastKey) {
         MutableComponent text = Component.empty();
         for (int i = 0; i < items.size(); i++) {
@@ -214,7 +196,6 @@ public final class SheetText {
         return value < 0 ? Integer.toString(value) : "+" + value;
     }
 
-    /** Rounded to two places without trailing zeros: {@code 26}, {@code 0.6}, {@code 0.55}. */
     public static String decimal(double value) {
         BigDecimal rounded = BigDecimal.valueOf(value).setScale(DECIMAL_PLACES, RoundingMode.HALF_UP);
         return rounded.signum() == 0 ? "0" : rounded.stripTrailingZeros().toPlainString();
@@ -229,7 +210,6 @@ public final class SheetText {
         return Component.translatable("checks.size." + size.id());
     }
 
-    /** A size's scale as a multiple of normal player size, e.g. {@code ×0.6}. */
     public static Component scale(double scale) {
         return Component.translatable("checks.size.scale", decimal(scale));
     }

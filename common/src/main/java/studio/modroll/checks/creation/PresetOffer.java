@@ -12,7 +12,6 @@ import studio.modroll.checks.preset.Preset;
 import studio.modroll.checks.preset.PresetKind;
 import studio.modroll.checks.preset.Species;
 
-/** The presets a player may build from, plus how background bonuses may be split. Custom is always allowed. */
 public record PresetOffer(
         boolean enabled,
         List<Species> species,
@@ -51,7 +50,6 @@ public record PresetOffer(
         };
     }
 
-    /** Custom (an empty choice) is always offered; a preset only when this offer lists it. */
     public boolean offers(PresetKind kind, Optional<ResourceLocation> choice) {
         return choice.map(id -> find(presets(kind), id).isPresent()).orElse(true);
     }
@@ -68,7 +66,6 @@ public record PresetOffer(
         return choice.flatMap(id -> find(classes, id));
     }
 
-    /** The bonus splits that fit the background, i.e. need no more abilities than it lists. */
     public List<List<Integer>> bonusOptionsFor(Background background) {
         return bonusOptions.stream()
                 .filter(option -> option.size() <= background.abilities().size())

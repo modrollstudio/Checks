@@ -5,10 +5,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-/**
- * The last result of each save per entity, kept until its cooldown ends, in server ticks. Kept in memory
- * only: a restart clears every cooldown.
- */
 public final class SaveCooldowns {
 
     private record Key(VanillaSave save, UUID entity) {}
@@ -17,7 +13,6 @@ public final class SaveCooldowns {
 
     private final Map<Key, Last> results = new HashMap<>();
 
-    /** Whether the last such save succeeded, while it is cooling down; empty when a new roll is due. */
     public synchronized Optional<Boolean> recent(VanillaSave save, UUID entity, long now) {
         return Optional.ofNullable(results.get(new Key(save, entity)))
                 .filter(last -> now < last.readyAt())

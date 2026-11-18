@@ -17,10 +17,6 @@ import studio.modroll.checks.api.Skill;
 import studio.modroll.checks.proficiency.Proficiencies;
 import studio.modroll.checks.skill.Skills;
 
-/**
- * Datapack ability scores, skill bonuses and proficiencies for entity types, loaded from {@code
- * data/<ns>/checks/entity_profile/*.json}. Every value is optional; an absent one falls back on its own.
- */
 public record EntityScoreProfile(
         ResourceLocation id,
         List<MatchEntry> matches,
@@ -49,7 +45,6 @@ public record EntityScoreProfile(
         return Optional.ofNullable(saveProficiencies.get(ability));
     }
 
-    /** Skill keys resolve through {@code skills}; a key naming no loaded skill is skipped with a warning. */
     public static EntityScoreProfile parse(
             ResourceLocation id,
             JsonObject json,

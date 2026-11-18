@@ -23,13 +23,8 @@ import net.minecraft.world.phys.Vec3;
 import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.score.ScoresRuntime;
 
-/**
- * Plays {@link SocialReaction}s with vanilla's own particles, sounds and head shake. A fleeing villager
- * panics as vanilla's do when hurt, with a walk target away from the player.
- */
 final class SocialReactions {
 
-    /** As long as vanilla's head shake when a villager won't trade. */
     private static final int HEAD_SHAKE_TICKS = 40;
 
     private static final int ANGRY_PARTICLES = 5;
@@ -51,7 +46,6 @@ final class SocialReactions {
         }
     }
 
-    /** Vanilla sounds go through {@link SocialFeel#reactionSound}, which leaves them to the target's voice. */
     private static void play(
             ServerPlayer player, LivingEntity target, SocialReaction reaction, ScoresConfig.SocialSettings settings) {
         ScoresConfig.ReactionSettings reactions = settings.reactions();
@@ -83,10 +77,6 @@ final class SocialReactions {
         }
     }
 
-    /**
-     * A listener's reaction to a Performance, shown without a sound so a crowd does not all speak at once:
-     * happy particles when pleased, angry ones when angry.
-     */
     static void show(LivingEntity listener, SocialReaction reaction) {
         if (!ScoresRuntime.config().social().reactions().enabled()) {
             return;
@@ -98,7 +88,6 @@ final class SocialReactions {
         }
     }
 
-    /** A villager or wandering trader shakes its head and says no. */
     static void shakeHead(LivingEntity target) {
         shakeHead(target, target::playSound);
     }
@@ -111,7 +100,6 @@ final class SocialReactions {
         sayNo.accept(trader instanceof WanderingTrader ? SoundEvents.WANDERING_TRADER_NO : SoundEvents.VILLAGER_NO);
     }
 
-    /** A mob has no "yes" to say. */
     private static Optional<SoundEvent> pleasedSound(LivingEntity target) {
         return switch (target) {
             case Piglin piglin -> Optional.of(SoundEvents.PIGLIN_ADMIRING_ITEM);
@@ -129,11 +117,7 @@ final class SocialReactions {
         particles(target, ParticleTypes.SPLASH, SWEAT_PARTICLES);
     }
 
-    /**
-     * Only villagers have a brain to run with; anyone else stays put. Its idle behaviors soon replace a bare
-     * walk target, often with one back toward the player, so the villager panics as it does when hurt by
-     * the player: until it is far enough from them or {@code fleeTicks} pass, it keeps away from them.
-     */
+    /** Idle behaviors soon replace a bare walk target, so the villager panics as it does when hurt by the player. */
     static void flee(
             ServerPlayer player, LivingEntity target, double distance, ScoresConfig.ReactionSettings reactions) {
         if (!(target instanceof Villager villager)) {
@@ -148,7 +132,6 @@ final class SocialReactions {
                 new WalkTarget(awayFrom(player, villager, distance), (float) reactions.fleeSpeed(), CLOSE_ENOUGH));
     }
 
-    /** A villager running from the player stops: it no longer sees them as a danger, and soon calms down. */
     static void calmDown(ServerPlayer player, Villager villager) {
         Brain<Villager> brain = villager.getBrain();
         if (brain.getMemory(MemoryModuleType.HURT_BY_ENTITY).orElse(null) == player) {
@@ -157,14 +140,12 @@ final class SocialReactions {
         }
     }
 
-    /** {@code distance} blocks further along the line from the player through the villager. */
     static Vec3 awayFrom(ServerPlayer player, LivingEntity villager, double distance) {
         Vec3 away = villager.position().subtract(player.position()).multiply(1, 0, 1);
         Vec3 direction = away.lengthSqr() == 0 ? villager.getLookAngle().multiply(1, 0, 1) : away;
         return villager.position().add(direction.normalize().scale(distance));
     }
 
-    /** Llamas leashed to the trader spit at the player, as when they defend him. */
     private static void llamasSpit(ServerPlayer player, LivingEntity trader, double radius) {
         for (Llama llama : player.level()
                 .getEntitiesOfClass(

@@ -96,4 +96,4 @@ segment in title case (`mypack:gear/elven_boots` → `Elven Boots`).
 
 `bonus_sources.enabled: false` in `config/checks/scores.json` ignores every bonus source, rolls and
 passive scores alike. See
-[scores-config.md](scores-config.md#toggles).
+[scores-config.md](scores-config.md#extensions).

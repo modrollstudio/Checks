@@ -10,10 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import studio.modroll.checks.level.Levelling;
 
-/**
- * Fabric API has no advancement-earned event. Rewards are granted exactly once, when an advancement
- * becomes done, which is where NeoForge fires AdvancementEarnEvent.
- */
+/** Fabric API has no advancement earned event. */
 @Mixin(PlayerAdvancements.class)
 abstract class PlayerAdvancementsMixin {
 

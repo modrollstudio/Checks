@@ -38,12 +38,6 @@ import studio.modroll.checks.sheet.SheetText;
 import studio.modroll.checks.ui.Area;
 import studio.modroll.checks.ui.Frames;
 
-/**
- * The scores page. The left panel holds one row per ability: standard array and roll values are chips
- * placed onto abilities, and a background's bonus sits beside the placed score with its own - / +
- * buttons, followed by the total, e.g. {@code 15 +2 = 17}. The right panel holds the method choice and
- * its description, the chips still to place, and what is left of the background bonus.
- */
 final class ScoresStepView implements StepView {
 
     private static final float ABILITIES_SHARE = 0.5f;
@@ -92,7 +86,6 @@ final class ScoresStepView implements StepView {
         addAbilityControls();
     }
 
-    /** The method buttons, two to a row, then the description, the chips and the background bonus. */
     private void layoutMethod() {
         CreationDraft draft = host.draft();
         int methodRows = Mth.positiveCeilDiv(draft.offer().methods().size(), METHODS_PER_ROW);
@@ -106,7 +99,6 @@ final class ScoresStepView implements StepView {
         bonusHelp = bonusHelp(method.width());
     }
 
-    /** The Roll button before rolling, the chips after; their place stays once all are placed. */
     private int poolHeight() {
         CreationDraft draft = host.draft();
         if (draft.awaitingRoll()) {
@@ -228,7 +220,6 @@ final class ScoresStepView implements StepView {
         }
     }
 
-    /** A - and a + button with {@code valueWidth} between them; returns the + button. */
     private Button addStepButtons(
             int top, int left, boolean canLower, boolean canRaise, Runnable lower, Runnable raise, int valueWidth) {
         host.addControl(CreationUi.smallButton("-", left, top, lower, host)).active = canLower;
@@ -237,7 +228,6 @@ final class ScoresStepView implements StepView {
         return plus;
     }
 
-    /** Why a bonus + is disabled, in plain words. */
     private Component limitText(CreationDraft.BonusLimit limit, Ability ability) {
         String key = KEY + "bonus_limit." + limit.name().toLowerCase(Locale.ROOT);
         return switch (limit) {
@@ -327,7 +317,7 @@ final class ScoresStepView implements StepView {
         Frames.lines(graphics, host.font(), bonusHelp, method.left(), y, Frames.MUTED);
     }
 
-    /** Placed values leave a gap, so the remaining chips never shift under the cursor; none left says so. */
+    /** Placed values leave a gap, so the remaining chips never shift under the cursor. */
     private void renderChips(GuiGraphics graphics) {
         CreationDraft draft = host.draft();
         List<Integer> pool = draft.pool();
@@ -413,7 +403,6 @@ final class ScoresStepView implements StepView {
                         Frames.DIM));
     }
 
-    /** Point buy draws its value between the - / + buttons; the other methods draw a slot that holds a chip. */
     private void renderSlot(GuiGraphics graphics, Ability ability, int top) {
         CreationDraft draft = host.draft();
         int slotLeft = controlsLeft() + SMALL_BUTTON;

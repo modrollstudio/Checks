@@ -33,12 +33,7 @@ import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.trigger.CheckTrigger;
 import studio.modroll.checks.trigger.CheckTriggers;
 
-/**
- * GameTest bodies for datapack check triggers. Block and item uses go through the player's game mode, so
- * the loader's own interaction hook fires the trigger; entity use calls the handler both loaders' hooks
- * call, since Fabric only hooks it in the network handler. The outcomes are the gametest datapack's
- * functions, which tag the player (success also breaks the block), and a loot table holding one diamond.
- */
+/** Entity use calls the handler both loaders' hooks call, since Fabric only hooks it in the network handler. */
 public final class TriggerScenarios {
 
     private static final String TAG_PREFIX = "checks_trigger_";
@@ -50,7 +45,6 @@ public final class TriggerScenarios {
 
     private TriggerScenarios() {}
 
-    /** One trigger on cracked stone bricks takes each branch with the face it is forced to roll. */
     public static void blockTriggerTakesEachBranch(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("WallBreaker"));
         CheckTrigger wall = trigger(
@@ -83,7 +77,6 @@ public final class TriggerScenarios {
         helper.succeed();
     }
 
-    /** Using a matching entity rolls; the off hand never does. */
     public static void entityTriggerFires(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("Persuader"));
         Mob villager = spawnCalm(helper, EntityType.VILLAGER);
@@ -105,7 +98,6 @@ public final class TriggerScenarios {
         helper.succeed();
     }
 
-    /** Using a compass rolls survival and hands out the loot table. */
     public static void itemTriggerFires(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("Navigator"));
         player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.COMPASS));
@@ -127,10 +119,6 @@ public final class TriggerScenarios {
         helper.succeed();
     }
 
-    /**
-     * A player cooldown stops the same player on any wall; a target cooldown stops anyone on the same
-     * wall but not on another. A blocked use rolls nothing: only one face is scripted per fired use.
-     */
     public static void cooldownsBlockPlayersAndTargets(GameTestHelper helper) {
         ServerPlayer alice = login(helper, newProfile("Alice"));
         ServerPlayer bob = login(helper, newProfile("Bob"));
@@ -155,7 +143,6 @@ public final class TriggerScenarios {
         helper.succeed();
     }
 
-    /** Switched off, or with the roll canceled by a listener, the use is left to vanilla and nothing runs. */
     public static void disabledOrCanceledTriggersDoNothing(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("Bystander"));
         helper.setBlock(WALL, Blocks.CRACKED_STONE_BRICKS);
@@ -188,7 +175,6 @@ public final class TriggerScenarios {
                         + outcome("failure", "function", "checks:gametest/trigger_failure") + "}}");
     }
 
-    /** The success face meets it and the failure face misses it, whatever the player's modifiers. */
     private static int dc(ServerPlayer player, String skill) {
         return DC_ABOVE_MODIFIER + ChecksApi.modifier(player, standardSkill(skill));
     }
@@ -215,7 +201,6 @@ public final class TriggerScenarios {
         expect(helper, !result.consumesAction(), what + " must not fire the trigger, was " + result);
     }
 
-    /** The branch tags the outcome functions added since the last call, which are then removed. */
     private static void expectTags(GameTestHelper helper, ServerPlayer player, Set<String> branches) {
         Set<String> tags = player.getTags().stream()
                 .filter(tag -> tag.startsWith(TAG_PREFIX))

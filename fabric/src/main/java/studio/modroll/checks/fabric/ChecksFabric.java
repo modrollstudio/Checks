@@ -149,7 +149,6 @@ public final class ChecksFabric implements ModInitializer {
         });
     }
 
-    /** Whether the player's client has the channel, and so was sent the payload. */
     private static boolean sendToClient(ServerPlayer player, CustomPacketPayload payload) {
         if (!ServerPlayNetworking.canSend(player, payload.type())) {
             return false;

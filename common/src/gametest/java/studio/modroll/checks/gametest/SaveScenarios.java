@@ -44,16 +44,10 @@ import net.minecraft.world.phys.Vec3;
 import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.save.VanillaSave;
 
-/**
- * GameTest bodies for the saves against vanilla hazards. Each test player is new, so no cooldown carries
- * over; most run with no cooldown so every trigger rolls. A d20 of 2 fails and 19 makes every default DC
- * for a player with +0 modifiers.
- */
 public final class SaveScenarios {
 
     private static final int FAIL = 2;
     private static final int SAVE = 19;
-    /** Hits a player's AC 10 without a crit. */
     private static final int CRITFALL_HIT = 15;
 
     private static final float HIT = 8f;
@@ -74,7 +68,6 @@ public final class SaveScenarios {
 
     private SaveScenarios() {}
 
-    /** A real explosion: DEX halves its damage, STR halves its push. */
     public static void explosionCallsForDexAndStrSaves(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "save-blast");
         try {
@@ -90,7 +83,6 @@ public final class SaveScenarios {
         helper.succeed();
     }
 
-    /** CON halves poison, wither and hunger; any other effect never calls for a save. */
     public static void poisonSaveHalvesTheDuration(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "save-poison");
         try {
@@ -109,7 +101,6 @@ public final class SaveScenarios {
         helper.succeed();
     }
 
-    /** {@code /effect give}, from chat or a function, never calls for a save. */
     public static void commandEffectsNeverCallForASave(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "save-command");
         try {
@@ -132,7 +123,6 @@ public final class SaveScenarios {
         helper.succeed();
     }
 
-    /** WIS halves the Warden's darkness. */
     public static void darknessSaveHalvesTheDuration(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "save-dark");
         try {
@@ -147,7 +137,6 @@ public final class SaveScenarios {
         helper.succeed();
     }
 
-    /** STR halves a big push; a plain hit's knockback never calls for a save. */
     public static void knockbackSaveOnlyForBigPushes(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "save-push");
         try {
@@ -164,7 +153,6 @@ public final class SaveScenarios {
         helper.succeed();
     }
 
-    /** DEX keeps a fire block from setting the player alight; lava never calls for a save. */
     public static void fireSaveKeepsThePlayerFromCatchingFire(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "save-fire");
         try {
@@ -198,7 +186,6 @@ public final class SaveScenarios {
         helper.succeed();
     }
 
-    /** A bonus source's advantage on DEX saves keeps the better of 2 and 19. */
     public static void bonusSourceAdvantageApplies(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "save-lucky");
         player.addEffect(effect(MobEffects.LUCK));
@@ -212,7 +199,6 @@ public final class SaveScenarios {
         helper.succeed();
     }
 
-    /** Inside the cooldown a second fire reuses the made save: one roll, never alight. */
     public static void cooldownReusesTheLastResult(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "save-cool");
         try {
@@ -234,10 +220,6 @@ public final class SaveScenarios {
         helper.succeed();
     }
 
-    /**
-     * One roll per hit: a zombie's Fire Aspect hit, which Critfall rolled for, sets the player alight with no
-     * DEX save. The hit stands in for one save only: the next fire in the same tick still calls for one.
-     */
     public static void aFireAspectHitRollsOnce(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "save-fire-aspect");
         Mob zombie = spawnCalm(helper, EntityType.ZOMBIE);
@@ -259,7 +241,6 @@ public final class SaveScenarios {
         helper.succeed();
     }
 
-    /** Each save switched off alone rolls nothing and leaves vanilla's outcome. */
     public static void eachSaveSwitchesOff(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "save-off");
         try {
@@ -280,7 +261,6 @@ public final class SaveScenarios {
         helper.succeed();
     }
 
-    /** Mobs never save by default; with profiled mobs on, a profiled pig saves and an unprofiled cow does not. */
     public static void mobsSaveOnlyWhenProfiledAndSwitchedOn(GameTestHelper helper) {
         Mob pig = spawnCalm(helper, EntityType.PIG);
         Mob cow = spawnCalm(helper, EntityType.COW);
@@ -362,7 +342,6 @@ public final class SaveScenarios {
         reset(player);
     }
 
-    /** How many rolls {@code body} made. */
     private static int rolls(Runnable body) {
         AtomicInteger count = new AtomicInteger();
         withListeners(before -> {}, after -> count.incrementAndGet(), () -> {

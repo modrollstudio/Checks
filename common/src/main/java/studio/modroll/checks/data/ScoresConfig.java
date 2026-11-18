@@ -13,7 +13,6 @@ import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.body.Extra;
 import studio.modroll.checks.creation.CreationMethod;
 import studio.modroll.checks.creation.PointBuy;
-import studio.modroll.checks.level.Levels;
 import studio.modroll.checks.save.VanillaSave;
 import studio.modroll.checks.social.SocialAction;
 import studio.modroll.checks.social.SocialEffect;
@@ -22,7 +21,6 @@ import studio.modroll.checks.trait.TraitEffectType;
 import studio.modroll.critfall.api.ModifierProvider;
 import studio.modroll.critfall.api.dice.DiceExpression;
 
-/** The contents of {@code config/checks/scores.json}. */
 public record ScoresConfig(
         Map<Ability, Integer> playerDefaults,
         Derivation derivation,
@@ -58,10 +56,8 @@ public record ScoresConfig(
 
     public record ProficiencySettings(boolean enabled, int defaultBonus) {}
 
-    /** {@code saveAbilities} maps a Critfall save key to the ability whose save modifier it uses. */
     public record CritfallSettings(boolean enabled, boolean unprofiledMobs, Map<String, Ability> saveAbilities) {}
 
-    /** {@code rollDice} serves the roll method, {@code hardcoreDice} the hardcore one; one roll per ability. */
     public record CreationSettings(
             boolean enabled,
             List<CreationMethod> methods,
@@ -81,11 +77,6 @@ public record ScoresConfig(
         }
     }
 
-    /**
-     * Species, backgrounds and classes at creation. {@code includeShipped} offers the presets Checks
-     * ships; {@code bonusOptions} are the ways a background's ability bonuses may be split (e.g. +2/+1
-     * or +1/+1/+1), and no bonus may raise a score above {@code bonusMaxScore}.
-     */
     public record PresetSettings(
             boolean enabled, boolean includeShipped, List<List<Integer>> bonusOptions, int bonusMaxScore) {
 
@@ -94,10 +85,6 @@ public record ScoresConfig(
         }
     }
 
-    /**
-     * Character levels 1 to {@link Levels#MAX_LEVEL}. {@code xpThresholds} is the total XP each level
-     * needs and {@code proficiencyBonuses} the proficiency bonus at each level, level 1 first.
-     */
     public record LevellingSettings(
             boolean enabled,
             List<Integer> xpThresholds,
@@ -113,15 +100,9 @@ public record ScoresConfig(
         }
     }
 
-    /** Character XP per vanilla XP point gained and per advancement earned, each with its own switch. */
     public record XpSources(
             boolean vanillaXpEnabled, int xpPerPoint, boolean advancementsEnabled, int xpPerAdvancement) {}
 
-    /**
-     * Ability score improvements: one is earned at each of {@code levels}, and one more at each of the
-     * character's class's {@code classLevels}; {@code options} are the allowed splits (e.g. +2 or +1/+1), and
-     * no improvement may raise a score above {@code maxScore}.
-     */
     public record ImprovementSettings(
             List<Integer> levels,
             Map<ResourceLocation, List<Integer>> classLevels,
@@ -134,7 +115,6 @@ public record ScoresConfig(
             options = options.stream().map(List::copyOf).toList();
         }
 
-        /** The shared levels, then the class's own, which may repeat a level for a second improvement there. */
         public List<Integer> levelsFor(Optional<ResourceLocation> classId) {
             List<Integer> all = new ArrayList<>(levels);
             classId.map(id -> classLevels.getOrDefault(id, List.of())).ifPresent(all::addAll);
@@ -142,10 +122,6 @@ public record ScoresConfig(
         }
     }
 
-    /**
-     * Expertise: at each of a class's {@code classLevels} the character picks {@code skillsPerLevel} skills they are
-     * proficient in, and their proficiency bonus counts twice on them.
-     */
     public record ExpertiseSettings(
             boolean enabled, int skillsPerLevel, Map<ResourceLocation, List<Integer>> classLevels) {
 
@@ -160,10 +136,6 @@ public record ScoresConfig(
         }
     }
 
-    /**
-     * Extra Attack: each of a class's {@code classLevels} the character has reached adds one attack to their Attack
-     * action, so a level 11 Fighter with {@code [5, 11, 20]} makes three.
-     */
     public record ExtraAttackSettings(boolean enabled, Map<ResourceLocation, List<Integer>> classLevels) {
 
         public ExtraAttackSettings {
@@ -183,10 +155,6 @@ public record ScoresConfig(
         return Map.copyOf(copy);
     }
 
-    /**
-     * The switches for what other mods and packs build on Checks: check events, datapack bonus sources and
-     * check triggers, {@code /checks check}, and stat screen sections added by other mods.
-     */
     public record ExtensionSettings(
             boolean events,
             BonusSourceSettings bonusSources,
@@ -194,10 +162,8 @@ public record ScoresConfig(
             boolean checkCommand,
             boolean sheetSections) {}
 
-    /** {@code passiveAdvantage} is what advantage adds to a passive score and disadvantage takes away. */
     public record BonusSourceSettings(boolean enabled, int passiveAdvantage) {}
 
-    /** Health, armor class, size and the attribute extras, each with its own switch. */
     public record BodySettings(
             HealthSettings health,
             ArmorClassSettings armorClass,
@@ -213,14 +179,6 @@ public record ScoresConfig(
         }
     }
 
-    /**
-     * Max health from the CON modifier, {@code perConPoint} hit points per point, and while {@code perLevelEnabled}
-     * from each level after the first: the class's hit die's fixed value ({@code sides / 2 + 1}), plus the CON
-     * modifier when {@code conPerLevel}, at least {@code minPerLevel}, times {@code perLevelMultiplier}. A Custom
-     * class, or none, uses a {@code customHitDie}. Traits that add health per level are scaled by the multiplier too.
-     * With {@code wholeHearts}, all the max health Checks adds is rounded down to an even number, so the last heart is
-     * never half empty.
-     */
     public record HealthSettings(
             boolean enabled,
             double perConPoint,
@@ -231,18 +189,10 @@ public record ScoresConfig(
             int customHitDie,
             boolean wholeHearts) {}
 
-    /** DEX added to AC, capped at {@code mediumMaxDex} in medium armor. */
     public record ArmorClassSettings(boolean enabled, int mediumMaxDex) {}
 
-    /** One attribute extra: {@code perPoint} per point of its ability's modifier. */
     public record ExtraSetting(boolean enabled, double perPoint) {}
 
-    /**
-     * Saving throws against vanilla hazards. Players save, and mobs with an entity profile when
-     * {@code profiledMobs} is on. Each kind of save rolls at most once per entity per {@code cooldownTicks};
-     * a trigger in between reuses the last result. Knockback up to {@code knockbackMinStrength} never
-     * calls for a save.
-     */
     public record SaveSettings(
             boolean profiledMobs, int cooldownTicks, double knockbackMinStrength, Map<VanillaSave, SaveSetting> saves) {
 
@@ -255,13 +205,8 @@ public record ScoresConfig(
         }
     }
 
-    /** One vanilla save: its DC, and what a made save multiplies the damage, duration or push by. */
     public record SaveSetting(boolean enabled, int dc, double successMultiplier) {}
 
-    /**
-     * Species traits. Once-a-day effects come back {@code rechargeTicks} after their last use; darkvision
-     * shows darkness as dim light at {@code darkvisionStrength}, 0 for none.
-     */
     public record TraitSettings(
             boolean enabled, int rechargeTicks, double darkvisionStrength, Map<TraitEffectType, Boolean> effects) {
 
@@ -269,36 +214,17 @@ public record ScoresConfig(
             effects = Map.copyOf(effects);
         }
 
-        /** Whether traits, and effects of this type, are on. */
         public boolean active(TraitEffectType type) {
             return enabled && effects.get(type) && (type != TraitEffectType.DARKVISION || darkvisionStrength > 0);
         }
     }
 
-    /**
-     * How long a client with Checks keeps a roll result on the action bar, in ticks; while off, or on a client
-     * without Checks, it shows for vanilla's three seconds.
-     */
     public record RollMessageSettings(boolean enabled, int durationTicks) {}
 
-    /**
-     * {@code /checks roll} for players without op: while {@code enabled}, a player may roll for their own
-     * character, and the result is shown to them and to every player within {@code radius} blocks.
-     */
     public record PlayerRollSettings(boolean enabled, double radius) {}
 
-    /**
-     * Story death messages: a player who dies within {@code windowTicks} of a related Checks event (caught
-     * pickpocketing, a failed threat, a failed DEX save against an explosion, a spent last stand) gets one in
-     * place of vanilla's.
-     */
     public record DeathMessageSettings(boolean enabled, int windowTicks) {}
 
-    /**
-     * Social skill uses on villagers, wandering traders and piglins, from the social menu, plus the passive
-     * price shifts. {@code nearbyRadius} is how far around the target iron golems and piglins join in;
-     * {@code gossipRadius} how far gossip marked {@code nearby} reaches, and how far off a witness can be.
-     */
     public record SocialSettings(
             boolean enabled,
             double nearbyRadius,
@@ -319,7 +245,6 @@ public record ScoresConfig(
             InsightSettings insight,
             PerformanceSettings performance) {
 
-        /** Whether social uses, and this action, are on. */
         public boolean active(SocialAction action) {
             return enabled
                     && switch (action) {
@@ -334,7 +259,6 @@ public record ScoresConfig(
                     };
         }
 
-        /** Plead and Lie have none: each may be tried once per alarm instead. */
         public int cooldownTicks(SocialAction action) {
             return switch (action) {
                 case PERSUADE -> persuade.cooldownTicks();
@@ -348,7 +272,6 @@ public record ScoresConfig(
         }
     }
 
-    /** A haggle: each outcome's effect on the trader; a check that makes the DC by at most {@code barelyMargin} barely succeeds. */
     public record Deal(int barelyMargin, Map<SocialOutcome, SocialEffect> outcomes) {
 
         public Deal {
@@ -362,14 +285,11 @@ public record ScoresConfig(
 
     public record PersuadeSettings(boolean enabled, int dc, int cooldownTicks, Deal deal) {}
 
-    /** Against the target's passive Insight: a haggle with traders, a disguise among piglins. */
     public record DeceiveSettings(
             boolean enabled, int cooldownTicks, Deal deal, PiglinDeceit piglin, TraderDeceit wanderingTrader) {}
 
-    /** A wandering trader who catches the lie refuses the player for {@code refuseTicks}; his llamas may spit. */
     public record TraderDeceit(int refuseTicks, boolean llamasSpit) {}
 
-    /** Piglins take the player for a gold wearer for {@code disguiseTicks}, longer on a natural 20, or turn hostile. */
     public record PiglinDeceit(int disguiseTicks, int criticalDisguiseTicks, int angerTicks) {}
 
     public record IntimidateSettings(
@@ -380,13 +300,8 @@ public record ScoresConfig(
             SocialEffect failure,
             int piglinAngerTicks) {}
 
-    /** Against the target's passive Perception, with advantage within {@code behindDegrees} of straight behind it. */
     public record PickpocketSettings(boolean enabled, int cooldownTicks, double behindDegrees, SocialEffect failure) {}
 
-    /**
-     * Villager prices shift by {@code charismaPercentPerPoint} per point of the player's CHA modifier, and
-     * for each listed profession by the listed skill's modifier; a positive modifier lowers prices.
-     */
     public record PassivePriceSettings(
             boolean enabled, double charismaPercentPerPoint, Map<ResourceLocation, ProfessionPrice> professions) {
 
@@ -397,59 +312,23 @@ public record ScoresConfig(
 
     public record ProfessionPrice(ResourceLocation skill, double percentPerPoint) {}
 
-    /**
-     * How targets show what they think: particles, sounds, head shakes and running away. A fleeing target
-     * runs {@code fleeDistance} blocks from the player at {@code fleeSpeed} times its walking speed, and
-     * keeps away from them for up to {@code fleeTicks}.
-     */
     public record ReactionSettings(boolean enabled, double fleeDistance, int fleeTicks, double fleeSpeed) {}
 
-    /**
-     * Villagers within the gossip radius of a caught pickpocket's or a failed threat's target that can see
-     * the player or the target: each refuses the player for {@code refuseFraction} of the target's refusal
-     * and runs {@code fleeDistance} blocks from them, as a fleeing target does.
-     */
     public record WitnessSettings(boolean enabled, double refuseFraction, double fleeDistance) {}
 
-    /**
-     * Once a golem turns on a player over a Checks crime, every golem within {@code radius} blocks of a golem
-     * after them joins in, for {@code durationTicks} or until the player dies.
-     */
     public record GolemAlarmSettings(boolean enabled, double radius, int durationTicks) {}
 
-    /**
-     * While a golem alarm is on a player, villagers within its radius of the crime are on guard: Pickpocket
-     * and Intimidate are off against them, and Persuade and Deceive give way to {@code plead} and
-     * {@code lie}, each tried once per alarm.
-     */
     public record OnGuardSettings(boolean enabled, DeEscalation plead, DeEscalation lie) {}
 
-    /** A way to talk down an alarm, rolled against {@code dc}. */
     public record DeEscalation(boolean enabled, int dc) {}
 
-    /**
-     * A villager that refuses the player, or whose reputation of them is at most {@code maxReputation}, is
-     * wary: Pickpocket and Intimidate against it roll with disadvantage.
-     */
     public record WarySettings(boolean enabled, int maxReputation) {}
 
-    /**
-     * Cosmetics that make social actions feel alive, each with its own switch: the pickpocket animation,
-     * speech bubbles above the target and mood voices. Players with Checks within {@code radius} blocks of
-     * the target see the bubbles and the stolen item fly.
-     */
     public record FeelSettings(
             double radius, boolean pickpocketAnimation, SpeechBubbleSettings speechBubbles, boolean voices) {}
 
-    /** A speech bubble stays above the target's head for {@code durationTicks}. */
     public record SpeechBubbleSettings(boolean enabled, int durationTicks) {}
 
-    /**
-     * Intimidate on hostile mobs, against {@code dc}: only those with at most {@code maxHealth} max health,
-     * never a boss or a mob in {@code excludeTag}. A made check sends the mob running for {@code fleeTicks},
-     * keeping {@code fleeDistance} blocks from the player at {@code fleeSpeed} times its speed; a natural 1
-     * gives it Speed of {@code speedBoostAmplifier} toward the player for {@code speedBoostTicks}.
-     */
     public record IntimidateMobSettings(
             boolean enabled,
             int dc,
@@ -462,22 +341,12 @@ public record ScoresConfig(
             int speedBoostTicks,
             int speedBoostAmplifier) {}
 
-    /**
-     * Calm, a Persuasion check against {@code dc}, on wolves, bees, endermen, zombified piglins, iron golems
-     * and the mobs in {@code tag} that are angry at the player.
-     */
     public record CalmSettings(boolean enabled, int dc, int cooldownTicks, ResourceLocation tag) {}
 
-    /** Passive Insight, with no roll: sensing mobs after the player, and creepers about to blow. */
     public record InsightSettings(InsightSense senseHostility, InsightSense creeperWarning) {}
 
-    /** Works on mobs within {@code range} blocks while the player's passive Insight is at least {@code dc}. */
     public record InsightSense(boolean enabled, int dc, double range) {}
 
-    /**
-     * Playing a note block or blowing a goat horn rolls Performance against {@code dc}, at most once per
-     * {@code cooldownTicks} per player, heard by villagers and piglins within {@code range} blocks.
-     */
     public record PerformanceSettings(
             boolean enabled,
             int dc,
@@ -487,13 +356,8 @@ public record ScoresConfig(
             PerformanceEffect criticalSuccess,
             PerformanceEffect criticalFailure) {}
 
-    /**
-     * Gossip about the player told to every listening villager, and how long piglins take the player for a
-     * gold wearer, as the Deceive disguise; {@code 0} ticks for no change.
-     */
     public record PerformanceEffect(Optional<SocialEffect.Gossip> gossip, int piglinTicks) {}
 
-    /** Exploration skill uses, each with its own switch. */
     public record ExplorationSettings(
             LeapSettings leap,
             LandingSettings landing,
@@ -509,16 +373,8 @@ public record ScoresConfig(
             ReductionSettings hunger,
             ReductionSettings ailments) {}
 
-    /**
-     * Athletics: a sprinting jump toward a drop of at least {@code minDrop} blocks rolls against {@code dc}; a
-     * made check adds {@code boost} blocks per tick to the leap. Every leap rolls; there is no cooldown.
-     */
     public record LeapSettings(boolean enabled, int dc, double boost, int minDrop) {}
 
-    /**
-     * Acrobatics: fall damage rolls against {@code baseDc} plus the damage times {@code dcPerDamage}, rounded
-     * down; a made check multiplies the damage by {@code successMultiplier}.
-     */
     public record LandingSettings(boolean enabled, int baseDc, double dcPerDamage, double successMultiplier) {
 
         public int dc(float damage) {
@@ -526,80 +382,33 @@ public record ScoresConfig(
         }
     }
 
-    /**
-     * Athletics: a player inside a cobweb rolls against {@code dc}; a made check breaks the web. After a failed
-     * one, the next roll waits {@code retryTicks}.
-     */
     public record CobwebSettings(boolean enabled, int dc, int retryTicks) {}
 
-    /**
-     * Athletics, passively: climbing speed rises by {@code perPoint} per point of a positive Athletics
-     * modifier, by at most {@code maxBonus}.
-     */
     public record ClimbingSettings(boolean enabled, double perPoint, double maxBonus) {}
 
-    /**
-     * Stealth: while a player sneaks, each point their passive Stealth beats a mob's passive Perception
-     * shrinks how far off that mob notices them by {@code perPoint}, down to {@code minVisibility}.
-     */
     public record SneakSettings(boolean enabled, double perPoint, double minVisibility) {}
 
-    /**
-     * Perception: while a player's passive Perception is at least {@code dc}, armed tripwires within
-     * {@code range} blocks glint for them, checked every {@code intervalTicks}.
-     */
     public record SpotTripwireSettings(boolean enabled, int dc, int range, int intervalTicks) {}
 
-    /** Sleight of Hand: sneaking and using an armed tripwire with an empty hand rolls against {@code dc}. */
     public record DisarmTripwireSettings(boolean enabled, int dc) {}
 
-    /** Investigation: sneaking and using an opened loot chest rolls against {@code dc}, once per chest. */
     public record SearchSettings(boolean enabled, int dc) {}
 
-    /**
-     * Nature, Arcana or Religion: the first time a player sees a mob type within {@code range} blocks they roll
-     * against {@code dc}, looked for every {@code intervalTicks}. After a failed roll that mob type waits
-     * {@code retryTicks}; a made one is never rolled for again.
-     */
     public record MonsterLoreSettings(boolean enabled, int dc, double range, int retryTicks, int intervalTicks) {}
 
-    /**
-     * History: the first time a player enters a kind of structure they roll against {@code dc}, looked for
-     * every {@code intervalTicks}. After a failed roll that kind waits {@code retryTicks}; a made one is never
-     * rolled for again.
-     */
     public record StructureLoreSettings(boolean enabled, int dc, int retryTicks, int intervalTicks) {}
 
-    /** Animal Handling: each taming attempt rolls against {@code dc}; a made check tames on that attempt. */
     public record TamingSettings(boolean enabled, int dc) {}
 
-    /**
-     * A passive skill shortening something: {@code perPoint} of it per point of a positive skill modifier,
-     * at most {@code maxReduction}.
-     */
     public record ReductionSettings(boolean enabled, double perPoint, double maxReduction) {}
 
-    /** Hit Dice and the rests that spend and regain them. */
     public record RestSettings(HitDiceSettings hitDice, ShortRestSettings shortRest, LongRestSettings longRest) {}
 
-    /**
-     * A pool of Hit Dice, one per level, each the class's hit die. Spending one heals what it rolls plus the CON
-     * modifier, at least {@code minHeal}, times {@code healMultiplier}.
-     */
     public record HitDiceSettings(boolean enabled, double healMultiplier, int minHeal) {}
 
-    /**
-     * Using a lit campfire with an empty hand starts a short rest of {@code ticks}, within {@code campfireRadius}
-     * blocks of it, with no monster that stops sleep within {@code monsterRange} blocks across and
-     * {@code monsterHeight} up or down. Once it is done, Hit Dice are spent until full health or none are left.
-     */
     public record ShortRestSettings(
             boolean enabled, int ticks, double campfireRadius, double monsterRange, double monsterHeight) {}
 
-    /**
-     * Sleeping through the night: {@code regainFraction} of the player's Hit Dice come back, rounded down, at least
-     * {@code minRegain}; {@code healToFull} heals them, and {@code rechargesTraits} readies their once-a-day traits.
-     */
     public record LongRestSettings(
             boolean enabled, double regainFraction, int minRegain, boolean healToFull, boolean rechargesTraits) {}
 

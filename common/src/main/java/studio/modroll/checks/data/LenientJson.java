@@ -11,11 +11,7 @@ import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.Consumer;
 
-/**
- * Reads a {@link JsonObject} leniently: unknown keys and wrong-typed scalars warn instead of failing.
- * Callers throw {@link IllegalArgumentException} for problems that must reject the whole file. Call
- * {@link #finish()} after reading every known key to warn about the leftovers.
- */
+/** Call {@link #finish()} after reading every known key. */
 public final class LenientJson {
 
     private final JsonObject json;
@@ -118,7 +114,6 @@ public final class LenientJson {
         return List.of();
     }
 
-    /** Empty when absent, or with a warning when it is not a list of numbers. */
     public Optional<List<Integer>> optionalIntList(String key) {
         JsonElement e = raw(key);
         if (e == null) {
@@ -132,7 +127,6 @@ public final class LenientJson {
                 e.getAsJsonArray().asList().stream().map(JsonElement::getAsInt).toList());
     }
 
-    /** Empty when absent, or with a warning when it is not a list of lists of numbers. */
     public Optional<List<List<Integer>>> optionalIntLists(String key) {
         JsonElement e = raw(key);
         if (e == null) {
@@ -149,7 +143,6 @@ public final class LenientJson {
                 .toList());
     }
 
-    /** Each object in the list, read leniently; entries that are not objects are skipped with a warning. */
     public List<LenientJson> objectList(String key) {
         JsonElement e = raw(key);
         if (e == null) {

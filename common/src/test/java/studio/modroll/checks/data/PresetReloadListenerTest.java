@@ -41,7 +41,6 @@ class PresetReloadListenerTest {
         reloadBackgrounds(Map.of(SOLDIER, background("str")));
         assertEquals(List.of(Ability.STRENGTH), abilitiesOf(SOLDIER));
 
-        // A pack file at the shipped path wins the merge, as the resource manager does it.
         reloadBackgrounds(Map.of(SOLDIER, background("dex"), KNIGHT, background("cha")));
 
         assertEquals(List.of(Ability.DEXTERITY), abilitiesOf(SOLDIER));

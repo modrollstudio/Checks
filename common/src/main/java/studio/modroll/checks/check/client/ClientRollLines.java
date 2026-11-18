@@ -12,16 +12,12 @@ import net.minecraft.util.FormattedCharSequence;
 import studio.modroll.checks.check.RollLinePayload;
 
 /**
- * Roll lines above the hotbar, where the action bar sits, each loader calling {@link #render} from its HUD.
- * Showing one makes an empty marker of its own vanilla's action bar message, with the line's duration as
- * its timer: the lines are drawn, faded as vanilla fades the action bar, only while that marker is still
- * the action bar message, so any newer one hides them at once. A line wider than the screen wraps, and
- * the lines move up above the chat wherever they would cover it.
+ * Showing a line makes an empty marker of its own vanilla's action bar message, with the line's duration as its timer;
+ * the lines are drawn only while that marker is still the message, so any newer one hides them at once.
  */
 public final class ClientRollLines {
 
     private static final int SIDE_MARGIN = 8;
-    /** As vanilla draws the action bar, around its anchor. */
     private static final int TEXT_OFFSET = -4;
 
     private static final int BACKDROP_PADDING = 2;
@@ -37,7 +33,6 @@ public final class ClientRollLines {
 
     private ClientRollLines() {}
 
-    /** {@code keepFor} sets the action bar timer, through each loader's accessor. */
     public static void show(RollLinePayload payload, IntConsumer keepFor) {
         marker = Component.literal("");
         lines = payload.lines();
@@ -45,10 +40,6 @@ public final class ClientRollLines {
         keepFor.accept(payload.durationTicks());
     }
 
-    /**
-     * Draws the lines centered, the last one on {@code anchorY} and the rest stacked above it, while
-     * vanilla's action bar message ({@code overlay}, with {@code overlayTicks} left) is the marker.
-     */
     public static void render(
             GuiGraphics graphics,
             float partialTick,
@@ -83,17 +74,12 @@ public final class ClientRollLines {
         }
     }
 
-    /**
-     * The top of a block of lines {@code height} tall starting at {@code top}, raised above the chat
-     * when it would otherwise cover the chat's lines; {@code left} is the block's left edge.
-     */
     static int clearOf(Optional<ChatBox> chat, int left, int top, int height) {
         return chat.filter(box -> box.right() > left && box.top() < top + height)
                 .map(box -> box.top() - CHAT_CLEARANCE - height)
                 .orElse(top);
     }
 
-    /** As vanilla draws the action bar: a backdrop only when the text background setting asks for one. */
     private static void drawWithBackdrop(
             GuiGraphics graphics, Font font, FormattedCharSequence text, int y, int color) {
         int width = font.width(text);

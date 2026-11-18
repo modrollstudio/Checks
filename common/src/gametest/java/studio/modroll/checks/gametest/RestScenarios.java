@@ -48,12 +48,7 @@ import studio.modroll.checks.sheet.StatSheet;
 import studio.modroll.checks.sheet.StatSheets;
 import studio.modroll.checks.trait.TraitUses;
 
-/**
- * GameTest bodies for Hit Dice and rests. The campfire sits well above the test's own structure, so no monster from a
- * neighbouring test is within the rest's monster range; each test takes it away again. A short rest lasts its shipped
- * 1000 ticks unless a test shortens it, and a shortened one is finished by calling the tick under that setting.
- * That tick finishes every player's rest on the server, so each test that calls it runs in a batch of its own.
- */
+/** The campfire sits well above the structure, so no neighbouring test's monster is within the rest's range. */
 public final class RestScenarios {
 
     private static final ScoresConfig.RestSettings DEFAULTS = ScoresConfig.DEFAULTS.rest();
@@ -64,18 +59,12 @@ public final class RestScenarios {
     private static final int PAST_A_SHORT_REST = 3;
     private static final ResourceLocation RELENTLESS = Checks.id("relentless_endurance");
 
-    /** The players a test has put in a fight; the blocker is registered once and never removed. */
     private static final Set<UUID> IN_A_FIGHT = ConcurrentHashMap.newKeySet();
 
     private static boolean blockerRegistered;
 
     private RestScenarios() {}
 
-    /**
-     * Using a lit campfire with an empty hand starts a short rest. When it is done, Hit Dice are spent one at a time,
-     * each rolled through Critfall (a forced 6 on the d8, CON 10), until the player is at full health: from 13 of 24,
-     * two dice heal 11. One chat line says so. A rest at full health spends none and says that once.
-     */
     public static void aShortRestSpendsHitDiceUntilFullHealth(GameTestHelper helper) {
         List<Packet<?>> sent = new ArrayList<>();
         ServerPlayer player = rester(helper, "rest-short", sent);
@@ -131,10 +120,6 @@ public final class RestScenarios {
         });
     }
 
-    /**
-     * Each Hit Die heals at least 1, as in the 2024 rules: with CON 1 (-5) a forced 1 heals 1, not 0. Max health is
-     * 10 (20, -10 from CON, nothing from the levels), so five dice heal from 5 to full.
-     */
     public static void aHitDieHealsAtLeastOne(GameTestHelper helper) {
         List<Packet<?>> sent = new ArrayList<>();
         ServerPlayer player = rester(helper, "rest-min-heal", sent);
@@ -171,7 +156,6 @@ public final class RestScenarios {
         helper.succeed();
     }
 
-    /** With no Hit Dice left a finished short rest heals nothing and says so. */
     public static void aShortRestWithoutHitDiceHealsNothing(GameTestHelper helper) {
         List<Packet<?>> sent = new ArrayList<>();
         ServerPlayer player = rester(helper, "rest-no-dice", sent);
@@ -194,10 +178,6 @@ public final class RestScenarios {
         helper.succeed();
     }
 
-    /**
-     * A short rest breaks when the player takes damage, attacks, leaves the fire, the fire goes out, or another mod
-     * says they are in a fight; it can't start with a monster nearby, or with a full hand.
-     */
     public static void aShortRestBreaks(GameTestHelper helper) {
         ServerPlayer player = rester(helper, "rest-breaks");
         try {
@@ -262,11 +242,8 @@ public final class RestScenarios {
     }
 
     /**
-     * Sleeping through the night is the 2024 long rest: it heals fully, gives back every spent Hit Die and readies
-     * once-a-day traits, and the tooltip says so. A player who stayed awake gets nothing. With the 2014 rule
-     * ({@code regain_fraction} 0.5, no healing) half the level's dice come back, rounded down. The night is not really
-     * skipped, which would change the time for every test: the test calls what each loader's ServerLevel mixin calls
-     * as vanilla wakes everyone after a skipped night.
+     * The night is not really skipped, which would change the time for every test; this calls what each loader's
+     * ServerLevel mixin calls.
      */
     public static void aLongRestHealsAndRegainsHitDiceAndTraits(GameTestHelper helper) {
         ServerPlayer sleeper = rester(helper, "rest-long");
@@ -335,10 +312,6 @@ public final class RestScenarios {
         helper.succeed();
     }
 
-    /**
-     * With Hit Dice off a campfire is left to vanilla and the sheet shows no pool; with short rests off the same; with
-     * long rests off sleeping gives nothing back.
-     */
     public static void restsSwitchOff(GameTestHelper helper) {
         ServerPlayer player = rester(helper, "rest-off");
         try {
@@ -378,7 +351,6 @@ public final class RestScenarios {
         helper.succeed();
     }
 
-    /** Starts a rest, runs {@code breaker}, and expects the rest to be gone. */
     private static void expectBroken(GameTestHelper helper, ServerPlayer player, String what, Runnable breaker) {
         expect(helper, useFire(helper, player).consumesAction(), "the rest before " + what + " must start");
         expect(helper, Rests.resting(player), "the player must be resting before " + what);
@@ -386,12 +358,10 @@ public final class RestScenarios {
         expect(helper, !Rests.resting(player), what + " must break the rest");
     }
 
-    /** A survivor at level 5 with no class (a d8), by a lit campfire with an empty hand. */
     private static ServerPlayer rester(GameTestHelper helper, String name) {
         return rester(helper, name, new ArrayList<>());
     }
 
-    /** As {@link #rester(GameTestHelper, String)}, with every packet sent to the player added to {@code sent}. */
     private static ServerPlayer rester(GameTestHelper helper, String name, List<Packet<?>> sent) {
         helper.setBlock(FIRE, Blocks.CAMPFIRE.defaultBlockState());
         ServerPlayer player = loginWatched(helper, newProfile(name), sent);
@@ -402,7 +372,6 @@ public final class RestScenarios {
         return player;
     }
 
-    /** Exactly one chat line about rests was sent, the one under {@code key} with {@code args}. */
     private static void expectRestLine(GameTestHelper helper, List<Packet<?>> sent, String key, Object... args) {
         List<TranslatableContents> lines = sent.stream()
                 .filter(ClientboundSystemChatPacket.class::isInstance)

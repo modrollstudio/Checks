@@ -23,7 +23,6 @@ import studio.modroll.checks.api.Skill;
 import studio.modroll.checks.preset.Species;
 import studio.modroll.checks.skill.ShippedSkills;
 
-/** The traits Checks ships, parsed straight from the source tree, against the species that list them. */
 class ShippedTraitsTest {
 
     private static final Path DATA = Path.of("src/main/resources/data/checks/checks");
@@ -43,7 +42,6 @@ class ShippedTraitsTest {
         assertEquals(List.of(), warnings);
     }
 
-    /** The per-species summary in docs/traits.md: every species gets three or four mechanical effects. */
     @Test
     void everySpeciesHasItsEffects() throws IOException {
         Map<ResourceLocation, Trait> traits = traits();

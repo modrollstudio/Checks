@@ -288,12 +288,10 @@ class LevelRulesTest {
     }
 
     @Test
-    void theHitDicePoolIsTheLevelLessThoseSpent() {
+    void spentHitDiceStayWithinTheLevel() {
         PlayerLevel level = PlayerLevel.START.withLevelAndXp(5, 0).withHitDiceSpent(3);
-        assertEquals(2, level.hitDiceLeft());
         assertEquals(5, level.withHitDiceSpent(9).hitDiceSpent());
         assertEquals(0, level.withHitDiceSpent(-2).hitDiceSpent());
-        assertEquals(0, level.withLevelAndXp(2, 0).hitDiceLeft());
     }
 
     private static int pendingAt(int level) {
@@ -305,7 +303,6 @@ class LevelRulesTest {
         return LevelRules.validateImprovement(increases, scores, pending, SETTINGS.improvements());
     }
 
-    /** STR at {@code strength}, every other ability at 10. */
     private static Map<Ability, Integer> scores(int strength) {
         Map<Ability, Integer> scores = new EnumMap<>(Ability.class);
         for (Ability ability : Ability.values()) {

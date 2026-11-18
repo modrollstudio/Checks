@@ -50,7 +50,6 @@ class ScoresConfigLoaderTest {
         assertEquals(List.of(), warnings);
     }
 
-    /** The file written on first run lists every key, exactly as the documented example does. */
     @Test
     void defaultFileMatchesTheDocsExample() throws IOException {
         assertEquals(
@@ -155,7 +154,6 @@ class ScoresConfigLoaderTest {
                 parse("{\"critfall\": {\"save_abilities\": {}}}").critfall().saveAbilities());
     }
 
-    /** A 0.1.0 file listed only the spell save; the ability keys added since come from the defaults. */
     @Test
     void oldConfigGetsTheAbilitySaveKeys() {
         ScoresConfig.CritfallSettings critfall = parse("{\"format_version\": 1, \"critfall\": {\"enabled\": true,"
@@ -600,8 +598,8 @@ class ScoresConfigLoaderTest {
     }
 
     /**
-     * Vanilla's golems attack a player a nearby villager rates at -100 or lower (DefendVillageTargetGoal):
-     * one crime's gossip must stay above that, so only Checks' alarm sends golems, yet still make wary.
+     * Vanilla's golems attack a player a nearby villager rates at -100 or lower, so one crime's gossip must stay above
+     * that.
      */
     @Test
     void aSingleCrimesGossipStopsShortOfVanillasGolemsButMakesWary() {

@@ -4,7 +4,6 @@ import studio.modroll.checks.ability.Abilities;
 import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.data.ScoresConfig;
 
-/** Minecraft has no mental attributes, so INT, WIS and CHA take the configured flat default. */
 public final class AbilityDerivation {
 
     private AbilityDerivation() {}

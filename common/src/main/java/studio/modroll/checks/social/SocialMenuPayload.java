@@ -5,7 +5,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import studio.modroll.checks.Checks;
 
-/** Server to client: opens the social menu. */
 public record SocialMenuPayload(SocialMenu menu) implements CustomPacketPayload {
 
     public static final CustomPacketPayload.Type<SocialMenuPayload> TYPE =

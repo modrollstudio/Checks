@@ -26,7 +26,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import studio.modroll.checks.ModLang;
 
-/** Runs {@code /checks help} on the real command tree, as a player (permission 0) and as an op (2). */
 class ChecksHelpTest {
 
     private static final int PLAYER = 0;
@@ -94,7 +93,6 @@ class ChecksHelpTest {
         assertEquals(List.of("get", "set", "prof", "roll", "check", "reset", "level", "xp", "help"), commands);
     }
 
-    /** The usage in gold, its description indented in gray; clicking either suggests the command. */
     @Test
     void eachEntryIsAGoldUsageOverAGrayDescriptionThatSuggestsTheCommand() throws CommandSyntaxException {
         run("checks help", OP);
@@ -133,7 +131,6 @@ class ChecksHelpTest {
         return dispatcher.execute(command, source(permission));
     }
 
-    /** No level, server or entity: help only reads the command tree and replies to its source. */
     private CommandSourceStack source(int permission) {
         CommandSource capture = new CommandSource() {
             @Override

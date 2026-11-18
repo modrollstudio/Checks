@@ -5,10 +5,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.IronGolem;
 
-/**
- * A Checks event that can explain a player's death shortly after it, with a pool of story death messages
- * ({@code checks.death.<id>} in the lang file). When several could, the first in this order is told.
- */
+/** When several stories fit, the first in this order is told. */
 public enum DeathStory {
     CAUGHT_PICKPOCKETING("caught_pickpocketing"),
     INTIMIDATE_NATURAL_ONE("intimidate_natural_one"),
@@ -26,7 +23,6 @@ public enum DeathStory {
         return id;
     }
 
-    /** Whether a death from {@code source} is the one this story tells. */
     public boolean fits(DamageSource source) {
         return switch (this) {
             case CAUGHT_PICKPOCKETING, FAILED_INTIMIDATE -> source.getEntity() instanceof IronGolem;

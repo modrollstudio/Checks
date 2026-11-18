@@ -28,10 +28,6 @@ import studio.modroll.checks.social.SocialMenu;
 import studio.modroll.checks.social.SocialMobs;
 import studio.modroll.checks.social.Socials;
 
-/**
- * GameTest bodies for Intimidate and Calm on mobs. Players are new survival players with every score 10, so
- * a d20 of 18 makes Intimidate's DC 12 and Calm's DC 13, and a 5 makes neither.
- */
 public final class MobSocialScenarios {
 
     private static final int NAT_ONE = 1;
@@ -41,14 +37,12 @@ public final class MobSocialScenarios {
     private static final int PAST_THE_FLIGHT = 10;
     private static final int LONG_COOLDOWN = 1200;
     private static final double TOUGH_ENOUGH = 1000;
-    /** A vanilla tag holding the skeletons, standing in for a pack's own. */
     private static final ResourceLocation SKELETONS = ResourceLocation.withDefaultNamespace("skeletons");
 
     private static final ScoresConfig.SocialSettings DEFAULTS = ScoresConfig.DEFAULTS.social();
 
     private MobSocialScenarios() {}
 
-    /** A made check sends a zombie running for the flee time, dropping its target; then it stops. */
     public static void intimidateSendsAHostileMobRunning(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "mob-scare", IN_FRONT);
         Mob zombie = calm(helper, EntityType.ZOMBIE, TARGET_SPOT);
@@ -69,7 +63,6 @@ public final class MobSocialScenarios {
         });
     }
 
-    /** A failed check changes nothing; a natural 1 sets the mob on the player with a burst of speed. */
     public static void aFailedThreatDoesNothingAndANaturalOneEnrages(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "mob-rush", IN_FRONT);
         Mob zombie = calm(helper, EntityType.ZOMBIE, TARGET_SPOT);
@@ -88,10 +81,6 @@ public final class MobSocialScenarios {
         helper.succeed();
     }
 
-    /**
-     * A witch has more than 20 max health and won't be scared, until the limit is raised; a wither never is,
-     * however high it goes; nor is a mob in the exclude tag.
-     */
     public static void strongBossAndExcludedMobsAreFearless(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "mob-fearless", IN_FRONT);
         Mob witch = calm(helper, EntityType.WITCH, TARGET_SPOT);
@@ -138,7 +127,6 @@ public final class MobSocialScenarios {
         helper.succeed();
     }
 
-    /** A made Calm check clears the anger of every listed mob, and of a mob in the configured tag. */
     public static void calmClearsAngerForEachListedMob(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "mob-calm", IN_FRONT);
         try {
@@ -164,10 +152,6 @@ public final class MobSocialScenarios {
         helper.succeed();
     }
 
-    /**
-     * A failed Calm check leaves the wolf angry. A calm wolf greys Calm out; after a calming the wolf cools
-     * down per target, and trying again rolls nothing.
-     */
     public static void calmFailsLeavesAngerAndCoolsDown(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "mob-calm-cd", IN_FRONT);
         Mob wolf = calm(helper, EntityType.WOLF, TARGET_SPOT);
@@ -193,10 +177,6 @@ public final class MobSocialScenarios {
         helper.succeed();
     }
 
-    /**
-     * With Intimidate on mobs off, a zombie has nothing to offer and a running one stops; with Calm off, an
-     * angry wolf has nothing either. Villagers never offer the mob actions.
-     */
     public static void mobActionsSwitchOff(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "mob-off", IN_FRONT);
         Mob zombie = calm(helper, EntityType.ZOMBIE, TARGET_SPOT);
@@ -253,12 +233,10 @@ public final class MobSocialScenarios {
         return new ScoresConfig.CalmSettings(enabled, defaults.dc(), cooldown, defaults.tag());
     }
 
-    /** Calm with no cooldown that also works on skeletons, through the tag. */
     private static ScoresConfig.CalmSettings calmTagged() {
         return new ScoresConfig.CalmSettings(true, DEFAULTS.calm().dc(), 0, SKELETONS);
     }
 
-    /** Test settings with these mob actions, unprofiled. */
     static void mobs(ScoresConfig.IntimidateMobSettings intimidate, ScoresConfig.CalmSettings calm, Runnable body) {
         ScoresConfig.SocialSettings base = settings(action -> true, false, 0);
         withSocial(

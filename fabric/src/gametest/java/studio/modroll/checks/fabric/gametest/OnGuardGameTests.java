@@ -5,10 +5,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import studio.modroll.checks.gametest.OnGuardScenarios;
 
-/**
- * Fabric registration shim: delegates to the shared {@link OnGuardScenarios} bodies, each in a batch of its
- * own so no alarm reaches another test's villagers or golems.
- */
+/** Each in a batch of its own, so no alarm reaches another test's villagers or golems. */
 public class OnGuardGameTests implements FabricGameTest {
 
     private static final String TEMPLATE = "checks:wide";

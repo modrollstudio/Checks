@@ -48,12 +48,6 @@ import studio.modroll.critfall.api.combat.SaveResult;
 import studio.modroll.critfall.api.dice.DiceExpression;
 import studio.modroll.critfall.api.dice.RollMode;
 
-/**
- * GameTest bodies for Critfall hazard saves (a trap from Critfall: Depths or any other mod): the save key's
- * ability supplies the modifier, and species traits add their advantage. The gametest data tags {@link
- * #POISON_DART} {@code c:is_poison}; cactus is not. A d20 of 2 fails DC 13 with any modifier here, 19 makes
- * it.
- */
 public final class HazardScenarios {
 
     private static final int FAIL = 2;
@@ -80,7 +74,6 @@ public final class HazardScenarios {
 
     private HazardScenarios() {}
 
-    /** DEX 16 (+3), proficiency +2: a DEX-proficient player saves at +5, one without at +3. */
     public static void dexSaveUsesModifierAndProficiency(GameTestHelper helper) {
         ServerPlayer proficient = survivor(helper, "hazard-dex-prof");
         ServerPlayer plain = survivor(helper, "hazard-dex-plain");
@@ -101,10 +94,6 @@ public final class HazardScenarios {
         helper.succeed();
     }
 
-    /**
-     * CON 14 (+2): a key {@code save_abilities} maps to CON saves with CON; a key it does not map keeps
-     * Critfall's own save bonus, as without Checks.
-     */
     public static void mappedKeyUsesItsAbilityAndUnknownKeyIsUntouched(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "hazard-mapped");
         try {
@@ -136,7 +125,6 @@ public final class HazardScenarios {
         helper.succeed();
     }
 
-    /** Dwarven Resilience: a dwarf keeps the better of 2 and 19 against a c:is_poison hazard, any other just the 2. */
     public static void dwarfHasAdvantageOnPoisonHazards(GameTestHelper helper) {
         ServerPlayer dwarf = TraitScenarios.character(helper, "hazard-dwarf", "dwarf");
         ServerPlayer orc = TraitScenarios.character(helper, "hazard-orc", "orc");
@@ -162,7 +150,6 @@ public final class HazardScenarios {
         helper.succeed();
     }
 
-    /** Gnomish Cunning: advantage on a WIS hazard save, none on a DEX one. */
     public static void gnomeHasAdvantageOnMentalHazardSaves(GameTestHelper helper) {
         ServerPlayer gnome = TraitScenarios.character(helper, "hazard-gnome", "gnome");
         try {
@@ -176,7 +163,6 @@ public final class HazardScenarios {
         helper.succeed();
     }
 
-    /** Luck: a halfling's natural 1 on a hazard save is rolled again; a dwarf keeps it. */
     public static void halflingRerollsNaturalOneOnHazardSave(GameTestHelper helper) {
         ServerPlayer halfling = TraitScenarios.character(helper, "hazard-halfling", "halfling");
         ServerPlayer dwarf = TraitScenarios.character(helper, "hazard-halfling-dwarf", "dwarf");
@@ -193,10 +179,6 @@ public final class HazardScenarios {
         helper.succeed();
     }
 
-    /**
-     * A gnome's WIS hazard save adds a trait roll_bonus (Gnomish Cunning patched to a flat +2) and a datapack
-     * bonus source (+3 while under Resistance) on top of the save modifier.
-     */
     public static void traitAndSourceBonusesAddToHazardSave(GameTestHelper helper) {
         ServerPlayer gnome = TraitScenarios.character(helper, "hazard-bonus-gnome", "gnome");
         try {
@@ -227,7 +209,6 @@ public final class HazardScenarios {
         helper.succeed();
     }
 
-    /** A datapack source's advantage keeps the 19 of 2 and 19; its disadvantage keeps the 2 of 19 and 2. */
     public static void sourceModesApplyToHazardSave(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "hazard-source-mode");
         try {
@@ -254,7 +235,6 @@ public final class HazardScenarios {
         helper.succeed();
     }
 
-    /** With Checks' Critfall integration off, a dwarf rolls a poison hazard once, as without Checks. */
     public static void disabledIntegrationGrantsNoAdvantage(GameTestHelper helper) {
         ServerPlayer dwarf = TraitScenarios.character(helper, "hazard-off-dwarf", "dwarf");
         try {
@@ -272,10 +252,6 @@ public final class HazardScenarios {
         helper.succeed();
     }
 
-    /**
-     * One roll per hit: a hazard's explosion or fall damage, already saved against through Critfall, calls
-     * for no DEX save or Acrobatics landing; the same damage from the world still does.
-     */
     public static void hazardDamageCallsForNoSecondRoll(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "hazard-one-roll");
         try {
@@ -305,19 +281,16 @@ public final class HazardScenarios {
         return HazardSave.of(TRAP, damageType, saveKey, DC, DAMAGE);
     }
 
-    /** The hazard save on a player at full health, with the d20s forced; the damage rolls its max. */
     private static SaveResult save(ServerPlayer player, HazardSave hazard, int... faces) {
         player.setHealth(player.getMaxHealth());
         return withD20s(() -> RollService.performHazardSave(player, hazard), faces)
                 .save();
     }
 
-    /** What the save added to its d20: the modifier and every bonus. */
     private static int bonusOf(SaveResult result) {
         return result.saveTotal() - result.natural();
     }
 
-    /** Runs {@code body} with {@code trait} in place of the loaded trait of the same id. */
     private static <T> T withTrait(Trait trait, Supplier<T> body) {
         Map<ResourceLocation, Trait> before = Traits.all();
         Map<ResourceLocation, Trait> patched = new HashMap<>(before);
@@ -338,7 +311,6 @@ public final class HazardScenarios {
                 .is(HazardRolls.POISON);
     }
 
-    /** Past spawn protection, so the world's damage reaches the saves. */
     private static ServerPlayer survivor(GameTestHelper helper, String name) {
         ServerPlayer player = login(helper, newProfile(name));
         player.setGameMode(GameType.SURVIVAL);
@@ -352,7 +324,6 @@ public final class HazardScenarios {
         player.hurt(source, WORLD_DAMAGE);
     }
 
-    /** The checks and saves Checks rolls during {@code body}; Critfall's hazard save is not one. */
     private static int checksRolls(Runnable body) {
         AtomicInteger count = new AtomicInteger();
         withListeners(before -> {}, after -> count.incrementAndGet(), () -> {

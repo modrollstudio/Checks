@@ -4,7 +4,6 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
-/** A size a species offers and the scale it gives a player, as a multiple of normal player size. */
 public record SizeOption(Size size, double scale) {
 
     /** Minecraft's own bounds for the scale attribute. */

@@ -18,7 +18,6 @@ import studio.modroll.checks.ClientPayloads;
 import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.api.LevelUpEvent;
 import studio.modroll.checks.api.Proficiency;
-import studio.modroll.checks.creation.CharacterBuild;
 import studio.modroll.checks.creation.CharacterCreation;
 import studio.modroll.checks.creation.PresetChoices;
 import studio.modroll.checks.data.ScoresConfig;
@@ -31,10 +30,6 @@ import studio.modroll.checks.sheet.StatSheetPayload;
 import studio.modroll.checks.sheet.StatSheets;
 import studio.modroll.checks.text.FallbackText;
 
-/**
- * The server side of levelling: XP sources, level changes, level-up events and ability score
- * improvements. While levelling is disabled no XP is gained and no level changes; stored levels are kept.
- */
 public final class Levelling {
 
     private static final List<Consumer<LevelUpEvent>> LISTENERS = new CopyOnWriteArrayList<>();
@@ -49,15 +44,10 @@ public final class Levelling {
         return settings().enabled();
     }
 
-    /** The player's stored level, or the starting level while levelling is disabled. */
     public static PlayerLevel activeLevel(ServerPlayer player) {
         return enabled() ? LevelStore.get(player.server).level(player.getUUID()) : PlayerLevel.START;
     }
 
-    /**
-     * Vanilla XP points as they are gained: those reaching the player's XP bar, plus what Mending spends
-     * from a collected orb. Spending or losing them later never takes character XP.
-     */
     public static void onVanillaXp(ServerPlayer player, int points) {
         ScoresConfig.XpSources sources = settings().xpSources();
         if (sources.vanillaXpEnabled() && points > 0) {
@@ -65,10 +55,6 @@ public final class Levelling {
         }
     }
 
-    /**
-     * Only advancements shown in the advancement screen count, so recipe unlocks give nothing. Dying gives
-     * nothing either, though a first death to a mob earns the shown Adventure advancement.
-     */
     public static void onAdvancement(ServerPlayer player, AdvancementHolder advancement) {
         ScoresConfig.XpSources sources = settings().xpSources();
         if (sources.advancementsEnabled() && advancement.value().display().isPresent() && !player.isDeadOrDying()) {
@@ -88,39 +74,35 @@ public final class Levelling {
         }
     }
 
-    /**
-     * Applies one ability score improvement, {@code increases} in ability order, if the server accepts
-     * it. Either way the player's stat sheet is sent again, so the screen shows the outcome.
-     */
     public static Optional<ImprovementRejection> improve(ServerPlayer player, List<Integer> increases) {
-        Optional<ImprovementRejection> rejection = checkImprovement(player, increases);
-        rejection.ifPresentOrElse(
-                reason -> player.sendSystemMessage(
-                        reason.message(settings().improvements()).copy().withStyle(ChatFormatting.RED)),
-                () -> {
-                    LevelStore store = LevelStore.get(player.server);
-                    UUID uuid = player.getUUID();
-                    store.set(uuid, store.level(uuid).withImprovement(LevelRules.improvement(increases)));
-                    player.sendSystemMessage(Component.translatable("checks.level.improved"));
-                });
-        StatSheets.forPlayer(player).ifPresent(sheet -> ClientPayloads.send(player, new StatSheetPayload(sheet)));
-        return rejection;
+        return choose(
+                player,
+                checkImprovement(player, increases),
+                level -> level.withImprovement(LevelRules.improvement(increases)),
+                "checks.level.improved");
     }
 
-    /**
-     * Gives Expertise in {@code skills}, if the server accepts the choice. Either way the player's stat sheet is sent
-     * again, so the screen shows the outcome.
-     */
     public static Optional<ImprovementRejection> chooseExpertise(ServerPlayer player, List<ResourceLocation> skills) {
-        Optional<ImprovementRejection> rejection = checkExpertise(player, skills);
+        return choose(
+                player,
+                checkExpertise(player, skills),
+                level -> level.withExpertise(skills),
+                "checks.level.expertise_chosen");
+    }
+
+    private static Optional<ImprovementRejection> choose(
+            ServerPlayer player,
+            Optional<ImprovementRejection> rejection,
+            UnaryOperator<PlayerLevel> apply,
+            String acceptedKey) {
         rejection.ifPresentOrElse(
                 reason -> player.sendSystemMessage(
                         reason.message(settings().improvements()).copy().withStyle(ChatFormatting.RED)),
                 () -> {
                     LevelStore store = LevelStore.get(player.server);
                     UUID uuid = player.getUUID();
-                    store.set(uuid, store.level(uuid).withExpertise(skills));
-                    player.sendSystemMessage(Component.translatable("checks.level.expertise_chosen"));
+                    store.set(uuid, apply.apply(store.level(uuid)));
+                    player.sendSystemMessage(Component.translatable(acceptedKey));
                 });
         StatSheets.forPlayer(player).ifPresent(sheet -> ClientPayloads.send(player, new StatSheetPayload(sheet)));
         return rejection;
@@ -130,7 +112,6 @@ public final class Levelling {
         LevelStore.get(server).reset(player);
     }
 
-    /** Expertise needs proficiency already, from the character or a command; an unknown skill has none. */
     private static Optional<ImprovementRejection> checkExpertise(ServerPlayer player, List<ResourceLocation> skills) {
         if (!enabled()) {
             return Optional.of(ImprovementRejection.LEVELLING_DISABLED);
@@ -159,7 +140,6 @@ public final class Levelling {
                 increases, scores, pending, settings().improvements());
     }
 
-    /** Stores the change, then fires one event per level gained and announces the new level. */
     private static void change(ServerPlayer player, UnaryOperator<PlayerLevel> update) {
         LevelStore store = LevelStore.get(player.server);
         PlayerLevel before = store.level(player.getUUID());
@@ -174,22 +154,14 @@ public final class Levelling {
         }
     }
 
-    /** The attacks the player's Attack action makes: one, plus their class's Extra Attack. */
     public static int attacksPerAction(ServerPlayer player) {
         return LevelRules.attacksPerAction(activeLevel(player).level(), classId(player), settings());
     }
 
-    /** The confirmed character's class id while presets are on; empty for a Custom class or none. */
     public static Optional<ResourceLocation> classId(ServerPlayer player) {
-        if (!ScoresRuntime.config().creation().presets().enabled()) {
-            return Optional.empty();
-        }
-        return CharacterCreation.activeBuild(player)
-                .map(CharacterBuild::choices)
-                .flatMap(PresetChoices::classPreset);
+        return CharacterCreation.activePresets(player).flatMap(PresetChoices::classPreset);
     }
 
-    /** The confirmed character's class preset while presets are on, if it is loaded. */
     public static Optional<ClassPreset> classPreset(ServerPlayer player) {
         return classId(player).flatMap(Presets.CLASSES::find);
     }

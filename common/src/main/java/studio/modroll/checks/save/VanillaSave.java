@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Optional;
 import studio.modroll.checks.api.Ability;
 
-/** A vanilla hazard that calls for a saving throw, and the ability that saves against it. */
 public enum VanillaSave {
     EXPLOSION("explosion", Ability.DEXTERITY),
     POISON("poison", Ability.CONSTITUTION),
@@ -20,7 +19,6 @@ public enum VanillaSave {
         this.ability = ability;
     }
 
-    /** The key under {@code vanilla_saves} in {@code scores.json} and in the lang file. */
     public String id() {
         return id;
     }

@@ -15,19 +15,12 @@ import studio.modroll.checks.api.ChecksApi;
 import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.score.ScoresRuntime;
 
-/**
- * Social price changes, applied the way vanilla applies reputation: as each trade's special price while a
- * player trades, taken back when they stop. Called by each loader's mixin as a trader's trading player
- * changes; villagers add their own reputation prices first.
- */
 public final class SocialPrices {
 
-    /** What Checks added to each offer, per trader, until its trading player changes. */
     private static final Map<AbstractVillager, Map<MerchantOffer, Integer>> APPLIED = new WeakHashMap<>();
 
     private SocialPrices() {}
 
-    /** Before the trading player changes: takes back what was added for the last one. */
     public static void beforeTradingPlayer(AbstractVillager trader) {
         Map<MerchantOffer, Integer> applied = APPLIED.remove(trader);
         if (applied != null) {
@@ -35,7 +28,6 @@ public final class SocialPrices {
         }
     }
 
-    /** After it changed: adds the new trading player's price change to every offer; {@code null} when trading stopped. */
     public static void afterTradingPlayer(AbstractVillager trader, Player player) {
         if (!(player instanceof ServerPlayer serverPlayer) || trader.level().isClientSide()) {
             return;
@@ -55,7 +47,6 @@ public final class SocialPrices {
         APPLIED.put(trader, applied);
     }
 
-    /** The player's passive price shift at a villager plus every price change a switched-on action left. */
     public static double percent(AbstractVillager trader, ServerPlayer player) {
         ScoresConfig.SocialSettings settings = ScoresRuntime.config().social();
         if (!settings.enabled()) {
@@ -71,7 +62,6 @@ public final class SocialPrices {
         return fromActions + passivePercent(trader, player, settings.passivePrices());
     }
 
-    /** CHA at every villager, plus the profession's skill; wandering traders have no profession and shift nothing. */
     private static double passivePercent(
             AbstractVillager trader, ServerPlayer player, ScoresConfig.PassivePriceSettings settings) {
         if (!settings.enabled() || !(trader instanceof Villager villager)) {
