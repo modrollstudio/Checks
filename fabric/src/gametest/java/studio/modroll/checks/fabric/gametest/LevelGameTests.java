@@ -82,4 +82,14 @@ public class LevelGameTests implements FabricGameTest {
     public void levelUpPanelListsWhatEachLevelGave(GameTestHelper helper) {
         LevelScenarios.levelUpPanelListsWhatEachLevelGave(helper);
     }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void extraAttackFollowsClassAndLevel(GameTestHelper helper) {
+        LevelScenarios.extraAttackFollowsClassAndLevel(helper);
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void extraAttackOffLeavesOneAttack(GameTestHelper helper) {
+        LevelScenarios.extraAttackOffLeavesOneAttack(helper);
+    }
 }

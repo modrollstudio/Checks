@@ -90,6 +90,7 @@ public final class StatSheets {
                 armor(player, settings.armorClass()),
                 BodyValues.size(player),
                 hitDice(player),
+                attacks(player),
                 Arrays.stream(Extra.values())
                         .filter(extra -> settings.extra(extra).enabled())
                         .map(extra -> new StatSheet.ExtraLine(extra, BodyValues.extra(player, extra)))
@@ -139,6 +140,18 @@ public final class StatSheets {
                 Levelling.activeLevel(player).level(),
                 longRests ? rest.longRest().regainFraction() : 0.0,
                 longRests && rest.longRest().healToFull()));
+    }
+
+    /** While Extra Attack is on, for every class, so the row says when the player's class gets one. */
+    private static Optional<StatSheet.AttacksLine> attacks(ServerPlayer player) {
+        ScoresConfig.LevellingSettings settings = ScoresRuntime.config().levelling();
+        if (!settings.extraAttack().enabled()) {
+            return Optional.empty();
+        }
+        Optional<Integer> next = settings.enabled()
+                ? LevelRules.nextExtraAttack(Levelling.activeLevel(player).level(), Levelling.classId(player), settings)
+                : Optional.empty();
+        return Optional.of(new StatSheet.AttacksLine(ChecksApi.attacksPerAction(player), next));
     }
 
     private static Optional<StatSheet.LevelLine> level(ServerPlayer player) {

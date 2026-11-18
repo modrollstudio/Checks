@@ -44,6 +44,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
+import studio.modroll.checks.Checks;
 import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.api.ChecksApi;
 import studio.modroll.checks.api.LevelUpEvent;
@@ -560,7 +561,7 @@ public final class LevelScenarios {
             expectEquals(helper, 6, gains.size(), "levels listed");
             expect(
                     helper,
-                    gains.get(0).equals(new LevelGain(1, 20, Optional.of(2), 0, 2)),
+                    gains.get(0).equals(new LevelGain(1, 20, Optional.of(2), 0, 2, Optional.empty())),
                     "level 1 must give 20 max health, +2 and two Expertise, gave " + gains.get(0));
             expect(helper, gains.get(1).health() == 0.0, "level 2 must add no whole heart, added " + gains.get(1));
             expect(helper, gains.get(2).health() == 2.0, "level 3 must add a heart, added " + gains.get(2));
@@ -576,6 +577,126 @@ public final class LevelScenarios {
             logout(helper, player);
         }
         helper.succeed();
+    }
+
+    /**
+     * A Fighter makes 2 attacks at level 5, 3 at 11 and 4 at 20; a Barbarian, Monk, Paladin or Ranger 2 from level 5;
+     * a Wizard, a Custom class and a mob 1. The sheet shows the attacks and the class's next Extra Attack level, and
+     * the Level up! panel the levels that raised them.
+     */
+    public static void extraAttackFollowsClassAndLevel(GameTestHelper helper) {
+        ServerPlayer player = login(helper, newProfile("checks-lv-extra-attack"));
+        try {
+            levelled(() -> unprofiled(() -> {
+                setClass(player, FIGHTER);
+                Levelling.setLevel(player, 4);
+                expectAttacks(helper, player, 1, Optional.of(5), "a level 4 Fighter");
+                Levelling.setLevel(player, 5);
+                expectAttacks(helper, player, 2, Optional.of(11), "a level 5 Fighter");
+                Levelling.setLevel(player, 11);
+                expectAttacks(helper, player, 3, Optional.of(20), "a level 11 Fighter");
+                Levelling.setLevel(player, 20);
+                expectAttacks(helper, player, 4, Optional.empty(), "a level 20 Fighter");
+                List<Optional<Integer>> raised = sheetLevel(player).gains().stream()
+                        .map(LevelGain::attacks)
+                        .toList();
+                expect(
+                        helper,
+                        raised.get(4).equals(Optional.of(2))
+                                && raised.get(10).equals(Optional.of(3))
+                                && raised.get(19).equals(Optional.of(4))
+                                && raised.stream().filter(Optional::isPresent).count() == 3,
+                        "the Level up! panel must list Extra Attack at 5, 11 and 20, listed " + raised);
+
+                for (String martial : List.of("barbarian", "monk", "paladin", "ranger")) {
+                    setClass(player, Optional.of(Checks.id(martial)));
+                    Levelling.setLevel(player, 4);
+                    expectAttacks(helper, player, 1, Optional.of(5), "a level 4 " + martial);
+                    Levelling.setLevel(player, 5);
+                    expectAttacks(helper, player, 2, Optional.empty(), "a level 5 " + martial);
+                }
+                Levelling.setLevel(player, 20);
+                setClass(player, Optional.of(Checks.id("wizard")));
+                expectAttacks(helper, player, 1, Optional.empty(), "a level 20 Wizard");
+                setClass(player, Optional.empty());
+                expectAttacks(helper, player, 1, Optional.empty(), "a level 20 Custom class");
+                return null;
+            }));
+            Mob zombie = spawnCalm(helper, EntityType.ZOMBIE);
+            expectEquals(helper, 1, ChecksApi.attacksPerAction(zombie), "a zombie's attacks");
+        } finally {
+            logout(helper, player);
+        }
+        helper.succeed();
+    }
+
+    /**
+     * With Extra Attack off a level 20 Fighter makes 1 attack, and the sheet shows no attacks or Extra Attack. With
+     * levelling off they make 1, and the sheet promises no level.
+     */
+    public static void extraAttackOffLeavesOneAttack(GameTestHelper helper) {
+        ServerPlayer player = login(helper, newProfile("checks-lv-extra-attack-off"));
+        try {
+            levelled(() -> {
+                setClass(player, FIGHTER);
+                Levelling.setLevel(player, 20);
+                return null;
+            });
+            withLevelling(
+                    extraAttackOff(),
+                    () -> unprofiled(() -> {
+                        expectEquals(helper, 1, ChecksApi.attacksPerAction(player), "attacks with Extra Attack off");
+                        expect(
+                                helper,
+                                StatSheets.forPlayer(player)
+                                        .orElseThrow()
+                                        .body()
+                                        .attacks()
+                                        .isEmpty(),
+                                "the sheet must have no attacks row with Extra Attack off");
+                        expect(
+                                helper,
+                                sheetLevel(player).gains().stream()
+                                        .noneMatch(gain -> gain.attacks().isPresent()),
+                                "the Level up! panel must list no Extra Attack with it off");
+                        return null;
+                    }));
+            withLevelling(
+                    levellingEnabled(false),
+                    () -> unprofiled(() -> {
+                        expectAttacks(helper, player, 1, Optional.empty(), "a Fighter with levelling off");
+                        return null;
+                    }));
+        } finally {
+            logout(helper, player);
+        }
+        helper.succeed();
+    }
+
+    private static void expectAttacks(
+            GameTestHelper helper, ServerPlayer player, int attacks, Optional<Integer> nextLevel, String who) {
+        expectEquals(helper, attacks, ChecksApi.attacksPerAction(player), who + "'s attacks");
+        Optional<StatSheet.AttacksLine> shown =
+                StatSheets.forPlayer(player).orElseThrow().body().attacks();
+        Optional<StatSheet.AttacksLine> expected = Optional.of(new StatSheet.AttacksLine(attacks, nextLevel));
+        expect(helper, shown.equals(expected), "the sheet must show " + expected + " for " + who + ", showed " + shown);
+    }
+
+    private static void setClass(ServerPlayer player, Optional<ResourceLocation> classId) {
+        CharacterStore.get(player.server)
+                .update(player.getUUID(), character -> character.withBuild(build(classId, Set.of())));
+    }
+
+    private static ScoresConfig.LevellingSettings extraAttackOff() {
+        return new ScoresConfig.LevellingSettings(
+                DEFAULTS.enabled(),
+                DEFAULTS.xpThresholds(),
+                DEFAULTS.proficiencyBonuses(),
+                DEFAULTS.xpSources(),
+                DEFAULTS.improvements(),
+                DEFAULTS.expertise(),
+                new ScoresConfig.ExtraAttackSettings(
+                        false, DEFAULTS.extraAttack().classLevels()));
     }
 
     private static void expectExpertiseRejected(
@@ -655,7 +776,8 @@ public final class LevelScenarios {
                 DEFAULTS.proficiencyBonuses(),
                 sources,
                 DEFAULTS.improvements(),
-                DEFAULTS.expertise());
+                DEFAULTS.expertise(),
+                DEFAULTS.extraAttack());
     }
 
     private static void collectOrb(GameTestHelper helper, ServerPlayer player, int value) {

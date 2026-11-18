@@ -21,7 +21,7 @@ import studio.modroll.checks.level.LevelGain;
  * {@code creationAvailable} shows the button that reopens character creation; {@code identity} is the
  * confirmed character's species, background and class while presets are on; {@code level} is present
  * while levelling is on; {@code modSections} shows the sections other mods add; {@code body} is what the
- * player's scores do to their health, armor class, size and the attribute extras.
+ * player's scores do to their health, armor class, size and the attribute extras, and their attacks per action.
  */
 public record StatSheet(
         int proficiencyBonus,
@@ -128,10 +128,11 @@ public record StatSheet(
             Optional<ArmorLine> armor,
             Optional<SizeOption> size,
             Optional<HitDiceLine> hitDice,
+            Optional<AttacksLine> attacks,
             List<ExtraLine> extras) {
 
-        public static final Body NONE =
-                new Body(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), List.of());
+        public static final Body NONE = new Body(
+                Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), List.of());
 
         public Body {
             extras = List.copyOf(extras);
@@ -152,6 +153,12 @@ public record StatSheet(
      * off.
      */
     public record HitDiceLine(int sides, int left, int total, double regainFraction, boolean healsFully) {}
+
+    /**
+     * The attacks one Attack action makes, and the level the class's next Extra Attack comes at, empty when it has no
+     * more or levelling is off.
+     */
+    public record AttacksLine(int attacks, Optional<Integer> nextLevel) {}
 
     /**
      * {@link #armorClass} is what attacks roll against: Critfall's {@code baseArmorClass} plus {@code dexBonus},
@@ -308,6 +315,13 @@ public record StatSheet(
             HitDiceLine::healsFully,
             HitDiceLine::new);
 
+    private static final StreamCodec<ByteBuf, AttacksLine> ATTACKS_LINE = StreamCodec.composite(
+            ByteBufCodecs.VAR_INT,
+            AttacksLine::attacks,
+            ByteBufCodecs.optional(ByteBufCodecs.VAR_INT),
+            AttacksLine::nextLevel,
+            AttacksLine::new);
+
     private static final StreamCodec<ByteBuf, ArmorPoints> ARMOR_POINTS = StreamCodec.composite(
             ByteBufCodecs.VAR_INT,
             ArmorPoints::base,
@@ -361,6 +375,8 @@ public record StatSheet(
             Body::size,
             ByteBufCodecs.optional(HIT_DICE_LINE),
             Body::hitDice,
+            ByteBufCodecs.optional(ATTACKS_LINE),
+            Body::attacks,
             EXTRA_LINE.apply(ByteBufCodecs.list()),
             Body::extras,
             Body::new);

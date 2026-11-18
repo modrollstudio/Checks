@@ -71,6 +71,16 @@
       "enabled": true,
       "skills_per_level": 2,
       "class_levels": { "checks:rogue": [1, 6], "checks:bard": [3, 10] }
+    },
+    "extra_attack": {
+      "enabled": true,
+      "class_levels": {
+        "checks:fighter": [5, 11, 20],
+        "checks:barbarian": [5],
+        "checks:monk": [5],
+        "checks:paladin": [5],
+        "checks:ranger": [5]
+      }
     }
   },
   "events": { "enabled": true },
@@ -338,7 +348,8 @@ species, backgrounds and classes; see [presets.md](presets.md#config).
 ## Levelling
 
 `levelling` sets up character levels: the XP table, the proficiency bonus per level, the XP sources,
-ability score improvements (shared and per class) and Expertise. See [levelling.md](levelling.md#config).
+ability score improvements (shared and per class), Expertise and Extra Attack. See
+[levelling.md](levelling.md#config).
 
 ## Rests
 
@@ -442,7 +453,8 @@ disadvantage takes away (see [bonus-sources.md](bonus-sources.md#passive-scores)
   confirmed characters' presets granted. See [presets.md](presets.md#toggle).
 - `levelling.enabled: false` stops XP and level changes, gives players the flat proficiency bonus
   and ignores chosen ability score improvements and Expertise, keeping stored levels. See
-  [levelling.md](levelling.md#toggle). `levelling.expertise.enabled: false` turns Expertise off alone.
+  [levelling.md](levelling.md#toggle). `levelling.expertise.enabled: false` turns Expertise off alone,
+  and `levelling.extra_attack.enabled: false` Extra Attack: everyone makes 1 attack per action.
 - `health.per_level.enabled: false` stops levels adding max health, and `health.whole_hearts: false` keeps
   odd max health. See [body.md](body.md#toggles).
 - `rest.hit_dice.enabled`, `rest.short_rest.enabled` and `rest.long_rest.enabled` turn Hit Dice, short

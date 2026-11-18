@@ -217,7 +217,8 @@ final class ScenarioSupport {
                 defaults.proficiencyBonuses(),
                 defaults.xpSources(),
                 defaults.improvements(),
-                defaults.expertise());
+                defaults.expertise(),
+                defaults.extraAttack());
     }
 
     static <T> T withBackgrounds(Map<ResourceLocation, Background> patched, Supplier<T> body) {

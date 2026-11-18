@@ -174,6 +174,11 @@ public final class Levelling {
         }
     }
 
+    /** The attacks the player's Attack action makes: one, plus their class's Extra Attack. */
+    public static int attacksPerAction(ServerPlayer player) {
+        return LevelRules.attacksPerAction(activeLevel(player).level(), classId(player), settings());
+    }
+
     /** The confirmed character's class id while presets are on; empty for a Custom class or none. */
     public static Optional<ResourceLocation> classId(ServerPlayer player) {
         if (!ScoresRuntime.config().creation().presets().enabled()) {

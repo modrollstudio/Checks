@@ -104,7 +104,8 @@ public record ScoresConfig(
             List<Integer> proficiencyBonuses,
             XpSources xpSources,
             ImprovementSettings improvements,
-            ExpertiseSettings expertise) {
+            ExpertiseSettings expertise,
+            ExtraAttackSettings extraAttack) {
 
         public LevellingSettings {
             xpThresholds = List.copyOf(xpThresholds);
@@ -149,6 +150,23 @@ public record ScoresConfig(
             boolean enabled, int skillsPerLevel, Map<ResourceLocation, List<Integer>> classLevels) {
 
         public ExpertiseSettings {
+            classLevels = copyOfLists(classLevels);
+        }
+
+        public List<Integer> levelsFor(Optional<ResourceLocation> classId) {
+            return enabled
+                    ? classId.map(id -> classLevels.getOrDefault(id, List.of())).orElse(List.of())
+                    : List.of();
+        }
+    }
+
+    /**
+     * Extra Attack: each of a class's {@code classLevels} the character has reached adds one attack to their Attack
+     * action, so a level 11 Fighter with {@code [5, 11, 20]} makes three.
+     */
+    public record ExtraAttackSettings(boolean enabled, Map<ResourceLocation, List<Integer>> classLevels) {
+
+        public ExtraAttackSettings {
             classLevels = copyOfLists(classLevels);
         }
 
@@ -629,7 +647,15 @@ public record ScoresConfig(
                             List.of(List.of(2), List.of(1, 1)),
                             20),
                     new ExpertiseSettings(
-                            true, 2, Map.of(Checks.id("rogue"), List.of(1, 6), Checks.id("bard"), List.of(3, 10)))),
+                            true, 2, Map.of(Checks.id("rogue"), List.of(1, 6), Checks.id("bard"), List.of(3, 10))),
+                    new ExtraAttackSettings(
+                            true,
+                            Map.of(
+                                    Checks.id("fighter"), List.of(5, 11, 20),
+                                    Checks.id("barbarian"), List.of(5),
+                                    Checks.id("monk"), List.of(5),
+                                    Checks.id("paladin"), List.of(5),
+                                    Checks.id("ranger"), List.of(5)))),
             new ExtensionSettings(true, new BonusSourceSettings(true, 5), true, true, true),
             new BodySettings(
                     new HealthSettings(true, 2.0, true, 0.2, true, 1, 8, true),

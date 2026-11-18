@@ -361,6 +361,27 @@ class ScoresConfigLoaderTest {
     }
 
     @Test
+    void readsExtraAttack() {
+        ScoresConfig.ExtraAttackSettings extraAttack = parse("{\"levelling\": {\"extra_attack\": {"
+                        + " \"class_levels\": {\"mypack:knight\": [6, 0, 6, 15], \"Not An Id\": [5]}}}}")
+                .levelling()
+                .extraAttack();
+
+        assertTrue(extraAttack.enabled());
+        assertEquals(Map.of(ResourceLocation.parse("mypack:knight"), List.of(6, 15)), extraAttack.classLevels());
+        assertEquals(List.of(), extraAttack.levelsFor(Optional.of(ResourceLocation.parse("checks:fighter"))));
+        assertEquals(2, warnings.size(), warnings.toString());
+
+        warnings.clear();
+        ScoresConfig.ExtraAttackSettings off = parse("{\"levelling\": {\"extra_attack\": {\"enabled\": false}}}")
+                .levelling()
+                .extraAttack();
+        assertEquals(ScoresConfig.DEFAULTS.levelling().extraAttack().classLevels(), off.classLevels());
+        assertEquals(List.of(), off.levelsFor(Optional.of(ResourceLocation.parse("checks:fighter"))));
+        assertEquals(List.of(), warnings);
+    }
+
+    @Test
     void readsTheHealthPerLevelSettings() {
         ScoresConfig.HealthSettings health = parse(
                         "{\"health\": {\"whole_hearts\": false, \"per_level\": {\"enabled\": false,"

@@ -10,6 +10,7 @@ import studio.modroll.checks.bonus.BonusSources;
 import studio.modroll.checks.check.CheckEvents;
 import studio.modroll.checks.check.CheckRolls;
 import studio.modroll.checks.data.SkillStore;
+import studio.modroll.checks.level.LevelRules;
 import studio.modroll.checks.level.Levelling;
 import studio.modroll.checks.rest.Rests;
 import studio.modroll.checks.score.ScoreService;
@@ -85,6 +86,15 @@ public final class ChecksApi {
     /** The player's character level, {@code 1..20}; always 1 while levelling is disabled. */
     public static int level(ServerPlayer player) {
         return Levelling.activeLevel(player).level();
+    }
+
+    /**
+     * The attacks one Attack action makes on the entity's turn: 1, plus one for each Extra Attack level its class has
+     * reached, so a level 5 Fighter makes 2. Always 1 for anything but a player, and while Extra Attack is off. Checks
+     * only reports it: turn based fights, such as Initiative's, use it, and real time combat is unchanged.
+     */
+    public static int attacksPerAction(LivingEntity entity) {
+        return entity instanceof ServerPlayer player ? Levelling.attacksPerAction(player) : LevelRules.BASE_ATTACKS;
     }
 
     /** The player's total character XP; always 0 while levelling is disabled. */

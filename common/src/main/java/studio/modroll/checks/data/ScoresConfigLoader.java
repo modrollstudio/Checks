@@ -104,6 +104,16 @@ public final class ScoresConfigLoader {
                   "enabled": true,
                   "skills_per_level": 2,
                   "class_levels": { "checks:rogue": [1, 6], "checks:bard": [3, 10] }
+                },
+                "extra_attack": {
+                  "enabled": true,
+                  "class_levels": {
+                    "checks:fighter": [5, 11, 20],
+                    "checks:barbarian": [5],
+                    "checks:monk": [5],
+                    "checks:paladin": [5],
+                    "checks:ranger": [5]
+                  }
                 }
               },
               "events": { "enabled": true },
@@ -594,7 +604,8 @@ public final class ScoresConfigLoader {
                 parseProficiencyBonuses(json, defaults.proficiencyBonuses()),
                 parseXpSources(json, defaults.xpSources()),
                 parseImprovements(json.object("ability_improvements"), defaults.improvements()),
-                parseExpertise(json.object("expertise"), defaults.expertise()));
+                parseExpertise(json.object("expertise"), defaults.expertise()),
+                parseExtraAttack(json.object("extra_attack"), defaults.extraAttack()));
     }
 
     private static ScoresConfig.ExpertiseSettings parseExpertise(
@@ -603,6 +614,12 @@ public final class ScoresConfigLoader {
                 json.getBool("enabled", defaults.enabled()),
                 nonNegative(json, "skills_per_level", defaults.skillsPerLevel()),
                 parseClassLevels(json, defaults.classLevels()));
+    }
+
+    private static ScoresConfig.ExtraAttackSettings parseExtraAttack(
+            LenientJson json, ScoresConfig.ExtraAttackSettings defaults) {
+        return new ScoresConfig.ExtraAttackSettings(
+                json.getBool("enabled", defaults.enabled()), parseClassLevels(json, defaults.classLevels()));
     }
 
     /**

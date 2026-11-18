@@ -14,6 +14,7 @@ import studio.modroll.checks.body.Extra;
 import studio.modroll.checks.body.SizeOption;
 import studio.modroll.checks.bonus.BonusPart;
 import studio.modroll.checks.level.LevelGain;
+import studio.modroll.checks.level.LevelRules;
 import studio.modroll.checks.level.Levels;
 import studio.modroll.checks.preset.PresetKind;
 import studio.modroll.critfall.api.dice.RollMode;
@@ -48,8 +49,8 @@ public final class SheetTooltips {
     }
 
     /**
-     * Hit points, Hit Dice, armor class and size, each row explaining where its value comes from; empty with none
-     * on.
+     * Hit points, Hit Dice, armor class, attacks and size, each row explaining where its value comes from; empty with
+     * none on.
      */
     public static Optional<SheetSection> body(StatSheet.Body body) {
         List<SheetRow> rows = new ArrayList<>();
@@ -68,6 +69,11 @@ public final class SheetTooltips {
                         Component.translatable(KEY + "armor_class.label"),
                         Component.literal(Integer.toString(armor.armorClass())),
                         armorClass(armor))));
+        body.attacks()
+                .ifPresent(attacks -> rows.add(new SheetRow(
+                        Component.translatable(KEY + "attacks.label"),
+                        Component.literal(Integer.toString(attacks.attacks())),
+                        attacks(attacks))));
         body.size()
                 .ifPresent(size -> rows.add(new SheetRow(
                         Component.translatable(KEY + "size.label"), SheetText.sizeName(size.size()), size(size))));
@@ -122,6 +128,18 @@ public final class SheetTooltips {
             return Optional.of(Component.translatable(key + heal + "part", Math.round(fraction * 100)));
         }
         return dice.healsFully() ? Optional.of(Component.translatable(key + "heal")) : Optional.empty();
+    }
+
+    /** What the number is for, what Extra Attack adds to it, and the level the class's next one comes at. */
+    static List<Component> attacks(StatSheet.AttacksLine attacks) {
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.translatable(KEY + "attacks"));
+        int extra = attacks.attacks() - LevelRules.BASE_ATTACKS;
+        if (extra > 0) {
+            lines.add(Component.translatable(KEY + "attacks.extra", SheetText.signed(extra)));
+        }
+        attacks.nextLevel().ifPresent(level -> lines.add(Component.translatable(KEY + "attacks.next", level)));
+        return lines;
     }
 
     /**
@@ -249,8 +267,8 @@ public final class SheetTooltips {
 
     /**
      * What one level gave, e.g. {@code +2 max health}, {@code Hit Die (d10)}, {@code Proficiency bonus +3},
-     * {@code Ability score improvement} and {@code Expertise in 2 skills}; {@code hitDie} is empty while Hit Dice are
-     * off.
+     * {@code Ability score improvement}, {@code Expertise in 2 skills} and {@code Extra Attack (2 attacks)};
+     * {@code hitDie} is empty while Hit Dice are off.
      */
     public static List<Component> levelGain(LevelGain gain, Optional<Integer> hitDie) {
         List<Component> parts = new ArrayList<>();
@@ -272,6 +290,7 @@ public final class SheetTooltips {
         if (gain.expertise() > 0) {
             parts.add(Component.translatable(KEY + "gain.expertise", gain.expertise()));
         }
+        gain.attacks().ifPresent(attacks -> parts.add(Component.translatable(KEY + "gain.attacks", attacks)));
         return parts;
     }
 

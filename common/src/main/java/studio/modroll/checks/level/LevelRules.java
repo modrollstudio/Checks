@@ -16,11 +16,14 @@ import studio.modroll.checks.data.ScoresConfig.LevellingSettings;
 
 /**
  * Levelling arithmetic, free of Minecraft so it is unit-testable. XP only ever raises the level; a set
- * level moves the XP to that level's threshold unless it already lies within the level. Improvements
- * and Expertise earned are derived from the level and class, so lowering and raising a level never grants
- * one twice.
+ * level moves the XP to that level's threshold unless it already lies within the level. Improvements,
+ * Expertise and Extra Attack earned are derived from the level and class, so lowering and raising a level never
+ * grants one twice.
  */
 public final class LevelRules {
+
+    /** The attacks an Attack action makes without Extra Attack. */
+    public static final int BASE_ATTACKS = 1;
 
     private LevelRules() {}
 
@@ -86,6 +89,19 @@ public final class LevelRules {
                         - current.expertise().size());
     }
 
+    /** The attacks one Attack action makes: one, plus one for each of the class's Extra Attack levels reached. */
+    public static int attacksPerAction(int level, Optional<ResourceLocation> classId, LevellingSettings settings) {
+        return BASE_ATTACKS + reached(settings.extraAttack().levelsFor(classId), level);
+    }
+
+    /** The level the class's next Extra Attack comes at; empty when it has no more. */
+    public static Optional<Integer> nextExtraAttack(
+            int level, Optional<ResourceLocation> classId, LevellingSettings settings) {
+        return settings.extraAttack().levelsFor(classId).stream()
+                .filter(at -> at > level)
+                .min(Integer::compare);
+    }
+
     /**
      * Checks a choice of {@code skills} for Expertise: one to {@code pending} different skills, each one the
      * character is proficient in and has no Expertise in yet.
@@ -106,8 +122,8 @@ public final class LevelRules {
 
     /**
      * What each level up to {@code level} gave: the max health it added, {@code healthAt} being what the levels
-     * add at each level (all of level 1's max health for level 1), the proficiency bonus where it rose, and the
-     * improvements and Expertise it earned.
+     * add at each level (all of level 1's max health for level 1), the proficiency bonus where it rose, the
+     * improvements and Expertise it earned, and the attacks per action where Extra Attack raised them.
      */
     public static List<LevelGain> gains(
             int level,
@@ -119,6 +135,7 @@ public final class LevelRules {
         for (int at = Levels.MIN_LEVEL; at <= level; at++) {
             int bonus = proficiencyBonus(at, settings);
             boolean rose = at == Levels.MIN_LEVEL || bonus != proficiencyBonus(at - 1, settings);
+            int attacks = attacksPerAction(at, classId, settings);
             double health = at == Levels.MIN_LEVEL
                     ? levelOneHealth
                     : healthAt.applyAsDouble(at) - healthAt.applyAsDouble(at - 1);
@@ -127,7 +144,8 @@ public final class LevelRules {
                     health,
                     rose ? Optional.of(bonus) : Optional.empty(),
                     earnedImprovements(at, classId, settings) - earnedImprovements(at - 1, classId, settings),
-                    earnedExpertise(at, classId, settings) - earnedExpertise(at - 1, classId, settings)));
+                    earnedExpertise(at, classId, settings) - earnedExpertise(at - 1, classId, settings),
+                    attacks > attacksPerAction(at - 1, classId, settings) ? Optional.of(attacks) : Optional.empty()));
         }
         return gains;
     }

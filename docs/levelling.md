@@ -103,13 +103,29 @@ class earn now, so a Rogue who becomes a Fighter loses it until they are a Rogue
 whose proficiency goes away loses its Expertise with it. A proficiency set with `/checks prof` counts:
 Expertise raises it the same way, and a command that sets `expertise` or `none` wins.
 
+## Extra Attack
+
+Some classes make more than one attack when they take the Attack action on their turn
+(`levelling.extra_attack`): a **Fighter** makes 2 at level 5, 3 at 11 and 4 at 20; a **Barbarian**,
+**Monk**, **Paladin** or **Ranger** 2 from level 5. Each level listed for the class adds one attack.
+Everyone else, mobs included, makes 1.
+
+Checks only reports the number; it changes nothing in real time combat, where every swing is one
+attack as before. Turn based fights use it: Initiative lets a player with Extra Attack make that many
+attacks with one action on their turn. Other mods read it with `ChecksApi.attacksPerAction(entity)`.
+
+The stat screen's Body block shows **Attacks** for every player while Extra Attack is on. Its tooltip
+says what Extra Attack adds and the level the class gets its next one at, e.g. `One more at level 11.`
+Like improvements and Expertise, it follows the class and level the player has now.
+
 ## The Level up! panel
 
 While levelling is on, the stat screen has a button that opens the panel: **Level up!** while an
 improvement or Expertise waits, **Levels** otherwise. The panel lists what each level up to the
 current one gave, newest first: the max health it added (all of level 1's for level 1, so the list
 adds up to the max health; in whole hearts, so a level can add nothing and the next a heart), a Hit
-Die, the proficiency bonus where it rose, ability score improvements and Expertise. Under the list are a button for each choice waiting, **Improvement (1)**
+Die, the proficiency bonus where it rose, ability score improvements, Expertise, and Extra Attack
+where it raised the attacks, e.g. `Extra Attack (2 attacks)`. Under the list are a button for each choice waiting, **Improvement (1)**
 and **Expertise (2)**, and **Back**.
 
 ## Commands
@@ -125,7 +141,8 @@ All require op (permission level 2) and are refused while levelling is off.
 
 ## For other mods
 
-`ChecksApi.level(player)` and `ChecksApi.experience(player)` read a player's level and XP.
+`ChecksApi.level(player)` and `ChecksApi.experience(player)` read a player's level and XP, and
+`ChecksApi.attacksPerAction(entity)` the attacks one Attack action makes.
 `ChecksApi.onLevelUp(listener)` is called once per level gained. See [api.md](api.md#levels).
 
 ## Config
@@ -152,6 +169,16 @@ All require op (permission level 2) and are refused while levelling is off.
     "enabled": true,
     "skills_per_level": 2,
     "class_levels": { "checks:rogue": [1, 6], "checks:bard": [3, 10] }
+  },
+  "extra_attack": {
+    "enabled": true,
+    "class_levels": {
+      "checks:fighter": [5, 11, 20],
+      "checks:barbarian": [5],
+      "checks:monk": [5],
+      "checks:paladin": [5],
+      "checks:ranger": [5]
+    }
   }
 }
 ```
@@ -169,6 +196,8 @@ All require op (permission level 2) and are refused while levelling is off.
 - `expertise.skills_per_level`: how many skills each Expertise level lets the player pick, `0` or more.
 - `expertise.class_levels`: the levels each class gets Expertise at, per class id; replaces the default
   map when listed.
+- `extra_attack.class_levels`: the levels that each add an attack, per class id; replaces the default
+  map when listed, so a pack's own class needs its entry here.
 
 A list with the wrong length or a value out of range falls back to its default with a warning; a bad
 improvement level, class id or option is skipped with a warning.
@@ -178,9 +207,13 @@ improvement level, class id or option is skipped with a warning.
 `levelling.enabled: false` turns levelling off. Players gain no XP and change no level; their
 proficiency bonus is the flat one (profile or `proficiency.default_bonus`),
 chosen improvements and Expertise stop applying, levels add no max health, the Hit Dice pool is 1,
+every player makes 1 attack unless their class lists Extra Attack at level 1,
 the stat screen shows no level, and the level commands, improvement and Expertise choices are
 refused. `ChecksApi.level` reads 1 and `ChecksApi.experience`
 0. Stored levels, XP, improvements and Expertise are kept and apply again when it is turned back on.
 
 `expertise.enabled: false` turns Expertise off alone: none is earned and chosen Expertise stops
 applying.
+
+`extra_attack.enabled: false` turns Extra Attack off alone: `ChecksApi.attacksPerAction` reads 1 for
+everyone, and the stat screen shows no Attacks row and the Level up! panel no Extra Attack.

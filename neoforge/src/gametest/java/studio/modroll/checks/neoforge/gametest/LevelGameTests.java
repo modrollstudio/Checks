@@ -88,4 +88,14 @@ public class LevelGameTests {
     public void levelUpPanelListsWhatEachLevelGave(GameTestHelper helper) {
         LevelScenarios.levelUpPanelListsWhatEachLevelGave(helper);
     }
+
+    @GameTest(template = TEMPLATE)
+    public void extraAttackFollowsClassAndLevel(GameTestHelper helper) {
+        LevelScenarios.extraAttackFollowsClassAndLevel(helper);
+    }
+
+    @GameTest(template = TEMPLATE)
+    public void extraAttackOffLeavesOneAttack(GameTestHelper helper) {
+        LevelScenarios.extraAttackOffLeavesOneAttack(helper);
+    }
 }

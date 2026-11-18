@@ -47,9 +47,16 @@ their level and `abilityScore` includes their chosen ability score improvements.
 | --- | --- |
 | `level(player)` | the player's character level, `1..20`; `1` while levelling is disabled |
 | `experience(player)` | the player's total character XP; `0` while levelling is disabled |
+| `attacksPerAction(entity)` | the attacks one Attack action makes: `1`, plus Extra Attack from a player's class and level |
 | `onLevelUp(listener)` | registers a `Consumer<LevelUpEvent>` |
 
-Both reads take a server-side `ServerPlayer`. A `LevelUpEvent` carries the `player`, `oldLevel` and
+`level` and `experience` take a server-side `ServerPlayer`. `attacksPerAction` takes any server-side
+`LivingEntity`: it is `1` for anything but a player, for a class without Extra Attack, and while
+`levelling.extra_attack.enabled` is `false`; a level 5 Fighter reads `2`. Checks only reports it and
+makes no attack itself: turn based fights such as Initiative's use it, and real time combat is
+unchanged.
+
+A `LevelUpEvent` carries the `player`, `oldLevel` and
 `newLevel`. It fires on the server thread once per level gained, lowest first, after the new level
 is stored: going from level 1 to 4 fires `1 → 2`, `2 → 3`, `3 → 4`. Lowering a level fires nothing.
 Register once, while your mod starts.
@@ -57,7 +64,7 @@ Register once, while your mod starts.
 ```java
 ChecksApi.onLevelUp(event -> {
     if (event.newLevel() == 5) {
-        grantExtraAttack(event.player());
+        giveLevelFiveReward(event.player());
     }
 });
 ```

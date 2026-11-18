@@ -218,11 +218,73 @@ class LevelRulesTest {
         List<LevelGain> gains = LevelRules.gains(6, ROGUE, SETTINGS, level -> level * 1.5, 24);
 
         assertEquals(6, gains.size());
-        assertEquals(new LevelGain(1, 24, Optional.of(2), 0, 2), gains.get(0));
-        assertEquals(new LevelGain(2, 1.5, Optional.empty(), 0, 0), gains.get(1));
-        assertEquals(new LevelGain(4, 1.5, Optional.empty(), 1, 0), gains.get(3));
-        assertEquals(new LevelGain(5, 1.5, Optional.of(3), 0, 0), gains.get(4));
-        assertEquals(new LevelGain(6, 1.5, Optional.empty(), 0, 2), gains.get(5));
+        assertEquals(new LevelGain(1, 24, Optional.of(2), 0, 2, Optional.empty()), gains.get(0));
+        assertEquals(new LevelGain(2, 1.5, Optional.empty(), 0, 0, Optional.empty()), gains.get(1));
+        assertEquals(new LevelGain(4, 1.5, Optional.empty(), 1, 0, Optional.empty()), gains.get(3));
+        assertEquals(new LevelGain(5, 1.5, Optional.of(3), 0, 0, Optional.empty()), gains.get(4));
+        assertEquals(new LevelGain(6, 1.5, Optional.empty(), 0, 2, Optional.empty()), gains.get(5));
+    }
+
+    @Test
+    void gainsListTheAttacksWhereExtraAttackRaisedThem() {
+        List<Optional<Integer>> attacks = LevelRules.gains(20, FIGHTER, SETTINGS, level -> 0, 20).stream()
+                .map(LevelGain::attacks)
+                .toList();
+
+        assertEquals(Optional.of(2), attacks.get(4));
+        assertEquals(Optional.of(3), attacks.get(10));
+        assertEquals(Optional.of(4), attacks.get(19));
+        assertEquals(3, attacks.stream().filter(Optional::isPresent).count());
+    }
+
+    @Test
+    void extraAttackAddsAnAttackAtEachClassLevel() {
+        assertEquals(1, LevelRules.attacksPerAction(4, FIGHTER, SETTINGS));
+        assertEquals(2, LevelRules.attacksPerAction(5, FIGHTER, SETTINGS));
+        assertEquals(2, LevelRules.attacksPerAction(10, FIGHTER, SETTINGS));
+        assertEquals(3, LevelRules.attacksPerAction(11, FIGHTER, SETTINGS));
+        assertEquals(4, LevelRules.attacksPerAction(20, FIGHTER, SETTINGS));
+        for (String martial : List.of("barbarian", "monk", "paladin", "ranger")) {
+            Optional<ResourceLocation> classId = Optional.of(Checks.id(martial));
+            assertEquals(1, LevelRules.attacksPerAction(4, classId, SETTINGS), martial + " at 4");
+            assertEquals(2, LevelRules.attacksPerAction(5, classId, SETTINGS), martial + " at 5");
+            assertEquals(2, LevelRules.attacksPerAction(20, classId, SETTINGS), martial + " at 20");
+        }
+        assertEquals(1, LevelRules.attacksPerAction(20, ROGUE, SETTINGS));
+        assertEquals(1, LevelRules.attacksPerAction(20, Optional.of(Checks.id("wizard")), SETTINGS));
+        assertEquals(1, LevelRules.attacksPerAction(20, NO_CLASS, SETTINGS));
+    }
+
+    @Test
+    void extraAttackOffLeavesOneAttack() {
+        LevellingSettings off = new LevellingSettings(
+                SETTINGS.enabled(),
+                SETTINGS.xpThresholds(),
+                SETTINGS.proficiencyBonuses(),
+                SETTINGS.xpSources(),
+                SETTINGS.improvements(),
+                SETTINGS.expertise(),
+                new ScoresConfig.ExtraAttackSettings(
+                        false, SETTINGS.extraAttack().classLevels()));
+
+        assertEquals(1, LevelRules.attacksPerAction(20, FIGHTER, off));
+        assertEquals(Optional.empty(), LevelRules.nextExtraAttack(1, FIGHTER, off));
+        assertEquals(
+                0,
+                LevelRules.gains(20, FIGHTER, off, level -> 0, 20).stream()
+                        .filter(gain -> gain.attacks().isPresent())
+                        .count());
+    }
+
+    @Test
+    void nextExtraAttackIsTheClassesNextLevel() {
+        assertEquals(Optional.of(5), LevelRules.nextExtraAttack(1, FIGHTER, SETTINGS));
+        assertEquals(Optional.of(11), LevelRules.nextExtraAttack(5, FIGHTER, SETTINGS));
+        assertEquals(Optional.of(20), LevelRules.nextExtraAttack(19, FIGHTER, SETTINGS));
+        assertEquals(Optional.empty(), LevelRules.nextExtraAttack(20, FIGHTER, SETTINGS));
+        assertEquals(Optional.empty(), LevelRules.nextExtraAttack(5, Optional.of(Checks.id("ranger")), SETTINGS));
+        assertEquals(Optional.empty(), LevelRules.nextExtraAttack(1, ROGUE, SETTINGS));
+        assertEquals(Optional.empty(), LevelRules.nextExtraAttack(1, NO_CLASS, SETTINGS));
     }
 
     @Test
