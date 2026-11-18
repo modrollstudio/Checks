@@ -27,8 +27,8 @@ import studio.modroll.critfall.api.RollService;
 import studio.modroll.critfall.api.dice.RollResult;
 
 /**
- * The server side of character creation. The client only proposes; every roll happens and every
- * choice is validated here, against the same {@link CreationOffer} the client was sent.
+ * The client only proposes: every roll happens and every choice is validated here, against the offer the client was
+ * sent.
  */
 public final class CharacterCreation {
 
@@ -38,7 +38,6 @@ public final class CharacterCreation {
         return settings().enabled() && !character(player).created();
     }
 
-    /** Offers creation on the first join after the character was cleared; skipping it is remembered. */
     public static void onJoin(ServerPlayer player) {
         if (!available(player) || character(player).prompted()) {
             return;
@@ -53,10 +52,7 @@ public final class CharacterCreation {
         }
     }
 
-    /**
-     * Rolls one total per ability through Critfall and broadcasts each roll. Rolls are kept for good:
-     * asking again, or for another method, only resends the offer. Returns the broadcast lines.
-     */
+    /** Rolls are kept for good: asking again, or for another method, only resends the offer. */
     public static List<Component> roll(ServerPlayer player, CreationMethod method) {
         if (!available(player) || !method.rollsDice() || !settings().methods().contains(method)) {
             return List.of();
@@ -78,7 +74,6 @@ public final class CharacterCreation {
         return lines;
     }
 
-    /** An accepted submission becomes the player's character, and its background's kit is handed out once. */
     public static Optional<Rejection> submit(ServerPlayer player, CreationSubmission submission) {
         CreationOffer offer = offerFor(player);
         Optional<Rejection> rejection = check(player, submission, offer);
@@ -88,7 +83,6 @@ public final class CharacterCreation {
         return rejection;
     }
 
-    /** Clears the character, rolls included, so creation opens again on the player's next join. */
     public static void reset(MinecraftServer server, UUID player) {
         CharacterStore.get(server).reset(player);
     }
@@ -109,9 +103,12 @@ public final class CharacterCreation {
                 presets.species().stream().collect(Collectors.toMap(Species::id, Traits::skillChoice)));
     }
 
-    /** The player's confirmed character while creation is on. */
     public static Optional<CharacterBuild> activeBuild(ServerPlayer player) {
         return settings().enabled() ? character(player).build() : Optional.empty();
+    }
+
+    public static Optional<PresetChoices> activePresets(ServerPlayer player) {
+        return settings().presets().enabled() ? activeBuild(player).map(CharacterBuild::choices) : Optional.empty();
     }
 
     private static PresetOffer presetOffer(ScoresConfig.PresetSettings settings) {
@@ -157,7 +154,6 @@ public final class CharacterCreation {
         player.sendSystemMessage(Component.translatable("checks.creation.confirmed"));
     }
 
-    /** Explains the refusal and reopens the screen so the player can fix their choices. */
     private static void reject(ServerPlayer player, Rejection reason, CreationOffer offer, PresetChoices choices) {
         player.sendSystemMessage(reason.message(offer, choices).copy().withStyle(ChatFormatting.RED));
         requestOpen(player);

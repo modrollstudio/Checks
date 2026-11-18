@@ -6,9 +6,8 @@ import net.minecraft.network.codec.StreamCodec;
 import studio.modroll.checks.api.Ability;
 
 /**
- * A small side effect of an ability modifier: each point of modifier adds its configured
- * {@code per_point} to the amount. {@code percent} amounts are fractions shown as percentages;
- * {@code reduces} amounts make something smaller, so a positive amount is shown as a minus.
+ * {@code percent} amounts are fractions shown as percentages; {@code reduces} ones shrink something, so a positive
+ * amount shows as a minus.
  */
 public enum Extra {
     KNOCKBACK("knockback", Ability.STRENGTH, false, false),
@@ -33,7 +32,6 @@ public enum Extra {
         this.reduces = reduces;
     }
 
-    /** The key under {@code attribute_extras} in {@code scores.json} and in the lang file. */
     public String id() {
         return id;
     }

@@ -20,11 +20,7 @@ import studio.modroll.checks.sheet.StatSheet;
 import studio.modroll.checks.ui.Area;
 import studio.modroll.checks.ui.Frames;
 
-/**
- * Chooses one ability score improvement, on a panel under a banner: - / + per ability, limited to the
- * allowed splits and the max score, then what is left and Confirm / Cancel. The server validates the
- * choice and answers with a fresh stat sheet, which replaces this screen.
- */
+/** The server validates the choice and answers with a fresh stat sheet, which replaces this screen. */
 final class ImprovementScreen extends Screen {
 
     private static final Component TITLE = Component.translatable("screen.checks.improvement.title");
@@ -32,7 +28,6 @@ final class ImprovementScreen extends Screen {
 
     private static final int ABILITY_COUNT = Ability.values().length;
     private static final int CONTENT_WIDTH = 220;
-    /** The panel's frame and padding, plus room for the buttons' bracket caps. */
     private static final int INSET = Frames.FRAME + Frames.PADDING + Frames.CAP_REACH;
 
     private static final int GAP = 4;

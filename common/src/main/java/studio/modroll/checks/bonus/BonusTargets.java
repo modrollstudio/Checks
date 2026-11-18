@@ -13,9 +13,8 @@ import studio.modroll.checks.api.Stat;
 import studio.modroll.checks.data.LenientJson;
 
 /**
- * Which rolls a bonus source affects. An ability target covers that ability's checks and, as in 5e, the
- * checks of every skill it governs; contest sides count as checks. Saves are only covered by
- * {@code saves} and {@code allSaves}.
+ * As in 5e, an ability target covers its own checks and those of every skill it governs; saves only by {@code saves}
+ * and {@code allSaves}.
  */
 public record BonusTargets(
         Set<ResourceLocation> skills, Set<Ability> abilities, Set<Ability> saves, boolean allChecks, boolean allSaves) {

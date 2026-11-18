@@ -18,7 +18,6 @@ import studio.modroll.checks.body.BodyValues;
 import studio.modroll.checks.body.Extra;
 import studio.modroll.checks.bonus.BonusSources;
 import studio.modroll.checks.bonus.SituationalBonus;
-import studio.modroll.checks.creation.CharacterBuild;
 import studio.modroll.checks.creation.CharacterCreation;
 import studio.modroll.checks.critfall.ChecksModifierProvider;
 import studio.modroll.checks.data.ScoresConfig;
@@ -35,11 +34,7 @@ import studio.modroll.checks.score.ScoresRuntime;
 import studio.modroll.critfall.api.ArmorClassBreakdown;
 import studio.modroll.critfall.api.RollService;
 
-/**
- * Builds a player's {@link StatSheet} on the server, every value read through {@link ChecksApi}. Skill and
- * save modifiers and passive scores include the player's current bonus sources, as {@code /checks get}
- * shows them.
- */
+/** Modifiers and passive scores include the player's current bonus sources, as {@code /checks get} shows them. */
 public final class StatSheets {
 
     private static final List<ResourceLocation> PASSIVE_SKILLS = Stream.of("perception", "investigation", "insight")
@@ -114,7 +109,6 @@ public final class StatSheets {
                         settings.mediumMaxDex()));
     }
 
-    /** Critfall's parts, while its AC is the one it derives from the armor and toughness. */
     private static Optional<StatSheet.ArmorPoints> worn(ServerPlayer player, ArmorClassBreakdown breakdown) {
         if (!breakdown.derived()) {
             return Optional.empty();
@@ -161,7 +155,6 @@ public final class StatSheets {
                 gains(player, level.level(), classId, settings)));
     }
 
-    /** The skills the player is proficient in, without Expertise, while they have Expertise to choose. */
     private static StatSheet.ExpertiseChoice expertise(
             ServerPlayer player,
             PlayerLevel level,
@@ -192,11 +185,7 @@ public final class StatSheets {
     }
 
     private static Optional<StatSheet.Identity> identity(ServerPlayer player) {
-        if (!ScoresRuntime.config().creation().presets().enabled()) {
-            return Optional.empty();
-        }
-        return CharacterCreation.activeBuild(player)
-                .map(CharacterBuild::choices)
+        return CharacterCreation.activePresets(player)
                 .map(choices -> new StatSheet.Identity(
                         choices,
                         choices.species()

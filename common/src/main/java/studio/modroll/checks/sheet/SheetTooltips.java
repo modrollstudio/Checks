@@ -18,10 +18,7 @@ import studio.modroll.checks.level.Levels;
 import studio.modroll.checks.preset.PresetKind;
 import studio.modroll.critfall.api.dice.RollMode;
 
-/**
- * Hover text for the stat screen. Breakdowns only format the snapshot's values; zero parts are left out.
- * Bonus sources add their flat bonus to the breakdown and a line per advantage or disadvantage.
- */
+/** Breakdowns only format the snapshot's values; zero parts are left out. */
 public final class SheetTooltips {
 
     private static final String KEY = "screen.checks.tooltip.";
@@ -47,10 +44,6 @@ public final class SheetTooltips {
         return lines;
     }
 
-    /**
-     * Hit points, Hit Dice, armor class and size, each row explaining where its value comes from; empty with none
-     * on.
-     */
     public static Optional<SheetSection> body(StatSheet.Body body) {
         List<SheetRow> rows = new ArrayList<>();
         body.health()
@@ -95,7 +88,6 @@ public final class SheetTooltips {
         return lines;
     }
 
-    /** The pool, and in a line each how a short and a long rest use it. */
     static List<Component> hitDice(StatSheet.HitDiceLine dice) {
         List<Component> lines = new ArrayList<>();
         lines.add(Component.translatable(KEY + "hit_dice", dice.left(), dice.total(), dice.sides()));
@@ -104,10 +96,7 @@ public final class SheetTooltips {
         return lines;
     }
 
-    /**
-     * What sleeping does, by the real settings: {@code Sleep to heal fully and get half your Hit Dice back.} at
-     * 0.5; empty when it does nothing.
-     */
+    /** By the real settings, e.g. {@code Sleep to heal fully and get half your Hit Dice back.} */
     private static Optional<Component> longRest(StatSheet.HitDiceLine dice) {
         String heal = dice.healsFully() ? "heal_" : "";
         double fraction = dice.regainFraction();
@@ -125,11 +114,8 @@ public final class SheetTooltips {
     }
 
     /**
-     * Critfall's base and what the armor and toughness points add, e.g. {@code Armor 13: +3}, as Critfall broke
-     * them down, then the DEX part and the body armor rule that limits it, e.g. {@code DEX +2 (medium body armor,
-     * max +2)}, and what keeps that cap from leaving AC below the AC without the body armor, e.g. {@code Never below
-     * your AC without body armor: +2}. An AC Critfall did not derive from the armor, such as an entity profile's,
-     * shows as one line.
+     * As Critfall broke it down, e.g. {@code Armor 13: +3}, then the DEX part and its body armor cap, e.g. {@code DEX
+     * +2 (medium body armor, max +2)}.
      */
     static List<Component> armorClass(StatSheet.ArmorLine armor) {
         List<Component> lines = new ArrayList<>();
@@ -167,7 +153,6 @@ public final class SheetTooltips {
         return List.of(Component.translatable(KEY + "size"), SheetText.scale(size.scale()));
     }
 
-    /** A percentage for fractions, and a minus for an amount that makes something smaller. */
     static Component extra(StatSheet.ExtraLine line) {
         Extra extra = line.extra();
         double shown = extra.reduces() ? -line.amount() : line.amount();
@@ -204,7 +189,6 @@ public final class SheetTooltips {
         return lines;
     }
 
-    /** The governing ability, then the skill's description and what Checks uses it for, when it has them. */
     public static List<Component> about(ResourceLocation skill, Ability ability) {
         List<Component> lines = new ArrayList<>();
         lines.add(SheetText.skillUses(ability));
@@ -213,7 +197,6 @@ public final class SheetTooltips {
         return lines;
     }
 
-    /** A preset's name and description, then its traits each with their description. */
     public static List<Component> preset(
             PresetKind kind, Optional<ResourceLocation> choice, List<ResourceLocation> traits) {
         List<Component> lines = new ArrayList<>();
@@ -231,7 +214,6 @@ public final class SheetTooltips {
         return lines;
     }
 
-    /** The XP towards the next level, and any ability score improvements waiting to be chosen. */
     public static List<Component> level(StatSheet.LevelLine line) {
         List<Component> lines = new ArrayList<>();
         lines.add(line.nextLevelXp()
@@ -247,11 +229,7 @@ public final class SheetTooltips {
         return lines;
     }
 
-    /**
-     * What one level gave, e.g. {@code +2 max health}, {@code Hit Die (d10)}, {@code Proficiency bonus +3},
-     * {@code Ability score improvement} and {@code Expertise in 2 skills}; {@code hitDie} is empty while Hit Dice are
-     * off.
-     */
+    /** E.g. {@code +2 max health}, {@code Hit Die (d10)}, {@code Proficiency bonus +3}. */
     public static List<Component> levelGain(LevelGain gain, Optional<Integer> hitDie) {
         List<Component> parts = new ArrayList<>();
         if (gain.health() != 0) {
@@ -275,7 +253,6 @@ public final class SheetTooltips {
         return parts;
     }
 
-    /** What the dot before a save or skill means. */
     public static List<Component> legend() {
         List<Component> lines = new ArrayList<>();
         lines.add(Component.translatable(KEY + "legend"));
@@ -308,7 +285,6 @@ public final class SheetTooltips {
                 .toList();
     }
 
-    /** Which sources grant advantage or impose disadvantage, and that having both rolls normally. */
     private static List<Component> modeLines(List<BonusPart> sources) {
         List<Component> lines = new ArrayList<>();
         for (BonusPart source : sources) {

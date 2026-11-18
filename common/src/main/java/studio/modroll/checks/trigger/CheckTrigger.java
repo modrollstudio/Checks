@@ -18,10 +18,7 @@ import studio.modroll.checks.data.LenientJson;
 import studio.modroll.checks.data.MatchEntry;
 import studio.modroll.critfall.api.dice.RollMode;
 
-/**
- * One {@code data/<ns>/checks/trigger/*.json} file: when a player uses a matching block, entity or item,
- * they roll {@code stat} against {@code dc} and the outcome's function and loot table run.
- */
+/** One {@code data/<ns>/checks/trigger/*.json} file. */
 public record CheckTrigger(
         ResourceLocation id,
         Interaction on,
@@ -38,7 +35,6 @@ public record CheckTrigger(
         actions = Map.copyOf(actions);
     }
 
-    /** What the player does; {@code targetKey} is the JSON key naming what it is done to. */
     public enum Interaction {
         USE_BLOCK("block"),
         USE_ENTITY("entity"),
@@ -68,7 +64,6 @@ public record CheckTrigger(
         }
     }
 
-    /** Ticks before the same player, or anyone on the same target, can fire this trigger again; 0 for none. */
     public record Cooldown(int playerTicks, int targetTicks) {}
 
     public record Action(Optional<ResourceLocation> function, Optional<ResourceLocation> lootTable) {}
@@ -81,7 +76,6 @@ public record CheckTrigger(
         return TriggerOutcome.of(natural, metDc, actions.keySet());
     }
 
-    /** {@code targetExists} tells whether an exact id names a block, entity type or item, per {@code on}. */
     public static CheckTrigger parse(
             ResourceLocation id,
             JsonObject json,
@@ -97,11 +91,7 @@ public record CheckTrigger(
         MatchEntry target = parseTarget(j, on, targetExists.apply(on));
         Stat stat = parseStat(j, skills);
         int dc = j.optionalInt("dc").orElseThrow(() -> new IllegalArgumentException("'dc' must be an integer"));
-        RollMode mode = j.optionalString("mode")
-                .map(text -> RollModes.byId(text)
-                        .orElseThrow(() -> new IllegalArgumentException(
-                                "'mode' must be normal, advantage or disadvantage, was '" + text + "'")))
-                .orElse(RollMode.NORMAL);
+        RollMode mode = RollModes.parse(j);
         Cooldown cooldown = parseCooldown(j.object("cooldown"), on);
         Map<TriggerOutcome, Action> actions = parseActions(j.object("outcomes"));
         j.finish();

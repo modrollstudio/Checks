@@ -8,11 +8,7 @@ import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.npc.WanderingTrader;
 
-/**
- * The kinds of entity social actions work on. Players, baby villagers and piglins, and everything else are
- * never targets. A hostile mob is one that walks with goals, so it can be sent running; a neutral one is a
- * mob Calm works on, angry or not.
- */
+/** A hostile mob is one that walks with goals, so it can be sent running. */
 public enum SocialTarget {
     VILLAGER("villager"),
     WANDERING_TRADER("wandering_trader"),
@@ -26,7 +22,6 @@ public enum SocialTarget {
         this.id = id;
     }
 
-    /** The key in the lang file and in the voice sound ids. */
     public String id() {
         return id;
     }
@@ -47,7 +42,6 @@ public enum SocialTarget {
         return this == VILLAGER || this == WANDERING_TRADER;
     }
 
-    /** Hostile and neutral mobs: they have no voice, no speech bubbles and nothing to trade. */
     public boolean mob() {
         return this == HOSTILE || this == NEUTRAL;
     }

@@ -18,10 +18,6 @@ import net.minecraft.world.level.saveddata.SavedData;
 import studio.modroll.checks.Checks;
 import studio.modroll.checks.PlayerSavedData;
 
-/**
- * Per player, the mob types and structure kinds whose lore they recalled, in their own world-level
- * {@link SavedData}; without a file, every player knows nothing yet.
- */
 public final class LoreStore extends SavedData {
 
     public static final String DATA_NAME = "checks_lore";

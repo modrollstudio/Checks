@@ -13,16 +13,10 @@ import studio.modroll.checks.bonus.BonusSources;
 import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.score.ScoresRuntime;
 
-/**
- * Which social actions a player may try on an entity right now, and why not. A villager on guard offers
- * Plead and Lie in place of Persuade and Deceive, and greys out Pickpocket and Intimidate. A mob is
- * offered only the actions for mobs.
- */
 final class SocialOptions {
 
     private SocialOptions() {}
 
-    /** One option per action that is switched on and whose skills are loaded, in action order. */
     static SocialMenu menu(ServerPlayer player, LivingEntity entity) {
         return new SocialMenu(
                 entity.getId(),
@@ -101,10 +95,6 @@ final class SocialOptions {
         return SocialMenu.Availability.AVAILABLE;
     }
 
-    /**
-     * Pickpocket or Intimidate against a villager that still refuses the player, or thinks badly enough of
-     * them: it sees them coming.
-     */
     private static boolean wary(
             ServerPlayer player, LivingEntity entity, SocialAction action, ScoresConfig.WarySettings wary) {
         return wary.enabled()
@@ -113,7 +103,6 @@ final class SocialOptions {
                 && (Socials.refuses(player, villager) || villager.getPlayerReputation(player) <= wary.maxReputation());
     }
 
-    /** Picking a pocket from behind the target. */
     private static boolean advantage(
             ServerPlayer player, LivingEntity entity, SocialAction action, ScoresConfig.SocialSettings settings) {
         return action == SocialAction.PICKPOCKET

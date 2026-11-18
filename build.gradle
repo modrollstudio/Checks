@@ -27,8 +27,7 @@ subprojects {
             url = 'https://api.modrinth.com/maven'
             content { includeGroup 'maven.modrinth' }
         }
-        // TEMPORARY, for an unreleased Critfall (see critfall_from_maven_local in gradle.properties):
-        // only Critfall's own artifacts are looked up in ~/.m2.
+        // Only Critfall's own artifacts are looked up in ~/.m2, and only while critfall_from_maven_local is on.
         if (critfall_from_maven_local.toBoolean()) {
             mavenLocal {
                 content {
@@ -39,9 +38,7 @@ subprojects {
         }
     }
 
-    // Critfall's release jar for a loader: the Modrinth version pinned in gradle.properties, or, while
-    // critfall_from_maven_local is on, the critfall_version Critfall published to ~/.m2. Switching back to
-    // Modrinth is only a gradle.properties change.
+    // Critfall's Modrinth release jar for a loader, or with critfall_from_maven_local the one in ~/.m2.
     ext.critfall = { String loader ->
         critfall_from_maven_local.toBoolean()
                 ? "studio.modroll:critfall-${loader}:${critfall_version}"
@@ -84,8 +81,7 @@ subprojects {
         }
     }
 
-    // Local-Maven publishing for external consumers until the Modrinth maven artifact exists. Fabric
-    // publishes the remapped (intermediary) jar, as Modrinth would.
+    // For other mods' builds; Fabric publishes the remapped (intermediary) jar, as Modrinth would.
     publishing {
         publications {
             mavenJava(MavenPublication) {
@@ -97,9 +93,8 @@ subprojects {
         def releaseJar = plugins.hasPlugin('fabric-loom') ? tasks.remapJar : tasks.jar
         publishing.publications.mavenJava.artifact(releaseJar)
 
-        // A shipped gametest entrypoint whose *Scenarios body is not in the jar breaks every
-        // consumer's gametest run, and the screenshot driver would take over a player's client —
-        // this guard fails the build if gametest or uishots code reaches a release jar.
+        // A gametest entrypoint without its *Scenarios bodies breaks consumers' gametest runs, and the
+        // screenshot driver would take over a player's client, so neither may reach a release jar.
         def guard = tasks.register('verifyNoGametestInReleaseJar') {
             dependsOn releaseJar
             def jarFile = releaseJar.archiveFile

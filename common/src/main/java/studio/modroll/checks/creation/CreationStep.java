@@ -3,7 +3,7 @@ package studio.modroll.checks.creation;
 import java.util.Optional;
 import studio.modroll.checks.preset.PresetKind;
 
-/** The pages of the creation screen, in order; the preset pages only while presets are on. */
+/** Declared in page order. */
 public enum CreationStep {
     SPECIES("species", PresetKind.SPECIES),
     BACKGROUND("background", PresetKind.BACKGROUND),
@@ -20,12 +20,10 @@ public enum CreationStep {
         this.presetKind = presetKind;
     }
 
-    /** The lowercase id used in lang keys. */
     public String id() {
         return id;
     }
 
-    /** The kind of preset this step chooses, if it is a preset step. */
     public Optional<PresetKind> presetKind() {
         return Optional.ofNullable(presetKind);
     }

@@ -8,7 +8,7 @@ import java.util.OptionalInt;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
-/** A point budget and the cost of each buyable score; every score starts at the cheapest one. */
+/** Every score starts at the cheapest one. */
 public record PointBuy(int budget, Map<Integer, Integer> costs) {
 
     public static final StreamCodec<ByteBuf, PointBuy> STREAM_CODEC = StreamCodec.composite(
@@ -26,15 +26,10 @@ public record PointBuy(int budget, Map<Integer, Integer> costs) {
         return costs.keySet().stream().mapToInt(Integer::intValue).min().orElseThrow();
     }
 
-    public int max() {
-        return costs.keySet().stream().mapToInt(Integer::intValue).max().orElseThrow();
-    }
-
     public boolean buyable(int score) {
         return costs.containsKey(score);
     }
 
-    /** Empty when any score is not buyable. */
     public OptionalInt totalCost(List<Integer> scores) {
         if (!scores.stream().allMatch(this::buyable)) {
             return OptionalInt.empty();

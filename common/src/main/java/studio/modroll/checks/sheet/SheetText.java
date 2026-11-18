@@ -22,7 +22,6 @@ import studio.modroll.checks.body.Size;
 import studio.modroll.checks.preset.PresetKind;
 import studio.modroll.checks.text.FallbackText;
 
-/** Lang-file names for the stat and creation screens. */
 public final class SheetText {
 
     private static final String SKILL = "skill";
@@ -58,7 +57,6 @@ public final class SheetText {
         };
     }
 
-    /** The tooltip line naming a skill's governing ability. */
     public static Component skillUses(Ability ability) {
         return Component.translatable("screen.checks.tooltip.skill", abilityName(ability));
     }
@@ -68,12 +66,10 @@ public final class SheetText {
         return name(SKILL, id);
     }
 
-    /** The skill name key plus {@code .desc}; empty when no lang file provides one. */
     public static Optional<Component> skillDescription(ResourceLocation id) {
         return description(SKILL, id);
     }
 
-    /** The skill name key plus {@code .use}: the "In this mod:" line; empty for a skill Checks has no use for. */
     public static Optional<Component> skillUse(ResourceLocation id) {
         return ifTranslated(key(SKILL, id) + ".use");
     }
@@ -83,7 +79,6 @@ public final class SheetText {
         return choice.map(id -> name(kind.id(), id)).orElse(Component.translatable(CUSTOM));
     }
 
-    /** The preset name key plus {@code .desc}, or what Custom means for this kind. */
     public static Optional<Component> presetDescription(PresetKind kind, Optional<ResourceLocation> choice) {
         return choice.map(id -> description(kind.id(), id))
                 .orElse(Optional.of(Component.translatable(CUSTOM + "." + kind.id())));
@@ -102,10 +97,7 @@ public final class SheetText {
         return description(TRAIT, id);
     }
 
-    /**
-     * The background bonus splits in plain words, e.g. {@code Raise one of these by 2 and another by 1,
-     * or all three by 1.} An option that raises every one of {@code abilityCount} abilities says "all".
-     */
+    /** E.g. {@code Raise one of these by 2 and another by 1, or all three by 1.} */
     public static Component bonusSplits(List<List<Integer>> options, int abilityCount) {
         List<Component> splits =
                 options.stream().map(option -> split(option, abilityCount)).toList();
@@ -165,12 +157,10 @@ public final class SheetText {
         return Component.translatableWithFallback("checks.number." + count, Integer.toString(count));
     }
 
-    /** {@code a, b and c}. */
     public static Component andList(List<Component> items) {
         return joined(items, LIST_COMMA, LIST_AND);
     }
 
-    /** {@code a, b and c}: {@code separatorKey} between items, {@code lastKey} before the last one. */
     private static Component joined(List<Component> items, String separatorKey, String lastKey) {
         MutableComponent text = Component.empty();
         for (int i = 0; i < items.size(); i++) {

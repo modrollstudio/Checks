@@ -8,11 +8,7 @@ import net.minecraft.server.level.ServerPlayer;
 import studio.modroll.checks.ClientPayloads;
 import studio.modroll.checks.score.ScoresRuntime;
 
-/**
- * Decides on the server who has darkvision and how strong it is, and tells each client whenever that
- * changes; the client only draws it. Checked every server tick, so a new character, a {@code /reload} or a
- * config change shows within a tick.
- */
+/** Decided on the server and sent to the client when it changes; checked every tick, so any change shows within one. */
 public final class Darkvision {
 
     private static final Map<UUID, Float> SENT = new ConcurrentHashMap<>();

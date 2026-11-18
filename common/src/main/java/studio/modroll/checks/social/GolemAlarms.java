@@ -23,13 +23,8 @@ import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.score.ScoresRuntime;
 
 /**
- * Golems calling for backup. Once a golem turns on a player over a Checks crime, every golem within the
- * alarm radius of a golem after that player joins in. It is checked every tick, so a golem that joins later
- * calls the golems around it too. The alarm ends after its time, when the player dies, or when they talk
- * it down; meanwhile villagers within the radius of the crime are on guard. A golem that may not attack
- * the player, such as one a player built or any in Peaceful, keeps to vanilla's rules. A golem the player
- * calmed sits out the rest of the alarm: no golem calls it back in. Alarms live in memory only, so a
- * restart ends them.
+ * A golem that may not attack the player, such as one a player built or any in Peaceful, keeps to vanilla's rules.
+ * Alarms live in memory only, so a restart ends them.
  */
 public final class GolemAlarms {
 
@@ -37,10 +32,6 @@ public final class GolemAlarms {
 
     private GolemAlarms() {}
 
-    /**
-     * Where the crime was, when the alarm ends, the golems it turned, the golems calmed since, and which
-     * de-escalations were tried.
-     */
     private static final class Alarm {
         private long until;
         private ResourceKey<Level> level;
@@ -50,7 +41,6 @@ public final class GolemAlarms {
         private final Set<SocialAction> tried = EnumSet.noneOf(SocialAction.class);
     }
 
-    /** Golems within {@code radius} of {@code around} turn on the player; any that do raise the alarm there. */
     static void callGolems(ServerPlayer player, LivingEntity around, double radius) {
         List<IronGolem> golems = turnOnAround(player, around, radius);
         if (!golems.isEmpty()) {
@@ -58,12 +48,10 @@ public final class GolemAlarms {
         }
     }
 
-    /** The alarm starts over at full length from {@code around}, and the golems within {@code radius} are called again. */
     static void restart(ServerPlayer player, LivingEntity around, double radius) {
         raise(player, around, turnOnAround(player, around, radius));
     }
 
-    /** Whether the villager is on guard against the player: an alarm on them is on, near enough to it. */
     public static boolean onGuard(ServerPlayer player, Entity entity) {
         ScoresConfig.SocialSettings settings = ScoresRuntime.config().social();
         Alarm alarm = WANTED.get(player.getUUID());
@@ -76,13 +64,11 @@ public final class GolemAlarms {
                 && entity.position().closerThan(alarm.at, settings.golemAlarm().radius());
     }
 
-    /** Whether the player already tried this de-escalation during the current alarm. */
     static boolean tried(ServerPlayer player, SocialAction action) {
         Alarm alarm = WANTED.get(player.getUUID());
         return alarm != null && alarm.tried.contains(action);
     }
 
-    /** The golem leaves the player's alarm: no golem after them can call it back in while the alarm lasts. */
     static void exempt(ServerPlayer player, IronGolem golem) {
         Alarm alarm = WANTED.get(player.getUUID());
         if (alarm != null) {
@@ -98,10 +84,6 @@ public final class GolemAlarms {
         }
     }
 
-    /**
-     * Ends the alarm on the player: the golems it turned stop going after them, and the villagers around the
-     * crime that run from them calm down.
-     */
     static void standDown(ServerPlayer player) {
         Alarm alarm = WANTED.remove(player.getUUID());
         ServerLevel level = alarm == null ? null : player.server.getLevel(alarm.level);
@@ -120,7 +102,6 @@ public final class GolemAlarms {
         }
     }
 
-    /** Ends alarms that are over and spreads the others; called once per server tick. */
     public static void tick(MinecraftServer server) {
         if (WANTED.isEmpty()) {
             return;
@@ -149,7 +130,6 @@ public final class GolemAlarms {
         return golems;
     }
 
-    /** Starts the alarm over at full length, now centred on {@code at}. */
     private static void raise(ServerPlayer player, Entity at, List<IronGolem> turned) {
         ScoresConfig.GolemAlarmSettings settings = settings();
         if (!settings.enabled() || settings.durationTicks() <= 0) {
@@ -176,7 +156,6 @@ public final class GolemAlarms {
         }
     }
 
-    /** Golems around {@code around} that may attack the player. */
     private static List<IronGolem> mayAttack(ServerPlayer player, Entity around, double radius) {
         return player.level()
                 .getEntitiesOfClass(

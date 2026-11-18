@@ -10,12 +10,7 @@ import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.score.ScoresRuntime;
 import studio.modroll.critfall.api.RollService;
 
-/**
- * Acrobatics: fall damage to a player in survival or adventure rolls Acrobatics through the API against a DC
- * that grows with the damage, and a made check multiplies the damage by the success multiplier. A fall that
- * does no damage rolls nothing, and neither does fall damage Critfall already rolled for (an attack roll or a
- * hazard save).
- */
+/** Fall damage Critfall already rolled for (an attack roll or a hazard save) rolls nothing. */
 public final class Landings {
 
     private static final ResourceLocation ACROBATICS = Checks.id("acrobatics");

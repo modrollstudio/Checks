@@ -10,12 +10,11 @@ import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.api.Skill;
 import studio.modroll.checks.data.LenientJson;
 
-/** Readers shared by the preset files; each throws {@link IllegalArgumentException} to reject the file. */
+/** Each reader throws IllegalArgumentException to reject the file. */
 final class PresetJson {
 
     private PresetJson() {}
 
-    /** Distinct known ability ids, e.g. {@code ["str", "con"]}. */
     static List<Ability> abilities(LenientJson json, String key) {
         List<Ability> abilities = new ArrayList<>();
         for (String id : json.stringList(key)) {
@@ -30,12 +29,10 @@ final class PresetJson {
         return List.copyOf(abilities);
     }
 
-    /** A skill id resolved through {@code skills}, so {@code "stealth"} means {@code checks:stealth}. */
     static Optional<Skill> skill(String text, Function<ResourceLocation, Optional<Skill>> skills) {
         return Optional.ofNullable(ResourceLocation.tryParse(text)).flatMap(skills);
     }
 
-    /** An id whose namespace defaults to {@code namespace} when the text has none. */
     static ResourceLocation id(String text, String namespace) {
         ResourceLocation id =
                 text.contains(":") ? ResourceLocation.tryParse(text) : ResourceLocation.tryBuild(namespace, text);
@@ -45,7 +42,6 @@ final class PresetJson {
         return id;
     }
 
-    /** The {@code icon} item; a missing one, or one naming no registered item, falls back to the kind's default. */
     static ResourceLocation icon(LenientJson json, PresetKind kind, Predicate<ResourceLocation> itemExists) {
         Optional<String> text = json.optionalString("icon");
         if (text.isEmpty()) {

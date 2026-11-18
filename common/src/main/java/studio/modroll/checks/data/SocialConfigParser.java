@@ -13,7 +13,6 @@ import net.minecraft.world.entity.ai.gossip.GossipType;
 import studio.modroll.checks.social.SocialEffect;
 import studio.modroll.checks.social.SocialOutcome;
 
-/** Reads the {@code social} object of {@code scores.json}; a bad value falls back to its default with a warning. */
 final class SocialConfigParser {
 
     private static final double MAX_BEHIND_DEGREES = 180;
@@ -235,7 +234,6 @@ final class SocialConfigParser {
                 json.getBool("angers_golems", defaults.angersGolems()));
     }
 
-    /** An amount of 0 spreads no gossip; {@code nearby} tells every villager in the gossip radius. */
     private static Optional<SocialEffect.Gossip> parseGossip(
             LenientJson parent, Optional<SocialEffect.Gossip> defaults) {
         if (!parent.has("gossip")) {
@@ -271,7 +269,7 @@ final class SocialConfigParser {
                 parseProfessions(json, defaults.professions()));
     }
 
-    /** A listed {@code professions} object replaces the defaults; a bad entry is skipped with a warning. */
+    /** A listed {@code professions} object replaces the defaults. */
     private static Map<ResourceLocation, ScoresConfig.ProfessionPrice> parseProfessions(
             LenientJson parent, Map<ResourceLocation, ScoresConfig.ProfessionPrice> defaults) {
         if (!parent.has("professions")) {

@@ -26,7 +26,7 @@ import studio.modroll.checks.level.PlayerLevel;
 import studio.modroll.checks.proficiency.Proficiencies;
 import studio.modroll.checks.skill.Skills;
 
-/** Resolves an entity's live values for {@link studio.modroll.checks.api.ChecksApi}; server-side entities only. */
+/** Server-side entities only. */
 public final class ScoreService {
 
     private ScoreService() {}
@@ -99,7 +99,6 @@ public final class ScoreService {
         return Skills.passive(skillModifier(entity, skill));
     }
 
-    /** Whether a datapack profile applies to the entity; never while profiles are disabled. */
     public static boolean hasProfile(LivingEntity entity) {
         return ScoresRuntime.config().profilesEnabled() && profileFor(entity).isPresent();
     }
@@ -126,7 +125,6 @@ public final class ScoreService {
         return playerServer(entity).map(server -> LevelStore.get(server).level(entity.getUUID()));
     }
 
-    /** Empty for non-players and entities with no server. */
     private static Optional<MinecraftServer> playerServer(LivingEntity entity) {
         if (!(entity instanceof Player) || entity.getServer() == null) {
             return Optional.empty();

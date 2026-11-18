@@ -26,12 +26,8 @@ import studio.modroll.checks.score.ScoresRuntime;
 import studio.modroll.checks.text.FallbackText;
 
 /**
- * Armed tripwires: strung between hooks and not disarmed. Perception, passively: while a player's passive
- * Perception meets the DC, the armed tripwires within range glint for that player alone, and a newly spotted
- * one is pointed out above the hotbar. Sleight of Hand: sneaking and using an armed tripwire with an empty
- * hand rolls through the API; a made check disarms it as shears do, a failed one snaps it and springs the
- * trap. Either way the string drops, so a tripwire is rolled for once. A wire that is not armed rolls
- * nothing.
+ * Armed means strung between hooks and not disarmed. Disarming drops the string whatever the roll, so a wire is rolled
+ * for once.
  */
 public final class Tripwires {
 
@@ -44,12 +40,10 @@ public final class Tripwires {
     private static final double GLINT_RISE = 0.02;
     private static final double GLINT_SPEED = 0;
 
-    /** Per player, the tripwires they spotted on their last look. */
     private static final Map<UUID, Set<BlockPos>> SPOTTED = new HashMap<>();
 
     private Tripwires() {}
 
-    /** Called once per server tick; looks around for every player once per interval. */
     public static void tick(MinecraftServer server) {
         if (server.getTickCount()
                         % ScoresRuntime.config().exploration().spotTripwires().intervalTicks()
@@ -61,7 +55,6 @@ public final class Tripwires {
         SPOTTED.keySet().retainAll(players.stream().map(ServerPlayer::getUUID).collect(Collectors.toSet()));
     }
 
-    /** The armed tripwires around {@code player} glint for them while their passive Perception meets the DC. */
     public static void lookAround(ServerPlayer player) {
         Set<BlockPos> spotted =
                 spotted(player, ScoresRuntime.config().exploration().spotTripwires());

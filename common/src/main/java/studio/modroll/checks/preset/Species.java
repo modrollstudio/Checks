@@ -14,10 +14,7 @@ import studio.modroll.checks.body.Size;
 import studio.modroll.checks.body.SizeOption;
 import studio.modroll.checks.data.LenientJson;
 
-/**
- * A species, its trait ids and the sizes it offers, the first being the default. What a trait does lives
- * in its own trait file. A species with no sizes leaves a player's size alone.
- */
+/** The first size is the default; a species with no sizes leaves a player's size alone. */
 public record Species(ResourceLocation id, List<ResourceLocation> traits, List<SizeOption> sizes, ResourceLocation icon)
         implements Preset {
 
@@ -39,7 +36,6 @@ public record Species(ResourceLocation id, List<ResourceLocation> traits, List<S
         sizes = List.copyOf(sizes);
     }
 
-    /** The chosen size if this species offers it, else the default; empty when it offers none. */
     public Optional<SizeOption> size(Optional<Size> chosen) {
         return sizes.stream()
                 .filter(option -> chosen.equals(Optional.of(option.size())))
@@ -66,7 +62,6 @@ public record Species(ResourceLocation id, List<ResourceLocation> traits, List<S
         return new Species(id, traits, sizes, icon);
     }
 
-    /** Rejects the file on an unknown or repeated size, or a scale outside Minecraft's bounds. */
     private static List<SizeOption> parseSizes(LenientJson json) {
         List<SizeOption> sizes = new ArrayList<>();
         for (LenientJson entry : json.objectList("sizes")) {

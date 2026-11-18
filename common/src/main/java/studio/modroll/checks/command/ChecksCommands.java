@@ -53,7 +53,6 @@ import studio.modroll.critfall.api.combat.SaveResult;
 import studio.modroll.critfall.api.dice.RollDetail;
 import studio.modroll.critfall.api.dice.RollResult;
 
-/** {@code /checks get|set|prof|roll|check|reset|level|xp|help}; see {@code docs/scores-config.md#commands}. */
 public final class ChecksCommands {
 
     public static final String ROOT = "checks";
@@ -275,8 +274,8 @@ public final class ChecksCommands {
     }
 
     /**
-     * Returns 1 on success. A failed check fails the command, since {@code execute store success} counts
-     * any command that does not fail as a success, whatever it returns.
+     * A failed check fails the command, since {@code execute store success} counts any command that does not fail as a
+     * success.
      */
     private static int check(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         LivingEntity target = livingTarget(ctx);
@@ -409,10 +408,7 @@ public final class ChecksCommands {
                 "commands.checks.get.ability", ability.id(), score, SheetText.signed(Abilities.modifier(score)));
     }
 
-    /**
-     * Proficiency levels are shown by their command ids ({@code proficient}, {@code expertise}). Like the
-     * stat screen, the modifier and passive score include bonus sources.
-     */
+    /** Like the stat screen, the modifier and passive score include bonus sources. */
     private static Component describe(LivingEntity target, Skill skill) {
         Proficiency proficiency = ScoreService.skillProficiency(target, skill);
         String modifier = SheetText.signed(BonusSources.skillModifier(target, skill));

@@ -15,12 +15,7 @@ import studio.modroll.checks.Checks;
 import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.score.ScoresRuntime;
 
-/**
- * Athletics: a player in survival or adventure caught in a cobweb rolls Athletics through the API. A made
- * check tears through every web they are in, with nothing dropped; a failed one leaves them stuck as in
- * vanilla, and they roll again once the retry time is up if they are still caught. A web the player may not
- * break rolls nothing. The retry time lives in memory only, so a restart ends it.
- */
+/** Athletics to break free of a cobweb; the retry wait lives in memory only, so a restart ends it. */
 public final class Cobwebs {
 
     private static final ResourceLocation ATHLETICS = Checks.id("athletics");
@@ -31,14 +26,12 @@ public final class Cobwebs {
 
     private Cobwebs() {}
 
-    /** Called once per server tick. */
     public static void tick(MinecraftServer server) {
         server.getPlayerList().getPlayers().forEach(Cobwebs::struggle);
         long now = server.getTickCount();
         RETRY_AT.values().removeIf(retryAt -> retryAt <= now);
     }
 
-    /** Rolls for {@code player} if they are caught in a web they may break and not waiting to retry. */
     public static void struggle(ServerPlayer player) {
         ScoresConfig.CobwebSettings settings =
                 ScoresRuntime.config().exploration().cobwebs();

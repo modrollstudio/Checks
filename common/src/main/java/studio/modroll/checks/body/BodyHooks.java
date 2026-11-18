@@ -2,10 +2,7 @@ package studio.modroll.checks.body;
 
 import net.minecraft.world.entity.LivingEntity;
 
-/**
- * The extras no attribute covers, applied where each loader hooks bow draws, crossbow loading and food
- * exhaustion. Anything but a server-side player is left unchanged.
- */
+/** The extras no attribute covers, called from each loader's bow, crossbow and food exhaustion hooks. */
 public final class BodyHooks {
 
     private BodyHooks() {}

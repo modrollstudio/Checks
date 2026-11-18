@@ -4,7 +4,6 @@ import static studio.modroll.checks.data.ScoresConfigLoader.atLeastOne;
 import static studio.modroll.checks.data.ScoresConfigLoader.fraction;
 import static studio.modroll.checks.data.ScoresConfigLoader.nonNegative;
 
-/** Reads the {@code exploration} object of {@code scores.json}; a bad value falls back to its default with a warning. */
 final class ExplorationConfigParser {
 
     private ExplorationConfigParser() {}

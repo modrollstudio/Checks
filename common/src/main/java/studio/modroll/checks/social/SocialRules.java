@@ -7,24 +7,17 @@ public final class SocialRules {
 
     private SocialRules() {}
 
-    /**
-     * What a {@code percent} price change adds to a trade costing {@code baseCount} items, rounded to the
-     * nearest item, halves away from zero; negative for a discount.
-     */
+    /** Rounded to the nearest item, halves away from zero. */
     public static int priceDiff(int baseCount, double percent) {
         double change = baseCount * percent / PERCENT;
         return (int) (Math.signum(change) * Math.round(Math.abs(change)));
     }
 
-    /** A passive price change: a positive modifier lowers prices by {@code percentPerPoint} per point. */
     public static double passivePercent(int modifier, double percentPerPoint) {
         return -modifier * percentPerPoint;
     }
 
-    /**
-     * Whether a point {@code dx, dz} away from a target facing {@code yawDegrees} (Minecraft's yaw, 0 facing
-     * +Z) lies within {@code behindDegrees} of straight behind it. A point on top of the target is not.
-     */
+    /** {@code yawDegrees} is Minecraft's yaw, 0 facing +Z. */
     public static boolean behind(float yawDegrees, double dx, double dz, double behindDegrees) {
         double distance = Math.hypot(dx, dz);
         if (distance == 0) {

@@ -2,8 +2,7 @@ plugins {
     id 'net.neoforged.moddev'
 }
 
-// Shared GameTest bodies (run on both loaders) live in their own source set so they ship in
-// neither the production common classes nor the unit-test set, mirroring Critfall's layout.
+// Shared GameTest bodies, in their own source set so they ship in neither the jar nor the unit tests.
 sourceSets {
     gametest {
         compileClasspath += sourceSets.main.output
@@ -24,9 +23,7 @@ neoForge {
     addModdingDependenciesTo sourceSets.uishots
 }
 
-// Modrinth publishes no loader-agnostic `common` artifact, so the API comes from the NeoForge
-// release jar, which bundles `studio.modroll.critfall.api` under Mojang mappings. The Fabric jar
-// is intermediary-mapped and cannot serve this source set.
+// Modrinth has no loader agnostic Critfall jar, and only the NeoForge one keeps Mojang names for its API.
 dependencies {
     compileOnly critfall('neoforge')
     testImplementation critfall('neoforge')

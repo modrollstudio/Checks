@@ -9,33 +9,22 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemStack;
 
-/**
- * The storybook look, all drawn in code: light bevelled panels around a dark well, a gold banner with
- * an icon, parchment icon tiles, underlined headings, bullets and gold bracket caps around buttons; and
- * a calmer muted-parchment sheet with cards and tabs for the character sheet.
- */
 public final class Frames {
 
     public static final int LINE = 10;
     public static final int PADDING = 4;
 
-    /** The light frame around a panel's well. */
     public static final int FRAME = 4;
 
-    /** A slim bevelled bar holding one line of text. */
     public static final int STRIP_HEIGHT = 18;
-    /** From a strip's edge to its text. */
     public static final int STRIP_INSET = 5;
 
-    /** A tile showing its item at normal size. */
     public static final int TILE = 20;
-    /** A tile showing its item at twice the size, for picking from. */
     public static final int LARGE_TILE = 36;
 
     public static final int BANNER_HEIGHT = TILE;
     public static final int HEADING_HEIGHT = LINE + 2;
     public static final int BULLET_INDENT = 7;
-    /** How far a button's bracket caps reach out from its sides. */
     public static final int CAP_REACH = 4;
 
     public static final int TEXT = 0xFFFFFFFF;
@@ -43,13 +32,10 @@ public final class Frames {
     public static final int DIM = 0xFF8A8A8A;
     public static final int GOLD_TEXT = 0xFFFFCB4A;
     public static final int FLAVOR = 0xFFE0D3B5;
-    /** Text on parchment. */
     public static final int INK = 0xFF3B2912;
 
     public static final int INK_FADED = 0xFF7A6240;
-    /** Labels on the calm sheet: softer than {@link #INK}, firmer than {@link #INK_FADED}. */
     public static final int INK_SOFT = 0xFF5E4B33;
-    /** Headings and key numbers on the calm sheet. */
     public static final int INK_GOLD = 0xFF8A5C12;
 
     private static final int OUTLINE = 0xFF151515;
@@ -85,31 +71,26 @@ public final class Frames {
 
     private Frames() {}
 
-    /** Draws a panel filling {@code area}; its content goes in its {@link #well}. */
     public static void panel(GuiGraphics graphics, Area area) {
         graphics.renderOutline(area.left(), area.top(), area.width(), area.height(), OUTLINE);
         bevel(graphics, area.inset(1), FRAME_FILL, FRAME_LIGHT, FRAME_SHADE);
         bevel(graphics, well(area), WELL, WELL_SHADE, WELL_LIGHT);
     }
 
-    /** A slim panel {@link #STRIP_HEIGHT} tall for one line of text, which starts {@link #STRIP_INSET} in. */
     public static void strip(GuiGraphics graphics, Area area) {
         graphics.renderOutline(area.left(), area.top(), area.width(), area.height(), OUTLINE);
         bevel(graphics, area.inset(1), FRAME_FILL, FRAME_LIGHT, FRAME_SHADE);
         bevel(graphics, area.inset(3), WELL, WELL_SHADE, WELL_LIGHT);
     }
 
-    /** The y at which a line of text sits centered in a strip starting at {@code top}. */
     public static int stripText(int top) {
         return top + STRIP_INSET;
     }
 
-    /** The darker inside of a panel filling {@code area}. */
     public static Area well(Area area) {
         return area.inset(FRAME);
     }
 
-    /** A sheet of parchment filling {@code area}, its corners clipped and its edge darkened; write on it in {@link #INK}. */
     public static void parchment(GuiGraphics graphics, Area area) {
         graphics.fill(area.left() + 1, area.top(), area.right() - 1, area.bottom(), PARCHMENT_EDGE);
         graphics.fill(area.left(), area.top() + 1, area.right(), area.bottom() - 1, PARCHMENT_EDGE);
@@ -118,21 +99,15 @@ public final class Frames {
         bevel(graphics, sheet.inset(2), PARCHMENT, PARCHMENT_LIGHT, PARCHMENT_SHADE);
     }
 
-    /** A calm sheet of muted parchment with a thin soft edge and rounded corners; write on it in ink. */
     public static void sheet(GuiGraphics graphics, Area area) {
         rounded(graphics, area, SHEET_EDGE, SHEET_CORNER);
         rounded(graphics, area.inset(1), SHEET, 1);
     }
 
-    /** A slightly darker, borderless patch of a {@link #sheet}. */
     public static void card(GuiGraphics graphics, Area area) {
         rounded(graphics, area, CARD, 1);
     }
 
-    /**
-     * A tab standing on a sheet whose top edge is {@code area.bottom()}; the open one takes the sheet's
-     * colour and opens into it, the others stay darker behind its edge.
-     */
     public static void tab(GuiGraphics graphics, Area area, boolean open) {
         int left = area.left();
         int top = area.top();
@@ -142,7 +117,6 @@ public final class Frames {
         roundedTop(graphics, left + 1, top + 1, right - 1, open ? bottom + 1 : bottom, open ? SHEET : TAB_IDLE);
     }
 
-    /** A gold band {@code row.width()} wide with an icon tile at its left and {@code name} on it. */
     public static void banner(GuiGraphics graphics, Font font, Area row, ItemStack icon, Component name) {
         int bandLeft = row.left() + TILE / 2;
         int bandTop = row.top() + (BANNER_HEIGHT - BAND_HEIGHT) / 2;
@@ -155,10 +129,7 @@ public final class Frames {
         graphics.drawString(font, shown, textLeft, bandTop + (BAND_HEIGHT - font.lineHeight) / 2 + 1, TEXT);
     }
 
-    /**
-     * An item on a square parchment tile {@code size} wide with clipped corners, gold-edged when selected;
-     * the item is scaled to fill it, so a size of {@link #TILE} or {@link #LARGE_TILE} keeps it crisp.
-     */
+    /** Scaled to fill the tile, so a size of {@link #TILE} or {@link #LARGE_TILE} keeps the item crisp. */
     public static void tile(
             GuiGraphics graphics, int left, int top, int size, ItemStack icon, boolean selected, boolean hovered) {
         int edge = selected ? GOLD_LIGHT : PARCHMENT_EDGE;
@@ -185,14 +156,12 @@ public final class Frames {
         return text.copy().withStyle(ChatFormatting.ITALIC);
     }
 
-    /** A small square bullet and {@code lines} beside it; returns the y below them. */
     public static int bullet(
             GuiGraphics graphics, Font font, List<FormattedCharSequence> lines, int left, int top, int color) {
         graphics.fill(left + 1, top + BULLET_DROP, left + 1 + BULLET_SIZE, top + BULLET_DROP + BULLET_SIZE, MUTED);
         return lines(graphics, font, lines, left + BULLET_INDENT, top, color);
     }
 
-    /** Draws wrapped lines from {@code top} and returns the y below them. */
     public static int lines(
             GuiGraphics graphics, Font font, List<FormattedCharSequence> lines, int left, int top, int color) {
         int y = top;
@@ -203,7 +172,6 @@ public final class Frames {
         return y;
     }
 
-    /** Gold brackets hugging the button's sides, dimmed while it is inactive. */
     public static void caps(GuiGraphics graphics, AbstractWidget button) {
         int color = button.active ? GOLD_LIGHT : FRAME_SHADE;
         int top = button.getY() - 1;
@@ -218,7 +186,6 @@ public final class Frames {
         graphics.fill(right - 1, bottom - 1, right + CAP_REACH, bottom, color);
     }
 
-    /** A filled box whose corners are cut {@code radius} pixels deep, one step per row. */
     private static void rounded(GuiGraphics graphics, Area area, int color, int radius) {
         for (int i = 0; i < radius; i++) {
             int cut = radius - i;
@@ -233,7 +200,6 @@ public final class Frames {
         graphics.fill(left, top + 1, right, bottom, color);
     }
 
-    /** A filled box lit from the top left: {@code light} along the top and left, {@code shade} along the rest. */
     private static void bevel(GuiGraphics graphics, Area area, int fill, int light, int shade) {
         graphics.fill(area.left(), area.top(), area.right(), area.bottom(), fill);
         graphics.fill(area.left(), area.top(), area.right() - 1, area.top() + 1, light);

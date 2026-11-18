@@ -8,7 +8,6 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import studio.modroll.checks.Checks;
 
-/** Client to server: the skills chosen for Expertise. */
 public record ExpertisePayload(List<ResourceLocation> skills) implements CustomPacketPayload {
 
     /** Far more than any class gives; only bounds what a client can send. */

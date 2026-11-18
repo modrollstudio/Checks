@@ -3,7 +3,7 @@ package studio.modroll.checks.creation;
 import net.minecraft.network.chat.Component;
 import studio.modroll.checks.sheet.SheetText;
 
-/** Why the server refused a character submission; each has a lang line under {@code checks.creation.rejected}. */
+/** Each has a lang line under {@code checks.creation.rejected}. */
 public enum Rejection {
     CREATION_DISABLED("creation_disabled"),
     ALREADY_CREATED("already_created"),

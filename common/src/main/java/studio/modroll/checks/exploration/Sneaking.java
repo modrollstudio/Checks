@@ -10,9 +10,8 @@ import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.score.ScoresRuntime;
 
 /**
- * Stealth, passively and with no roll: while a player sneaks, a mob whose passive Perception their passive
- * Stealth beats notices them from closer. Each point it is beaten by shrinks the distance by the configured
- * share, down to the configured minimum.
+ * Stealth, passively: a mob whose passive Perception the sneaking player's passive Stealth beats notices them from
+ * closer.
  */
 public final class Sneaking {
 
@@ -22,7 +21,6 @@ public final class Sneaking {
 
     private Sneaking() {}
 
-    /** What {@code looker}'s distance for noticing {@code seen} is multiplied by. */
     public static double visibility(LivingEntity seen, @Nullable Entity looker) {
         ScoresConfig.SneakSettings settings =
                 ScoresRuntime.config().exploration().sneak();
@@ -36,7 +34,6 @@ public final class Sneaking {
         return visibility(margin, settings.perPoint(), settings.minVisibility());
     }
 
-    /** {@code 1 - margin × perPoint}, at least {@code min}; unchanged unless Stealth wins. */
     static double visibility(int margin, double perPoint, double min) {
         if (margin <= 0) {
             return UNCHANGED;

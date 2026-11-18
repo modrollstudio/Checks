@@ -12,11 +12,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import studio.modroll.checks.Checks;
 
-/**
- * The 5e armor weight a piece belongs to, from the item tags {@code checks:light_armor},
- * {@code checks:medium_armor} and {@code checks:heavy_armor}; lightest first. An untagged piece counts
- * as no armor. Only body armor, the piece worn on the chest, sets the weight.
- */
+/** 5e armor weight, lightest first, from the {@code checks:*_armor} item tags; an untagged piece is no armor. */
 public enum ArmorCategory {
     NONE("none", Optional.empty()),
     LIGHT("light", Optional.of(tag("light_armor"))),
@@ -38,10 +34,7 @@ public enum ArmorCategory {
         return id;
     }
 
-    /**
-     * The body armor's category, as in 5e, where armor is what covers the body: a helmet, leggings or
-     * boots never limit DEX, whatever their tags.
-     */
+    /** As in 5e, armor is what covers the body: a helmet, leggings or boots never limit DEX, whatever their tags. */
     public static ArmorCategory worn(LivingEntity entity) {
         return of(entity.getItemBySlot(EquipmentSlot.CHEST));
     }

@@ -78,14 +78,14 @@ class SheetLayoutTest {
                         TAB_LABEL_WIDTH));
                 String context = screen + " create=" + create + " levelUp=" + levelUp + " body=" + body + " modSection="
                         + modSection;
-                expectInsideMargins(layout.frame(), screen, context);
-                expectNoOverlaps(layout.frame(), context);
-                expectInsideTheSheet(layout, layout.overviewElements(), context);
-                expectNoOverlaps(layout.overviewElements(), context);
+                expectInsideMargins(frame(layout), screen, context);
+                expectNoOverlaps(frame(layout), context);
+                expectInsideTheSheet(layout, overviewElements(layout), context);
+                expectNoOverlaps(overviewElements(layout), context);
                 expectInsideTheScrollArea(layout, context);
-                expectNoOverlaps(layout.overviewContent(), context);
-                expectInsideTheSheet(layout, layout.skillsElements(), context);
-                expectNoOverlaps(layout.skillsElements(), context);
+                expectNoOverlaps(overviewContent(layout), context);
+                expectInsideTheSheet(layout, skillsElements(layout), context);
+                expectNoOverlaps(skillsElements(layout), context);
                 assertTrue(layout.visibleSkillRows() >= SheetLayout.MIN_SKILL_ROWS, "skill rows: " + context);
                 checked++;
             }
@@ -115,10 +115,10 @@ class SheetLayoutTest {
                 TAB_LABEL_WIDTH));
         String context = "tall section at " + small;
 
-        expectInsideMargins(layout.frame(), small, context);
-        expectInsideTheSheet(layout, layout.overviewElements(), context);
+        expectInsideMargins(frame(layout), small, context);
+        expectInsideTheSheet(layout, overviewElements(layout), context);
         expectInsideTheScrollArea(layout, context);
-        expectNoOverlaps(layout.overviewContent(), context);
+        expectNoOverlaps(overviewContent(layout), context);
         Area section = layout.blocks().getLast();
         assertTrue(section.bottom() > layout.overview().bottom(), "the section runs past the view");
         assertEquals(
@@ -188,7 +188,7 @@ class SheetLayoutTest {
                 screen.width() - 2 * SheetLayout.MARGIN,
                 screen.height() - 2 * SheetLayout.MARGIN);
         for (Area rect : rects) {
-            assertTrue(inside.contains(rect), rect + " leaves the margins: " + context);
+            assertTrue(contains(inside, rect), rect + " leaves the margins: " + context);
         }
     }
 
@@ -200,7 +200,7 @@ class SheetLayoutTest {
                 sheet.width() - 2 * SheetLayout.SHEET_PADDING,
                 sheet.height() - 2 * SheetLayout.SHEET_PADDING);
         for (Area rect : rects) {
-            assertTrue(inner.contains(rect), rect + " leaves the sheet: " + context);
+            assertTrue(contains(inner, rect), rect + " leaves the sheet: " + context);
         }
     }
 
@@ -208,8 +208,8 @@ class SheetLayoutTest {
     private static void expectInsideTheScrollArea(SheetLayout layout, String context) {
         Area view = layout.overview();
         Area scrollArea = new Area(view.left(), view.top(), view.width(), layout.overviewHeight());
-        for (Area rect : layout.overviewContent()) {
-            assertTrue(scrollArea.contains(rect), rect + " leaves the Overview's scroll area: " + context);
+        for (Area rect : overviewContent(layout)) {
+            assertTrue(contains(scrollArea, rect), rect + " leaves the Overview's scroll area: " + context);
         }
     }
 
@@ -217,9 +217,43 @@ class SheetLayoutTest {
         for (int i = 0; i < elements.size(); i++) {
             for (int j = i + 1; j < elements.size(); j++) {
                 assertFalse(
-                        elements.get(i).overlaps(elements.get(j)),
+                        overlaps(elements.get(i), elements.get(j)),
                         elements.get(i) + " overlaps " + elements.get(j) + ": " + context);
             }
         }
+    }
+
+    private static List<Area> overviewElements(SheetLayout layout) {
+        return List.of(layout.header(), layout.overview());
+    }
+
+    /** What scrolls in the Overview's view, placed as if unscrolled. */
+    private static List<Area> overviewContent(SheetLayout layout) {
+        List<Area> content = new ArrayList<>(List.of(layout.abilities()));
+        content.addAll(layout.blocks());
+        return content;
+    }
+
+    private static List<Area> skillsElements(SheetLayout layout) {
+        return List.of(layout.header(), layout.skills());
+    }
+
+    /** What sits on the screen around the tabs' contents. */
+    private static List<Area> frame(SheetLayout layout) {
+        List<Area> frame = new ArrayList<>(List.of(layout.sheet()));
+        frame.addAll(layout.tabs());
+        frame.addAll(layout.buttons());
+        return frame;
+    }
+
+    private static boolean contains(Area outer, Area inner) {
+        return inner.left() >= outer.left()
+                && inner.top() >= outer.top()
+                && inner.right() <= outer.right()
+                && inner.bottom() <= outer.bottom();
+    }
+
+    private static boolean overlaps(Area a, Area b) {
+        return a.left() < b.right() && b.left() < a.right() && a.top() < b.bottom() && b.top() < a.bottom();
     }
 }

@@ -24,11 +24,7 @@ import studio.modroll.critfall.api.dice.RollDetail;
 import studio.modroll.critfall.api.dice.RollMode;
 import studio.modroll.critfall.api.dice.RollResult;
 
-/**
- * Every roll {@link studio.modroll.checks.api.ChecksApi} makes: the stat's modifier plus the entity's bonus
- * sources, then the before event, Critfall's roll and the after event. A canceled roll rolls nothing. A trait
- * may roll a check or save once more; contests are never rerolled, since Critfall rolls both sides at once.
- */
+/** A trait never rerolls a contest, since Critfall rolls both sides at once. */
 public final class CheckRolls {
 
     private static final int NOT_ROLLED = 0;

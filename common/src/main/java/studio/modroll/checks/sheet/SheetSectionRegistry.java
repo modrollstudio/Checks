@@ -10,7 +10,6 @@ import net.minecraft.resources.ResourceLocation;
 import studio.modroll.checks.Checks;
 import studio.modroll.checks.api.SheetSection;
 
-/** The stat screen sections registered through {@link studio.modroll.checks.api.StatSheetSections}. */
 public final class SheetSectionRegistry {
 
     private static final Map<ResourceLocation, Supplier<Optional<SheetSection>>> SECTIONS = new LinkedHashMap<>();
@@ -21,7 +20,6 @@ public final class SheetSectionRegistry {
         SECTIONS.put(id, section);
     }
 
-    /** None while the server has mod sections switched off. */
     public static synchronized List<SheetSection> sectionsFor(StatSheet sheet) {
         if (!sheet.modSections()) {
             return List.of();

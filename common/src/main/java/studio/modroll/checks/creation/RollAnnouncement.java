@@ -12,8 +12,8 @@ import studio.modroll.critfall.api.dice.DieRoll;
 import studio.modroll.critfall.api.dice.RollResult;
 
 /**
- * The chat lines for creation rolls, e.g. {@code Steve rolled STR: 1, 1, 2, ~~1~~ = 4} with the dropped
- * die struck through. They are broadcast to every player, so every part carries its English fallback.
+ * E.g. {@code Steve rolled STR: 1, 1, 2, ~~1~~ = 4}; broadcast to every player, so every part carries its English
+ * fallback.
  */
 public final class RollAnnouncement {
 

@@ -12,11 +12,8 @@ import net.minecraft.util.FormattedCharSequence;
 import studio.modroll.checks.check.RollLinePayload;
 
 /**
- * Roll lines above the hotbar, where the action bar sits, each loader calling {@link #render} from its HUD.
- * Showing one makes an empty marker of its own vanilla's action bar message, with the line's duration as
- * its timer: the lines are drawn, faded as vanilla fades the action bar, only while that marker is still
- * the action bar message, so any newer one hides them at once. A line wider than the screen wraps, and
- * the lines move up above the chat wherever they would cover it.
+ * Showing a line makes an empty marker of its own vanilla's action bar message, with the line's duration as its timer;
+ * the lines are drawn only while that marker is still the message, so any newer one hides them at once.
  */
 public final class ClientRollLines {
 
@@ -45,10 +42,7 @@ public final class ClientRollLines {
         keepFor.accept(payload.durationTicks());
     }
 
-    /**
-     * Draws the lines centered, the last one on {@code anchorY} and the rest stacked above it, while
-     * vanilla's action bar message ({@code overlay}, with {@code overlayTicks} left) is the marker.
-     */
+    /** {@code overlay} is vanilla's action bar message, with {@code overlayTicks} left. */
     public static void render(
             GuiGraphics graphics,
             float partialTick,
@@ -83,10 +77,6 @@ public final class ClientRollLines {
         }
     }
 
-    /**
-     * The top of a block of lines {@code height} tall starting at {@code top}, raised above the chat
-     * when it would otherwise cover the chat's lines; {@code left} is the block's left edge.
-     */
     static int clearOf(Optional<ChatBox> chat, int left, int top, int height) {
         return chat.filter(box -> box.right() > left && box.top() < top + height)
                 .map(box -> box.top() - CHAT_CLEARANCE - height)

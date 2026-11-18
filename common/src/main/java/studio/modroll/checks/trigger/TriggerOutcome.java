@@ -3,7 +3,6 @@ package studio.modroll.checks.trigger;
 import java.util.Locale;
 import java.util.Set;
 
-/** The branch a trigger's roll takes. */
 public enum TriggerOutcome {
     SUCCESS,
     FAILURE,
@@ -17,10 +16,7 @@ public enum TriggerOutcome {
         return name().toLowerCase(Locale.ROOT);
     }
 
-    /**
-     * A natural 20 or natural 1 takes its own branch when the trigger has one; otherwise meeting the DC
-     * succeeds and anything else fails, as for any check.
-     */
+    /** A natural 20 or 1 takes its own branch when the trigger has one. */
     public static TriggerOutcome of(int natural, boolean metDc, Set<TriggerOutcome> branches) {
         if (natural == TWENTY && branches.contains(NATURAL_20)) {
             return NATURAL_20;

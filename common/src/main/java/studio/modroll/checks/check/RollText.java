@@ -7,10 +7,6 @@ import studio.modroll.checks.text.FallbackText;
 import studio.modroll.critfall.api.combat.SaveResult;
 import studio.modroll.critfall.api.dice.RollDetail;
 
-/**
- * Roll lines: a check against a DC, and its d20 part, the face or under advantage or disadvantage the mode
- * and both faces.
- */
 public final class RollText {
 
     private RollText() {}

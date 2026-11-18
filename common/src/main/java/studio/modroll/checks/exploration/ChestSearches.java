@@ -32,11 +32,8 @@ import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.score.ScoresRuntime;
 
 /**
- * Investigation: a loot chest, barrel or other container a loot table fills remembers that table when a
- * player first uses it, in the container's own {@code minecraft:custom_data}. Once it has been opened,
- * a player in survival or adventure who sneaks and uses it rolls Investigation through the API, once per
- * container for everyone: a made check finds one more item from its loot table, a failed one finds nothing
- * else. Both halves of a double chest count as one. A container no loot table ever filled rolls nothing.
+ * Vanilla clears a container's loot table when it is opened, so the table is remembered in its {@code
+ * minecraft:custom_data} on first use. One search per container for everyone; a double chest counts once.
  */
 public final class ChestSearches {
 
@@ -76,7 +73,6 @@ public final class ChestSearches {
         return InteractionResult.SUCCESS;
     }
 
-    /** The used container first, then the other half of a double chest. */
     private static List<RandomizableContainerBlockEntity> halves(Level level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
         Stream<BlockPos> positions =
@@ -101,7 +97,6 @@ public final class ChestSearches {
         }
     }
 
-    /** The remembered loot table of a container that has been opened and not yet searched. */
     private static Optional<ResourceKey<LootTable>> unsearchedLootTable(RandomizableContainerBlockEntity container) {
         CompoundTag search = search(container);
         if (container.getLootTable() != null || search.getBoolean(SEARCHED_KEY) || !search.contains(LOOT_TABLE_KEY)) {
@@ -133,10 +128,7 @@ public final class ChestSearches {
         container.setChanged();
     }
 
-    /**
-     * The loot table rolled again as for a chest, and one item of one of its stacks handed to the player.
-     * Which stack is loot randomness, as vanilla's own filling of the chest, never a check.
-     */
+    /** Which stack is loot randomness, as in vanilla's own filling of the chest, never a check. */
     private static void findOneMore(ServerPlayer player, ResourceKey<LootTable> key, BlockPos pos) {
         ServerLevel level = player.serverLevel();
         LootParams params = new LootParams.Builder(level)

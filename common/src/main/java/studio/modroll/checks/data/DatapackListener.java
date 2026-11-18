@@ -24,9 +24,8 @@ import studio.modroll.checks.trigger.CheckTrigger;
 import studio.modroll.checks.trigger.CheckTriggers;
 
 /**
- * Loads every file of one datapack directory into its store, replacing what the last reload loaded; a file
- * that fails to parse is logged and skipped. Every listener but {@link #skills()} resolves skill keys against
- * the current {@link SkillStore}, so it must run after the skill listener.
+ * Every listener but {@link #skills()} resolves skill keys against the current {@link SkillStore}, so it must run after
+ * the skill listener.
  */
 public class DatapackListener<T> extends SimpleJsonResourceReloadListener {
 

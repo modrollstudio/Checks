@@ -14,9 +14,8 @@ import studio.modroll.checks.save.VanillaSaves;
 import studio.modroll.checks.score.ScoresRuntime;
 
 /**
- * Medicine, passively and with no roll: a positive Medicine modifier makes the effects in the
- * {@code checks:shortened_by_medicine} tag (poison, wither, hunger and nausea) wear off sooner on a player.
- * Effects a command gives, infinite ones, and effects on anything but a server-side player are left unchanged.
+ * Medicine, passively: effects in {@code checks:shortened_by_medicine} wear off sooner; command-given and infinite ones
+ * are left alone.
  */
 public final class Ailments {
 
@@ -50,7 +49,6 @@ public final class Ailments {
                 effect.showIcon());
     }
 
-    /** {@code ticks} less the Medicine share, rounded down. */
     static int duration(int ticks, int medicineModifier, ScoresConfig.ReductionSettings settings) {
         double reduction = ExplorationChecks.share(medicineModifier, settings.perPoint(), settings.maxReduction());
         return SaveRules.scaledTicks(ticks, 1 - reduction);

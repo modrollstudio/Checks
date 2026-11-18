@@ -16,13 +16,7 @@ import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.score.ScoresRuntime;
 import studio.modroll.checks.text.FallbackText;
 
-/**
- * History: a kind of structure is a structure tag {@code checks:history/<kind>}, so packs can add structures
- * or kinds. The first time a player in survival or adventure stands inside a piece of a structure of a kind,
- * they roll History. A made check shows a hint about that kind, from {@code checks.lore.structure.<kind>},
- * and is never rolled for again; a failed one may be tried again after the retry time. Each look rolls for
- * one kind at most.
- */
+/** History: each kind is a structure tag {@code checks:history/<kind>}, so packs can add structures or kinds. */
 public final class StructureLore {
 
     private static final ResourceLocation HISTORY = Checks.id("history");
@@ -34,7 +28,6 @@ public final class StructureLore {
 
     private StructureLore() {}
 
-    /** Called once per server tick; looks around for every player once per interval. */
     public static void tick(MinecraftServer server) {
         ScoresConfig.StructureLoreSettings settings =
                 ScoresRuntime.config().exploration().structureLore();
@@ -45,7 +38,6 @@ public final class StructureLore {
         RECOLLECTION.forgetWaited(server.getTickCount());
     }
 
-    /** Rolls for a kind of structure {@code player} stands in and could roll for now. */
     public static void lookAround(ServerPlayer player) {
         ScoresConfig.StructureLoreSettings settings =
                 ScoresRuntime.config().exploration().structureLore();

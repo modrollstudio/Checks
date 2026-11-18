@@ -345,7 +345,6 @@ public final class ChecksNeoForge {
         }
     }
 
-    /** Whether the player's client has the channel, and so was sent the payload. */
     private static boolean sendToClient(ServerPlayer player, CustomPacketPayload payload) {
         if (!player.connection.hasChannel(payload)) {
             return false;

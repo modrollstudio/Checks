@@ -62,10 +62,6 @@ public final class ServerHooks {
         CharacterCreation.onJoin(player);
     }
 
-    /**
-     * The first use that acts consumes the click: a check trigger, then a tripwire, then a chest search, then a
-     * short rest at a campfire.
-     */
     public static InteractionResult onUseBlock(ServerPlayer player, InteractionHand hand, BlockPos pos) {
         InteractionResult result = CheckTriggers.onUseBlock(player, hand, pos);
         if (!result.consumesAction()) {
@@ -77,12 +73,10 @@ public final class ServerHooks {
         return result.consumesAction() ? result : Rests.onUseBlock(player, hand, pos);
     }
 
-    /** After damage lands on any living entity, on either loader. */
     public static void onDamaged(LivingEntity entity, DamageSource source) {
         Rests.onDamaged(entity, source);
     }
 
-    /** A check trigger first, then the social menu. */
     public static InteractionResult onUseEntity(ServerPlayer player, InteractionHand hand, Entity entity) {
         InteractionResult result = CheckTriggers.onUseEntity(player, hand, entity);
         return result.consumesAction() ? result : Socials.onUseEntity(player, hand, entity);

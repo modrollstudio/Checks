@@ -20,11 +20,7 @@ import studio.modroll.checks.sheet.StatSheet;
 import studio.modroll.checks.ui.Area;
 import studio.modroll.checks.ui.Frames;
 
-/**
- * Chooses skills for Expertise, on a panel under a banner: a toggle per skill the player is proficient in, two
- * columns, up to the number waiting, then Confirm / Cancel. The server validates the choice and answers with a fresh
- * stat sheet, which replaces this screen.
- */
+/** The server validates the choice and answers with a fresh stat sheet, which replaces this screen. */
 final class ExpertiseScreen extends Screen {
 
     private static final Component TITLE = Component.translatable("screen.checks.expertise.title");

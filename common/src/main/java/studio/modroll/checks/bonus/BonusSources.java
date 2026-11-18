@@ -21,10 +21,7 @@ import studio.modroll.checks.score.ScoreService;
 import studio.modroll.checks.score.ScoresRuntime;
 import studio.modroll.checks.trait.TraitHooks;
 
-/**
- * The loaded bonus sources, swapped on every reload, and what they add to an entity's rolls and passive
- * scores. The stat screen and {@code /checks get} show the modifiers and passive scores from here.
- */
+/** The stat screen and {@code /checks get} read modifiers and passive scores from here, so they match the rolls. */
 public final class BonusSources {
 
     private static volatile List<BonusSource> sources = List.of();
@@ -37,7 +34,6 @@ public final class BonusSources {
                 .toList();
     }
 
-    /** In id order. */
     public static List<BonusSource> all() {
         return sources;
     }
@@ -46,7 +42,6 @@ public final class BonusSources {
         sources = List.of();
     }
 
-    /** The datapack sources while they are enabled, then the entity's trait roll bonuses. */
     public static SituationalBonus forCheck(LivingEntity entity, CheckKind kind, Stat stat) {
         List<BonusPart> parts = new ArrayList<>();
         if (settings().enabled()) {
@@ -57,19 +52,16 @@ public final class BonusSources {
         return new SituationalBonus(parts);
     }
 
-    /** The skill modifier a check adds once its flat bonus sources are counted. */
     public static int skillModifier(LivingEntity entity, Skill skill) {
         return ScoreService.skillModifier(entity, skill)
                 + forCheck(entity, CheckKind.CHECK, skill).bonus();
     }
 
-    /** The save modifier a saving throw adds once its flat bonus sources are counted. */
     public static int saveModifier(LivingEntity entity, Ability ability) {
         return ScoreService.saveModifier(entity, ability)
                 + forCheck(entity, CheckKind.SAVE, ability).bonus();
     }
 
-    /** {@code 10 +} the skill modifier, plus the skill check's bonus sources counted the passive way. */
     public static int passiveScore(LivingEntity entity, Skill skill) {
         return ScoreService.passiveScore(entity, skill)
                 + forCheck(entity, CheckKind.CHECK, skill)

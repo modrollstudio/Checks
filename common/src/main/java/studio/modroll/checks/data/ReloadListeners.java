@@ -4,7 +4,7 @@ import java.nio.file.Path;
 import java.util.List;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 
-/** Checks' reload listeners in the order they run, each under the name Fabric registers it by. */
+/** In the order they run, each under the name Fabric registers it by. */
 public final class ReloadListeners {
 
     public static final String SKILLS = "skill";

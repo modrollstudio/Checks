@@ -35,19 +35,8 @@ import studio.modroll.checks.social.ItemArcPayload;
 import studio.modroll.checks.social.SpeechBubblePayload;
 
 /**
- * Speech bubbles above heads, pickpocketed items in flight and Insight's markers over mobs after the
- * player, drawn in the world after entities, each loader calling {@link #render}. Time is the client
- * level's game time; whatever outlives its entity is dropped. A bubble is dark text on a soft light
- * background with rounded corners and a small tail pointing down at the head, wrapped at a fixed width and
- * faded in and out (see {@link BubbleFade}); closer than {@link BubbleScale#FULL_SIZE_DISTANCE} blocks it
- * shrinks, so it never looks bigger than it does from there. A marker is a small red "!"
- * just above the head, shown until the server says otherwise. Each shows only while the camera can see
- * its entity's head past blocks; then it is drawn whole and at full brightness, whatever is in front of it.
- *
- * <p>A bubble is drawn without a depth test, its edge, then its fill, then its text over them. Vanilla
- * draws text backgrounds as a quad in the same distance-sorted buffer as the letters, which leaves some
- * letters under the background depending on the view angle; the edge and fill each get their own flush
- * of a separate buffer, so each lands on top of the last.
+ * A bubble is drawn without a depth test, edge, fill, then text, each flushed from its own buffer: vanilla's text
+ * background shares the letters' distance-sorted buffer, which leaves some letters under it.
  */
 public final class ClientSocialFeel {
 
@@ -61,11 +50,9 @@ public final class ClientSocialFeel {
     private static final int EDGE_COLOR = 0x9C8762;
     private static final int TEXT_ALPHA = 255;
     private static final int BACKGROUND_ALPHA = 240;
-    /** In font pixels, from the bubble's edge to its text. */
     private static final int PADDING_X = 4;
 
     private static final int PADDING_Y = 3;
-    /** Rows of the stepped tail, each one pixel narrower on both sides. */
     private static final int TAIL = 4;
 
     private static final int CORNER = 1;
@@ -95,7 +82,6 @@ public final class ClientSocialFeel {
 
     private record Flight(int fromId, int toId, ItemStack item, boolean caught, long start) {}
 
-    /** A newer line replaces the entity's bubble. */
     public static void say(SpeechBubblePayload payload) {
         long now = now();
         BUBBLES.put(payload.entityId(), new Bubble(payload.line(), now, now + payload.durationTicks()));
@@ -105,7 +91,6 @@ public final class ClientSocialFeel {
         FLIGHTS.add(new Flight(payload.fromId(), payload.toId(), payload.item(), payload.caught(), now()));
     }
 
-    /** The server's latest set of mobs to mark replaces the last one. */
     public static void sense(HostilityPayload payload) {
         marked = Set.copyOf(payload.entityIds());
     }
@@ -154,7 +139,6 @@ public final class ClientSocialFeel {
                 .toList();
     }
 
-    /** The tail's tip sits just above the head; the bubble, its text centered on each line, sits on the tail. */
     private static void drawBubble(
             PoseStack poseStack,
             MultiBufferSource buffers,
@@ -233,10 +217,7 @@ public final class ClientSocialFeel {
         poseStack.popPose();
     }
 
-    /**
-     * A box with its corners cut {@code corner} pixels deep and a stepped tail under its middle, as quads
-     * that never overlap, so a faded shape stays evenly see-through; flushed at once so what follows lands on top.
-     */
+    /** As quads that never overlap, so a faded shape stays evenly see-through. */
     private static void drawShape(
             Matrix4f pose, MultiBufferSource buffers, int left, int top, int right, int bottom, int corner, int color) {
         VertexConsumer quads = buffers.getBuffer(BACKGROUND);

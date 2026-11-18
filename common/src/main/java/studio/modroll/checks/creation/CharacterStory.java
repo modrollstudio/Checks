@@ -10,11 +10,7 @@ import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.preset.PresetKind;
 import studio.modroll.checks.sheet.SheetText;
 
-/**
- * The confirm page's paragraph, in the second person: who the character is by species, background and
- * class, their two best abilities and their proficient skills, e.g. "You are Dev1, Dwarf by birth,
- * Soldier by upbringing and Fighter by calling. …". A Custom or unchosen preset is left out.
- */
+/** The confirm page, e.g. "You are Dev1, Dwarf by birth, Soldier by upbringing and Fighter by calling. …" */
 public final class CharacterStory {
 
     static final int BEST_ABILITIES = 2;

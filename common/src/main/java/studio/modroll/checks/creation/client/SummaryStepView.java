@@ -29,10 +29,6 @@ import studio.modroll.checks.sheet.SheetText;
 import studio.modroll.checks.ui.Area;
 import studio.modroll.checks.ui.Frames;
 
-/**
- * The last page, on a sheet of parchment: the character told as a short story, then its abilities,
- * saving throws and starting kit side by side, and a reminder that confirming locks it.
- */
 final class SummaryStepView implements StepView {
 
     private static final int MARGIN = 10;
@@ -112,7 +108,6 @@ final class SummaryStepView implements StepView {
         graphics.drawString(host.font(), text, left, y, Frames.INK, false);
     }
 
-    /** One line per ability: its abbreviation, then the final score and modifier at the right. */
     private void renderAbilities(GuiGraphics graphics, Area column) {
         CreationDraft draft = host.draft();
         centered(graphics, Frames.heading(Component.translatable(KEY + "abilities")), column, column.top());
@@ -157,7 +152,6 @@ final class SummaryStepView implements StepView {
         CreationUi.kit(graphics, kit(), new Area(left, column.top() + Frames.HEADING_HEIGHT, kitWidth, 0), host);
     }
 
-    /** The background's skills and the picked ones, the species' included, by name. */
     private List<ResourceLocation> proficientSkills() {
         CreationDraft draft = host.draft();
         return Stream.of(draft.skillPlan().fixed(), draft.picks(), draft.speciesPicks())

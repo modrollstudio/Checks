@@ -14,7 +14,8 @@ public class RestGameTests {
 
     private static final String TEMPLATE = "empty";
 
-    @GameTest(template = TEMPLATE)
+    // A batch of its own: its rest lasts a few ticks, and other rest tests tick every rest on the server.
+    @GameTest(template = TEMPLATE, batch = "rest_short")
     public void aShortRestSpendsHitDiceUntilFullHealth(GameTestHelper helper) {
         RestScenarios.aShortRestSpendsHitDiceUntilFullHealth(helper);
     }

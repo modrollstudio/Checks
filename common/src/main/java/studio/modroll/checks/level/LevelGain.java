@@ -5,10 +5,7 @@ import java.util.Optional;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
-/**
- * What one level gave: the max health it added (for level 1, all of level 1's), the proficiency bonus when it rose
- * there, and how many ability score improvements and Expertise skills it earned.
- */
+/** For level 1, {@code health} is all of level 1's max health. */
 public record LevelGain(int level, double health, Optional<Integer> proficiencyBonus, int improvements, int expertise) {
 
     public static final StreamCodec<ByteBuf, LevelGain> STREAM_CODEC = StreamCodec.composite(

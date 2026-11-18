@@ -23,8 +23,7 @@ neoForge {
             client()
             programArguments.addAll '--username', 'Dev1'
         }
-        // Second client for two-player playtests: its own game directory so the two do not share
-        // a session lock, and its own name so checks can tell them apart.
+        // Second client for two player playtests: its own directory, so the two don't share a session lock.
         client2 {
             client()
             programArguments.addAll '--username', 'Dev2'
@@ -33,8 +32,7 @@ neoForge {
         server {
             server()
         }
-        // Its own game directory, its world wiped before every run, so test worlds never pile up and the
-        // dev server's world in run/ is left alone.
+        // Its own directory, wiped before every run, so test worlds never pile up and run/ is left alone.
         gameTestServer {
             type = 'gameTestServer'
             systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
@@ -74,8 +72,7 @@ dependencies {
     uishotsCompileOnly project(':common')
     uishotsCompileOnly project(':common').sourceSets.uishots.output
 
-    // Critfall consumed as a published Modrinth artifact; implementation puts it on the dev-run
-    // runtime classpath so FML loads it as a mod in runClient/gameTestServer.
+    // Critfall's release jar, on the dev run classpath so FML loads it as a mod.
     implementation critfall('neoforge')
 }
 
@@ -93,8 +90,7 @@ tasks.matching { it.name == 'runUiShots' }.configureEach { dependsOn wipeUiShots
 // Nothing in the build graph compiles the gametest or uishots source sets otherwise; keep `check` catching them.
 tasks.named('check') { dependsOn tasks.named('gametestClasses'), tasks.named('uishotsClasses') }
 
-// Bundle common's compiled classes into the NeoForge jar. Common's resources come through
-// processResources below (with property expansion) — bundling output too would duplicate them.
+// Common's classes are bundled; its resources come through processResources below, so not twice.
 jar {
     from project(':common').sourceSets.main.output.classesDirs
 }

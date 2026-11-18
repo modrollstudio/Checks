@@ -19,10 +19,8 @@ import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.score.ScoresRuntime;
 
 /**
- * Nature, Arcana, Religion and History: the first time a player in survival or adventure sees a mob type
- * within range, in line of sight, they roll the skill that covers it. A made check shows a hint about that
- * mob type (see {@link MobHints}) and is never rolled for again; a failed one may be tried again after the
- * retry time. Each look rolls for the nearest such mob only.
+ * Nature, Arcana, Religion and History on mob types a player sees for the first time; each look rolls for the nearest
+ * such mob only.
  */
 public final class MonsterLore {
 
@@ -38,7 +36,6 @@ public final class MonsterLore {
 
     private MonsterLore() {}
 
-    /** Called once per server tick; looks around for every player once per interval. */
     public static void tick(MinecraftServer server) {
         ScoresConfig.MonsterLoreSettings settings =
                 ScoresRuntime.config().exploration().monsterLore();
@@ -49,7 +46,6 @@ public final class MonsterLore {
         RECOLLECTION.forgetWaited(server.getTickCount());
     }
 
-    /** Rolls for the nearest mob {@code player} sees whose type they could roll for now. */
     public static void lookAround(ServerPlayer player) {
         ScoresConfig.MonsterLoreSettings settings =
                 ScoresRuntime.config().exploration().monsterLore();
@@ -61,10 +57,6 @@ public final class MonsterLore {
                         player, id(mob), skill(mob), settings.dc(), settings.retryTicks(), MobHints.hint(mob)));
     }
 
-    /**
-     * The skill whose {@code checks:lore/<skill>} entity type tag holds the mob's type, the first of Religion,
-     * Arcana, Nature and History; for a type in none, {@link #fallbackSkill}.
-     */
     public static ResourceLocation skill(Mob mob) {
         EntityType<?> type = mob.getType();
         return LORE.stream()
@@ -74,7 +66,6 @@ public final class MonsterLore {
                 .orElseGet(() -> fallbackSkill(type.is(EntityTypeTags.UNDEAD), wild(mob)));
     }
 
-    /** Religion for the undead, Nature for creatures of the wild, Arcana for everything else. */
     static ResourceLocation fallbackSkill(boolean undead, boolean wild) {
         if (undead) {
             return RELIGION;
@@ -86,7 +77,6 @@ public final class MonsterLore {
         RECOLLECTION.clear();
     }
 
-    /** Animals, water animals, arthropods and aquatic mobs. */
     private static boolean wild(Mob mob) {
         return mob instanceof Animal
                 || mob instanceof WaterAnimal

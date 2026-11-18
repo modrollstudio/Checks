@@ -6,7 +6,6 @@ import net.minecraft.resources.ResourceLocation;
 import studio.modroll.checks.Checks;
 import studio.modroll.checks.api.Skill;
 
-/** The loaded skills, swapped atomically on every reload like {@link EntityScoreProfileStore}. */
 public final class SkillStore {
 
     private static volatile Map<ResourceLocation, Skill> skills = Map.of();
@@ -26,8 +25,8 @@ public final class SkillStore {
     }
 
     /**
-     * A namespace-less id ({@code "stealth"}) parses as {@code minecraft:}, so without a {@code
-     * minecraft:} skill of that name it falls back to the {@code checks:} one.
+     * A namespace-less id parses as {@code minecraft:}, so without such a skill it falls back to the {@code checks:}
+     * one.
      */
     public static Optional<Skill> find(ResourceLocation id) {
         Map<ResourceLocation, Skill> current = skills;

@@ -6,10 +6,7 @@ import java.util.function.Consumer;
 import net.minecraft.resources.ResourceLocation;
 import studio.modroll.checks.data.LenientJson;
 
-/**
- * One {@code data/<ns>/checks/trait/*.json} file: what a species trait does. A trait a species lists with
- * no file is flavor only: a name and a description.
- */
+/** One {@code data/<ns>/checks/trait/*.json} file; a trait a species lists with no file is flavor only. */
 public record Trait(ResourceLocation id, List<TraitEffect> effects) {
 
     public static final int FORMAT_VERSION = 1;

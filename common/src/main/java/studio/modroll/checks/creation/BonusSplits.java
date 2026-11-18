@@ -5,24 +5,20 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * How far a player's background bonuses are from an allowed split. Bonuses are placed one point at a
- * time, so a partial split is still reachable while some option can hold each placed bonus at least as
- * large. Pure, for the creation screen.
+ * Bonuses are placed one point at a time, so a partial split is reachable while some option can hold each placed bonus
+ * at least as large.
  */
 public final class BonusSplits {
 
     private BonusSplits() {}
 
-    /** Whether {@code given} (the non-zero bonuses) can still grow into one of {@code options}. */
+    /** {@code given} holds only the non-zero bonuses. */
     public static boolean reachable(List<Integer> given, List<List<Integer>> options) {
         List<Integer> placed = descending(given);
         return options.stream().map(BonusSplits::descending).anyMatch(option -> dominates(option, placed));
     }
 
-    /**
-     * The bonuses each option still needs on top of {@code given}, for the options that contain every
-     * given bonus exactly; an empty remainder means the split is complete.
-     */
+    /** An empty remainder means the split is complete. */
     public static List<List<Integer>> remaining(List<Integer> given, List<List<Integer>> options) {
         List<List<Integer>> remainders = new ArrayList<>();
         for (List<Integer> option : options) {

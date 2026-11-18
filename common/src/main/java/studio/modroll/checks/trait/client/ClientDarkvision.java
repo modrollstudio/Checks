@@ -1,9 +1,6 @@
 package studio.modroll.checks.trait.client;
 
-/**
- * The darkvision strength the server sent this client; presentation only. The lightmap treats it as a
- * floor under night vision's brightening, so darkness looks dim, not lit, and torches still matter.
- */
+/** A floor under night vision's brightening, so darkness looks dim, not lit, and torches still matter. */
 public final class ClientDarkvision {
 
     private static volatile float strength;
@@ -23,7 +20,6 @@ public final class ClientDarkvision {
         return strength > 0f;
     }
 
-    /** Night vision's own scale, or the darkvision strength when that is higher. */
     public static float scale(float nightVision) {
         return Math.max(nightVision, strength);
     }

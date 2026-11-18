@@ -23,11 +23,8 @@ import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.score.ScoresRuntime;
 
 /**
- * Passive Insight, with no roll. While a player's passive Insight meets its DC, the mobs within range that
- * are after them get a marker above their head, and a creeper within range that starts its fuse gets one
- * at once, with a warning sound heard only by that player. The server decides, each tick, and tells the
- * player's client only when the set of marked mobs changes; the client draws the markers. The warning is a
- * sound event no registry knows, {@code checks:insight.warning}, so it is only sent to clients with Checks.
+ * The warning is a sound event no registry knows, {@code checks:insight.warning}, so it is only sent to clients with
+ * Checks.
  */
 public final class Insight {
 
@@ -38,12 +35,10 @@ public final class Insight {
     private static final float WARNING_PITCH = 1f;
 
     private static final Map<UUID, Set<Integer>> MARKED = new HashMap<>();
-    /** Per player, the creepers whose current fuse they were warned about. */
     private static final Map<UUID, Set<UUID>> WARNED = new HashMap<>();
 
     private Insight() {}
 
-    /** Called once per server tick. */
     public static void tick(MinecraftServer server) {
         List<ServerPlayer> players = server.getPlayerList().getPlayers();
         players.forEach(Insight::update);
@@ -81,10 +76,6 @@ public final class Insight {
         }
     }
 
-    /**
-     * The mobs within the sense's range that {@code filter} accepts, while the sense is on and the player's
-     * passive Insight meets its DC; that is only worked out when there are any.
-     */
     private static <T extends Mob> List<T> sensed(
             ServerPlayer player,
             ScoresConfig.SocialSettings social,

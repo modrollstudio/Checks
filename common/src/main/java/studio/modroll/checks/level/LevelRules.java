@@ -15,16 +15,13 @@ import studio.modroll.checks.data.ScoresConfig.ImprovementSettings;
 import studio.modroll.checks.data.ScoresConfig.LevellingSettings;
 
 /**
- * Levelling arithmetic, free of Minecraft so it is unit-testable. XP only ever raises the level; a set
- * level moves the XP to that level's threshold unless it already lies within the level. Improvements
- * and Expertise earned are derived from the level and class, so lowering and raising a level never grants
- * one twice.
+ * Improvements and Expertise are derived from the level and class, so lowering and raising a level never grants one
+ * twice.
  */
 public final class LevelRules {
 
     private LevelRules() {}
 
-    /** The highest level whose threshold {@code xp} meets. */
     public static int levelForXp(int xp, LevellingSettings settings) {
         int level = Levels.MIN_LEVEL;
         while (level < Levels.MAX_LEVEL && xp >= threshold(level + 1, settings)) {
@@ -33,7 +30,6 @@ public final class LevelRules {
         return level;
     }
 
-    /** Adds XP, saturating at {@link Integer#MAX_VALUE}, and raises the level to what the new total reaches. */
     public static PlayerLevel gainXp(PlayerLevel current, int amount, LevellingSettings settings) {
         int xp = (int) Math.min(Integer.MAX_VALUE, (long) current.xp() + amount);
         return current.withLevelAndXp(Math.max(current.level(), levelForXp(xp, settings)), xp);
@@ -44,12 +40,10 @@ public final class LevelRules {
         return current.withLevelAndXp(level, xpFits ? current.xp() : threshold(level, settings));
     }
 
-    /** The total XP {@code level} needs. */
     public static int threshold(int level, LevellingSettings settings) {
         return settings.xpThresholds().get(level - Levels.MIN_LEVEL);
     }
 
-    /** The total XP the next level needs; empty at the top level. */
     public static Optional<Integer> nextThreshold(int level, LevellingSettings settings) {
         return level < Levels.MAX_LEVEL ? Optional.of(threshold(level + 1, settings)) : Optional.empty();
     }
@@ -58,12 +52,10 @@ public final class LevelRules {
         return settings.proficiencyBonuses().get(level - Levels.MIN_LEVEL);
     }
 
-    /** The improvements the shared levels and the class's own earn up to {@code level}. */
     public static int earnedImprovements(int level, Optional<ResourceLocation> classId, LevellingSettings settings) {
         return reached(settings.improvements().levelsFor(classId), level);
     }
 
-    /** Improvements earned up to the player's level that they have not chosen yet. */
     public static int pendingImprovements(
             PlayerLevel current, Optional<ResourceLocation> classId, LevellingSettings settings) {
         return Math.max(
@@ -72,7 +64,6 @@ public final class LevelRules {
                         - current.improvements().size());
     }
 
-    /** The skills the class's Expertise levels let the character pick, up to {@code level}. */
     public static int earnedExpertise(int level, Optional<ResourceLocation> classId, LevellingSettings settings) {
         return reached(settings.expertise().levelsFor(classId), level)
                 * settings.expertise().skillsPerLevel();
@@ -86,10 +77,6 @@ public final class LevelRules {
                         - current.expertise().size());
     }
 
-    /**
-     * Checks a choice of {@code skills} for Expertise: one to {@code pending} different skills, each one the
-     * character is proficient in and has no Expertise in yet.
-     */
     public static Optional<ImprovementRejection> validateExpertise(
             List<ResourceLocation> skills, Predicate<ResourceLocation> proficient, int pending) {
         if (pending <= 0) {
@@ -104,11 +91,7 @@ public final class LevelRules {
         return Optional.empty();
     }
 
-    /**
-     * What each level up to {@code level} gave: the max health it added, {@code healthAt} being what the levels
-     * add at each level (all of level 1's max health for level 1), the proficiency bonus where it rose, and the
-     * improvements and Expertise it earned.
-     */
+    /** {@code healthAt} is what the levels add at each level. */
     public static List<LevelGain> gains(
             int level,
             Optional<ResourceLocation> classId,
@@ -136,10 +119,6 @@ public final class LevelRules {
         return (int) levels.stream().filter(at -> at <= level).count();
     }
 
-    /**
-     * Checks one improvement, {@code increases} in ability order, against the player's current
-     * {@code scores}: the non-zero increases must match an allowed split, and no score may pass the max.
-     */
     public static Optional<ImprovementRejection> validateImprovement(
             List<Integer> increases, Map<Ability, Integer> scores, int pending, ImprovementSettings settings) {
         if (pending <= 0) {
@@ -161,7 +140,6 @@ public final class LevelRules {
         return Optional.empty();
     }
 
-    /** The non-zero increases of a valid improvement, keyed by ability. */
     public static Map<Ability, Integer> improvement(List<Integer> increases) {
         Map<Ability, Integer> improvement = new EnumMap<>(Ability.class);
         for (Ability ability : Ability.values()) {

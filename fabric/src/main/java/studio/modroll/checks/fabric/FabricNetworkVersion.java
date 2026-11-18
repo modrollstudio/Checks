@@ -14,10 +14,8 @@ import studio.modroll.checks.NetworkVersion;
 import studio.modroll.checks.NetworkVersionPayload;
 
 /**
- * Fabric's stand-in for NeoForge's registrar version, which Fabric lacks. While configuring, the server sends its
- * {@link NetworkVersionPayload}, the client answers with its own, and the server turns away a different one with a
- * message saying which Checks to install. A Checks from before this check speaks Checks' play channels but not
- * this one: the server turns such a client away when it joins, and the client leaves such a server the same way.
+ * Fabric's stand-in for NeoForge's registrar version. A Checks from before this check speaks Checks' play channels but
+ * not this one, so it is turned away at join.
  */
 public final class FabricNetworkVersion {
 
@@ -26,7 +24,6 @@ public final class FabricNetworkVersion {
 
     private FabricNetworkVersion() {}
 
-    /** This build's version, sent both ways. */
     public static NetworkVersionPayload ours() {
         String modVersion = FabricLoader.getInstance()
                 .getModContainer(Checks.MOD_ID)
@@ -35,7 +32,7 @@ public final class FabricNetworkVersion {
         return new NetworkVersionPayload(NetworkVersion.CURRENT, modVersion);
     }
 
-    /** Registers the payload for both phases and the server's side; call before any other join listener. */
+    /** Call before any other join listener. */
     public static void register() {
         NetworkVersionPayload ours = ours();
         PayloadTypeRegistry.configurationS2C().register(NetworkVersionPayload.TYPE, NetworkVersionPayload.STREAM_CODEC);

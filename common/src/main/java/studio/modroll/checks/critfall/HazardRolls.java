@@ -19,11 +19,8 @@ import studio.modroll.critfall.api.event.CritfallEvents;
 import studio.modroll.critfall.api.event.HazardRollEvent;
 
 /**
- * Traits and bonus sources on Critfall's hazard saves, from any mod: a hazard whose damage type is in {@link
- * #POISON} counts as the vanilla poison save, the bonus sources and trait roll bonuses on saves of the save's
- * ability add their bonus and roll mode, and a trait that rerolls natural 1s (Luck) rerolls them. Rerolls that
- * need the roll's outcome (a failure, a once-a-day use) stay with Checks' own rolls. Hazard attacks are left
- * alone: no trait or bonus source changes an attack roll against the player.
+ * Rerolls that need the roll's outcome stay with Checks' own rolls, and hazard attacks are left alone: no trait or
+ * bonus source changes an attack roll against the player.
  */
 public final class HazardRolls {
 
@@ -67,7 +64,6 @@ public final class HazardRolls {
         }
     }
 
-    /** The ability {@code save_abilities} maps the save key to, as for the save modifier. */
     private static Optional<Ability> ability(String saveKey) {
         return Optional.ofNullable(
                 ScoresRuntime.config().critfall().saveAbilities().get(saveKey));

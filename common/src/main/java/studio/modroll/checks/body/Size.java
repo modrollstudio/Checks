@@ -20,7 +20,6 @@ public enum Size {
         this.id = id;
     }
 
-    /** The lowercase id used in datapack JSON and NBT. */
     public String id() {
         return id;
     }

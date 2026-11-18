@@ -25,10 +25,7 @@ import studio.modroll.checks.body.Size;
 import studio.modroll.checks.preset.PresetKind;
 import studio.modroll.critfall.api.dice.DieRoll;
 
-/**
- * Per-player characters in their own world-level {@link SavedData}. A malformed entry, a build missing any
- * part included, loads as "no character" with a warning.
- */
+/** A malformed entry, a build missing any part included, loads as no character, with a warning. */
 public final class CharacterStore extends SavedData {
 
     public static final String DATA_NAME = "checks_characters";

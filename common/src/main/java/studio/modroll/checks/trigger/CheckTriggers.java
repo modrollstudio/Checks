@@ -33,11 +33,7 @@ import studio.modroll.checks.data.MatchEntry;
 import studio.modroll.checks.score.ScoresRuntime;
 import studio.modroll.critfall.api.combat.SaveResult;
 
-/**
- * Fires the loaded check triggers from the loaders' interaction hooks. Block and entity triggers answer
- * the main hand only, so one click rolls once. A trigger that fires consumes the interaction; one on
- * cooldown, or with a canceled roll, leaves it to vanilla.
- */
+/** Block and entity triggers answer the main hand only, so one click rolls once. */
 public final class CheckTriggers {
 
     private static final TriggerCooldowns COOLDOWNS = new TriggerCooldowns();
@@ -51,7 +47,6 @@ public final class CheckTriggers {
                 .toList();
     }
 
-    /** In id order. */
     public static List<CheckTrigger> all() {
         return triggers;
     }
@@ -106,7 +101,6 @@ public final class CheckTriggers {
                 Optional.empty());
     }
 
-    /** Every matching trigger fires, in id order. */
     private static InteractionResult fire(
             ServerPlayer player,
             CheckTrigger.Interaction on,

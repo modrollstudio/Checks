@@ -5,7 +5,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import studio.modroll.checks.Checks;
 
-/** Client to server: reopen the creation screen; answered only while the player's character is unconfirmed. */
+/** Answered only while the player's character is unconfirmed. */
 public record CreationOpenPayload() implements CustomPacketPayload {
 
     public static final CreationOpenPayload INSTANCE = new CreationOpenPayload();

@@ -12,7 +12,7 @@ import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.preset.Background;
 import studio.modroll.checks.preset.PresetKind;
 
-/** Validates a submission against the offer it was made from. Pure, so client and server share it. */
+/** Pure, so client and server share it. */
 public final class CreationRules {
 
     private CreationRules() {}
@@ -23,7 +23,7 @@ public final class CreationRules {
                 .or(() -> skillProblem(submission, offer));
     }
 
-    /** The method, base scores and background bonuses; the presets are assumed to be offered. */
+    /** Assumes the presets are offered. */
     public static Optional<Rejection> scoreProblem(CreationSubmission submission, CreationOffer offer) {
         CreationMethod method = submission.method();
         if (!offer.methods().contains(method)) {
@@ -60,7 +60,6 @@ public final class CreationRules {
         return Optional.empty();
     }
 
-    /** No size picks the species' default; a picked size must be one the species offers. */
     private static boolean sizeOffered(PresetChoices choices, PresetOffer presets) {
         return choices.size()
                 .map(size -> presets.species(choices.species())
@@ -105,10 +104,6 @@ public final class CreationRules {
         return Optional.of(sameValues(scores, totals) ? Rejection.HARDCORE_ORDER : Rejection.ROLLS_CHANGED);
     }
 
-    /**
-     * Bonuses go only to the background's abilities, split as one of the options that fit it, and never
-     * past the cap. A Custom background takes no bonuses.
-     */
     private static Optional<Rejection> validateBonuses(CreationSubmission submission, CreationOffer offer) {
         List<Integer> bonuses = submission.bonuses();
         if (bonuses.size() != CreationSubmission.ABILITY_COUNT) {

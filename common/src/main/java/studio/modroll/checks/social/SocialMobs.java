@@ -30,9 +30,8 @@ import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.score.ScoresRuntime;
 
 /**
- * Intimidate and Calm on mobs: which mobs count, and what an outcome does to one. A frightened mob runs from
- * the player through a goal of its own ahead of every other, so it neither attacks nor closes in until the
- * goal ends. Frights live in memory only, as goals do: a restart ends them.
+ * A frightened mob runs through a goal of its own ahead of every other, so it neither attacks nor closes in. Frights
+ * live in memory only, as goals do.
  */
 public final class SocialMobs {
 
@@ -58,7 +57,6 @@ public final class SocialMobs {
         goals = access;
     }
 
-    /** Wolves, bees, endermen, zombified piglins, iron golems and the mobs in the configured tag. */
     static boolean calmable(Entity entity) {
         return entity instanceof Wolf
                 || entity instanceof Bee
@@ -69,7 +67,6 @@ public final class SocialMobs {
                         && entity.getType().is(tag(settings().calm().tag())));
     }
 
-    /** Too strong to scare: more max health than the limit, a boss, or in the exclude tag. */
     static boolean fearless(LivingEntity mob) {
         ScoresConfig.IntimidateMobSettings settings = settings().intimidateMob();
         return mob.getMaxHealth() > settings.maxHealth()
@@ -77,13 +74,11 @@ public final class SocialMobs {
                 || mob.getType().is(tag(settings.excludeTag()));
     }
 
-    /** After the player, or holding a grudge against them. */
     static boolean angryAt(LivingEntity mob, ServerPlayer player) {
         return (mob instanceof Mob attacker && attacker.getTarget() == player)
                 || (mob instanceof NeutralMob neutral && neutral.isAngryAt(player));
     }
 
-    /** The mob drops the player as a target and keeps away from them for the flee time. */
     static void frighten(ServerPlayer player, PathfinderMob mob, ScoresConfig.IntimidateMobSettings settings) {
         stopFleeing(mob);
         mob.setTarget(null);
@@ -99,14 +94,12 @@ public final class SocialMobs {
         FRIGHTS.add(new Fright(mob, flee, Socials.now(player.server) + settings.fleeTicks()));
     }
 
-    /** A natural 1: the mob turns on the player with a burst of speed. */
     static void rush(ServerPlayer player, Mob mob, ScoresConfig.IntimidateMobSettings settings) {
         mob.addEffect(new MobEffectInstance(
                 MobEffects.MOVEMENT_SPEED, settings.speedBoostTicks(), settings.speedBoostAmplifier()));
         mob.setTarget(player);
     }
 
-    /** The mob lets go of its anger at the player; a calmed iron golem sits out the current alarm. */
     static void calm(ServerPlayer player, Mob mob) {
         if (mob instanceof NeutralMob neutral && player.getUUID().equals(neutral.getPersistentAngerTarget())) {
             neutral.stopBeingAngry();
@@ -119,12 +112,10 @@ public final class SocialMobs {
         }
     }
 
-    /** Whether the mob is running from someone after a made Intimidate check. */
     public static boolean fleeing(Mob mob) {
         return FRIGHTS.stream().anyMatch(fright -> fright.mob() == mob);
     }
 
-    /** Ends frights that are over, or all of them while Intimidate on mobs is off; called once per server tick. */
     public static void tick(MinecraftServer server) {
         if (FRIGHTS.isEmpty()) {
             return;

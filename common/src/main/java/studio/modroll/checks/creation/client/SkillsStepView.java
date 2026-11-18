@@ -29,12 +29,6 @@ import studio.modroll.checks.sheet.SheetTooltips;
 import studio.modroll.checks.ui.Area;
 import studio.modroll.checks.ui.Frames;
 
-/**
- * The skills page, grouped by where each proficiency comes from: the species' skill choices, the
- * background's fixed skills, the class's list to choose from, and any other skill while overlap or a Custom
- * background allows one.
- * Skills sit two to a row; the whole page scrolls by row.
- */
 final class SkillsStepView implements StepView {
 
     private static final int COLUMNS = 2;
@@ -54,7 +48,6 @@ final class SkillsStepView implements StepView {
         this.host = host;
     }
 
-    /** Where a listed skill comes from, which decides whether it can be clicked and its tooltip. */
     private enum Source {
         SPECIES,
         BACKGROUND,
@@ -72,7 +65,6 @@ final class SkillsStepView implements StepView {
 
     private record SkillRow(List<Skill> skills, Source source) implements Row {}
 
-    /** Two columns of skills a clear gap apart, a divider between them, scrolling when they do not fit. */
     @Override
     public void init(Area area) {
         panel = area;
@@ -136,7 +128,6 @@ final class SkillsStepView implements StepView {
         host.font().split(text, width).forEach(line -> rows.add(new Heading(line, color)));
     }
 
-    /** The offered skills that {@code include} accepts, by name, two to a row. */
     private void addSkills(List<Row> rows, Predicate<ResourceLocation> include, Source source) {
         List<Skill> skills = host.draft().offer().skills().stream()
                 .filter(skill -> include.test(skill.id()))
@@ -203,7 +194,6 @@ final class SkillsStepView implements StepView {
                 .toList());
     }
 
-    /** Background skills grey, picked and pickable skills bright, the rest dim. */
     private int color(ResourceLocation skill, boolean fixed, boolean picked, boolean forSpecies) {
         if (fixed) {
             return Frames.MUTED;
@@ -214,7 +204,6 @@ final class SkillsStepView implements StepView {
         return picked || pickable ? Frames.TEXT : Frames.DIM;
     }
 
-    /** Only skills the player picks respond; background skills are fixed. */
     @Override
     public boolean mouseClicked(double x, double y) {
         int index = scroll.first() + Mth.floor((y - listTop) / ROW_HEIGHT);

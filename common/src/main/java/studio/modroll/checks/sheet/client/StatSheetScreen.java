@@ -29,13 +29,6 @@ import studio.modroll.checks.sheet.StatSheet;
 import studio.modroll.checks.ui.Area;
 import studio.modroll.checks.ui.Frames;
 
-/**
- * The character sheet: one parchment sheet with two tabs under a shared header (the player's face and
- * name, species, background and class, level, XP bar and proficiency bonus). Overview has a card per
- * ability, then the saves, passive scores, body and the sections other mods add; Skills lists every skill.
- * Gold is kept for headings and ability modifiers; breakdowns and the proficiency legend are in tooltips.
- * Its only actions are the tabs and the footer buttons.
- */
 public final class StatSheetScreen extends Screen {
 
     public static final KeyMapping KEY = new KeyMapping(
@@ -94,10 +87,8 @@ public final class StatSheetScreen extends Screen {
         }
     }
 
-    /** A heading and its rows on the Overview tab; hovering the heading shows {@code about}, when it has lines. */
     private record Block(Component title, Supplier<List<Component>> about, List<Row> rows) {}
 
-    /** A label and value; {@code dots} shows a proficiency before the label. */
     private record Row(Optional<Proficiency> dots, Component label, String value, Supplier<List<Component>> tooltip) {}
 
     private StatSheetScreen(StatSheet sheet) {
@@ -111,8 +102,8 @@ public final class StatSheetScreen extends Screen {
     }
 
     /**
-     * Opens on arrival unless the player has opened another screen since pressing the key; a sheet sent after a
-     * choice replaces the open sheet, and from the Level up! panel or a choice screen goes back to the panel.
+     * Opens unless the player opened another screen since pressing the key; a sheet sent after a choice replaces the
+     * open one.
      */
     public static void open(StatSheet sheet) {
         Minecraft minecraft = Minecraft.getInstance();
@@ -127,7 +118,6 @@ public final class StatSheetScreen extends Screen {
         }
     }
 
-    /** Saves, passive scores, the body when it has rows, then the sections other mods add. */
     private static List<Block> blocks(StatSheet sheet) {
         List<Block> blocks = new ArrayList<>();
         blocks.add(new Block(
@@ -227,7 +217,6 @@ public final class StatSheetScreen extends Screen {
         WrappedTooltip.render(graphics, font, tooltip, TOOLTIP_WIDTH, mouseX, mouseY);
     }
 
-    /** The ability cards and blocks, clipped to the view and shifted up by the scroll. */
     private void renderOverview(GuiGraphics graphics) {
         Area view = layout.overview();
         graphics.enableScissor(view.left(), view.top(), view.right(), view.bottom());
@@ -255,7 +244,6 @@ public final class StatSheetScreen extends Screen {
         }
     }
 
-    /** The face and name with the character line under them; the level, XP bar and proficiency bonus at the right. */
     private void renderHeader(GuiGraphics graphics) {
         Area header = layout.header();
         Frames.card(graphics, new Area(header.left(), header.top(), Frames.TILE, Frames.TILE));
@@ -278,7 +266,6 @@ public final class StatSheetScreen extends Screen {
         return new Area(rect.left(), rect.top(), rect.width(), rect.height());
     }
 
-    /** Species, background and class on one line, each explained on hover; the species with its traits. */
     private void renderIdentity(GuiGraphics graphics, StatSheet.Identity identity, int left, int identityTop) {
         List<PresetKind> kinds = List.of(PresetKind.values());
         for (PresetKind kind : kinds) {
@@ -300,7 +287,6 @@ public final class StatSheetScreen extends Screen {
         }
     }
 
-    /** {@code Level 5} and an XP bar towards the next level, ending at {@code right}; hovering shows the XP. */
     private void renderLevel(GuiGraphics graphics, StatSheet.LevelLine line, int right, int levelTop) {
         Component label = Component.translatable("screen.checks.level", line.level());
         int lineWidth = font.width(label) + GAP + XP_BAR_WIDTH;
@@ -333,7 +319,6 @@ public final class StatSheetScreen extends Screen {
         }
     }
 
-    /** The modifier large and gold on the left; the abbreviation over the score on the right. */
     private void renderAbility(GuiGraphics graphics, StatSheet.AbilityLine line, Area card) {
         Frames.card(graphics, card);
         hover(
@@ -362,7 +347,6 @@ public final class StatSheetScreen extends Screen {
         graphics.drawString(font, text, center - font.width(text) / 2, top, color, false);
     }
 
-    /** The gold heading, then each row with its tooltip on hover. */
     private void renderBlock(GuiGraphics graphics, Block block, Area area) {
         graphics.drawString(font, block.title(), area.left(), area.top(), Frames.INK_GOLD, false);
         List<Component> about = block.about().get();
@@ -376,7 +360,6 @@ public final class StatSheetScreen extends Screen {
         }
     }
 
-    /** The dots, if any, then the label cut to fit before the value, which is right-aligned at {@code right}. */
     private void renderRow(GuiGraphics graphics, Row row, int left, int right, int y, int labelColor, int valueColor) {
         hover(left, y, right, y + LINE, row.tooltip());
         int labelLeft = left;
@@ -391,7 +374,6 @@ public final class StatSheetScreen extends Screen {
         graphics.drawString(font, row.value(), valueLeft, y, valueColor, false);
     }
 
-    /** Down two columns, quieter than the Overview: skills without proficiency are faded. */
     private void renderSkills(GuiGraphics graphics) {
         Area area = layout.skills();
         int columnWidth =
@@ -418,7 +400,6 @@ public final class StatSheetScreen extends Screen {
         renderRow(graphics, row, left, right, y, color, color);
     }
 
-    /** A thin line just right of {@code view}, only when what it shows, {@code total} tall, scrolls. */
     private void renderScrollbar(GuiGraphics graphics, Area view, int scroll, int maxScroll, int total) {
         if (maxScroll <= 0) {
             return;
@@ -430,7 +411,6 @@ public final class StatSheetScreen extends Screen {
         graphics.fill(left, thumbTop, left + 1, thumbTop + thumb, Frames.INK_FADED);
     }
 
-    /** Hollow (not proficient), one filled (proficient) or two filled (expertise). */
     private void dots(GuiGraphics graphics, Proficiency proficiency, int left, int y) {
         int top = y + (font.lineHeight - DOT) / 2 - 1;
         if (proficiency == Proficiency.NONE) {
@@ -443,7 +423,7 @@ public final class StatSheetScreen extends Screen {
         }
     }
 
-    /** Shows {@code lines} this frame when the mouse is over the area; a later, smaller area wins. */
+    /** A later, smaller area wins. */
     private void hover(int left, int top, int right, int bottom, Supplier<List<Component>> lines) {
         if (hoverView.isPresent() && !hoverView.get().contains(mouseX, mouseY)) {
             return;
@@ -471,7 +451,6 @@ public final class StatSheetScreen extends Screen {
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
-    /** Scrolls the Overview a line at a time, and the skills by whole rows so only complete rows are drawn. */
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         int step = -(int) Math.signum(scrollY);

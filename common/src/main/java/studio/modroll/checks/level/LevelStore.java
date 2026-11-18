@@ -19,10 +19,7 @@ import studio.modroll.checks.Checks;
 import studio.modroll.checks.PlayerSavedData;
 import studio.modroll.checks.api.Ability;
 
-/**
- * Per-player levels in their own world-level {@link SavedData}; without a file, every player starts at
- * level 1. A level outside 1..20 is clamped. The per-level hit dice older versions recorded are not read.
- */
+/** A level outside 1..20 is clamped; the per-level hit dice older versions stored are not read. */
 public final class LevelStore extends SavedData {
 
     public static final String DATA_NAME = "checks_levels";

@@ -7,11 +7,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import studio.modroll.checks.api.Ability;
 
-/**
- * A player's choices: one base score and one background bonus per ability in {@link Ability} order,
- * the picked skills (not the background's fixed ones), the chosen presets and the skills picked with the
- * species' skill choices.
- */
+/** Scores and bonuses are in {@link Ability} order; {@code skills} leaves out the background's fixed ones. */
 public record CreationSubmission(
         CreationMethod method,
         List<Integer> scores,

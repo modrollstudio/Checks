@@ -39,15 +39,11 @@ import studio.modroll.critfall.api.RollService;
 import studio.modroll.critfall.api.dice.DiceExpression;
 
 /**
- * Hit Dice and rests. A player has one Hit Die per level, each the class's hit die. Using a lit campfire with an
- * empty hand starts a short rest; it breaks when the player takes damage, attacks, moves away, the fire goes out, a
- * monster comes near, or another mod says the player can't rest (meant for Initiative's fights). When it is done the
- * player spends Hit Dice one at a time until they are at full health or out of dice. Sleeping through the night is a
- * long rest: it heals fully, gives back the spent dice and readies once-a-day traits. Hit Dice roll through Critfall.
+ * Short rests at a lit campfire spend Hit Dice, rolled through Critfall; sleeping through the night is a long rest.
+ * Another mod can block rests, for Initiative's fights.
  */
 public final class Rests {
 
-    /** A short rest at {@code campfire}, started on server tick {@code start}. */
     private record Session(ResourceKey<Level> dimension, BlockPos campfire, long start) {}
 
     private static final Map<UUID, Session> SESSIONS = new ConcurrentHashMap<>();
@@ -56,12 +52,10 @@ public final class Rests {
 
     private Rests() {}
 
-    /** While {@code blocker} answers true for a player, they can't start a rest and a rest under way breaks. */
     public static void addBlocker(Predicate<ServerPlayer> blocker) {
         BLOCKERS.add(blocker);
     }
 
-    /** One Hit Die per character level, less those spent; 0 while Hit Dice are off. */
     public static int hitDiceLeft(ServerPlayer player) {
         if (!settings().hitDice().enabled()) {
             return 0;
@@ -70,12 +64,10 @@ public final class Rests {
         return Math.max(0, Levelling.activeLevel(player).level() - spent);
     }
 
-    /** Whether a short rest is under way. */
     public static boolean resting(ServerPlayer player) {
         return SESSIONS.containsKey(player.getUUID());
     }
 
-    /** Starts a short rest on an empty handed use of a lit campfire. */
     public static InteractionResult onUseBlock(ServerPlayer player, InteractionHand hand, BlockPos pos) {
         if (!shortRestsOn()
                 || hand != InteractionHand.MAIN_HAND
@@ -100,7 +92,6 @@ public final class Rests {
         return InteractionResult.SUCCESS;
     }
 
-    /** Called once per server tick: ends rests that broke, and finishes those that have lasted. */
     public static void tick(MinecraftServer server) {
         long now = server.getTickCount();
         for (Map.Entry<UUID, Session> entry : SESSIONS.entrySet()) {
@@ -119,7 +110,6 @@ public final class Rests {
         }
     }
 
-    /** Taking damage breaks the victim's rest; dealing it breaks the attacker's. */
     public static void onDamaged(LivingEntity victim, DamageSource source) {
         if (victim instanceof ServerPlayer player) {
             interrupt(player, FallbackText.of(KEY + "reason.hurt"));
@@ -129,15 +119,10 @@ public final class Rests {
         }
     }
 
-    /** A melee swing at an entity breaks the attacker's rest, hit or miss. */
     public static void onAttack(ServerPlayer player) {
         interrupt(player, FallbackText.of(KEY + "reason.attacked"));
     }
 
-    /**
-     * Ends a short rest by spending Hit Dice one at a time, each rolled through Critfall and healing the roll plus the
-     * CON modifier, until the player is at full health or out of dice; then says what it did in one line.
-     */
     private static void finish(ServerPlayer player) {
         float before = player.getHealth();
         int spent = 0;
@@ -162,15 +147,11 @@ public final class Rests {
         }
     }
 
-    /** Called just before a night is skipped: every player asleep in {@code level} takes a long rest. */
+    /** Called just before a night is skipped, while the players are still asleep. */
     public static void onNightSlept(ServerLevel level) {
         level.players().stream().filter(LivingEntity::isSleeping).forEach(Rests::longRest);
     }
 
-    /**
-     * Gives back {@code regain_fraction} of the level's Hit Dice, at least {@code min_regain}; heals fully and readies
-     * once-a-day traits when those are on.
-     */
     public static void longRest(ServerPlayer player) {
         ScoresConfig.LongRestSettings settings = settings().longRest();
         if (!settings.enabled()) {
@@ -198,7 +179,6 @@ public final class Rests {
         SESSIONS.clear();
     }
 
-    /** Why the player can't rest at the session's campfire right now; empty when they can. */
     private static Optional<Component> problem(ServerPlayer player, Session session) {
         ScoresConfig.ShortRestSettings settings = settings().shortRest();
         Vec3 fire = Vec3.atCenterOf(session.campfire());

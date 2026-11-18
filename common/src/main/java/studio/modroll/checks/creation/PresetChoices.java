@@ -8,10 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import studio.modroll.checks.body.Size;
 import studio.modroll.checks.preset.PresetKind;
 
-/**
- * The species, background and class a character was built from, where empty means Custom, and the
- * size picked from the species' sizes, where empty means the species' default.
- */
+/** An empty preset means Custom; an empty size, the species' default. */
 public record PresetChoices(
         Optional<ResourceLocation> species,
         Optional<ResourceLocation> background,

@@ -5,7 +5,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import studio.modroll.checks.Checks;
 
-/** Server to client: opens, or refreshes, the creation screen with what the player may choose. */
 public record CreationOfferPayload(CreationOffer offer) implements CustomPacketPayload {
 
     public static final CustomPacketPayload.Type<CreationOfferPayload> TYPE =

@@ -19,12 +19,7 @@ import studio.modroll.checks.preset.ClassPreset;
 import studio.modroll.checks.preset.PresetKind;
 import studio.modroll.checks.preset.Species;
 
-/**
- * The creation screen's unsent choices, page by page. Standard array and roll values sit in a pool of
- * chips: select one, then place it on an ability; placing over a value or clicking a placed one returns
- * it to the pool. Background bonuses sit on top of the placed scores. {@link #problem()} runs the same
- * rules the server will.
- */
+/** {@link #problem()} runs the same rules the server will. */
 public final class CreationDraft {
 
     private static final int EMPTY = -1;
@@ -76,14 +71,12 @@ public final class CreationDraft {
         }
     }
 
-    /** Moves on only when this page is complete. */
     public void next() {
         if (!onLastStep() && stepProblem().isEmpty()) {
             step = steps().get(steps().indexOf(step) + 1);
         }
     }
 
-    /** What keeps the player on this page; on the last page, what stops the whole character. */
     public Optional<Component> stepProblem() {
         Optional<PresetKind> kind = step.presetKind();
         if (kind.isPresent()) {
@@ -112,10 +105,6 @@ public final class CreationDraft {
         return chosen.getOrDefault(kind, Optional.empty());
     }
 
-    /**
-     * Choosing another species resets its size to the default and clears its skill picks; another background
-     * clears its bonuses and every skill pick; another class, the class skill picks.
-     */
     public void choose(PresetKind kind, Optional<ResourceLocation> preset) {
         if (!offer.presets().offers(kind, preset) || preset.equals(chosen.get(kind))) {
             return;
@@ -135,7 +124,6 @@ public final class CreationDraft {
         }
     }
 
-    /** Unchosen presets count as Custom, and an unchosen size as the species' default. */
     public PresetChoices choices() {
         return new PresetChoices(
                 choice(PresetKind.SPECIES), choice(PresetKind.BACKGROUND), choice(PresetKind.CLASS), chosenSize);
@@ -145,7 +133,6 @@ public final class CreationDraft {
         return offer.presets().species(choice(PresetKind.SPECIES));
     }
 
-    /** The size the character will have: the chosen one, else the species' default. */
     public Optional<SizeOption> size() {
         return species().flatMap(species -> species.size(chosenSize));
     }
@@ -176,7 +163,6 @@ public final class CreationDraft {
         restart();
     }
 
-    /** Takes a fresh offer (e.g. after rolling) and keeps the choices it still allows. */
     public void update(CreationOffer newOffer) {
         boolean wasAwaitingRoll = awaitingRoll();
         offer = newOffer;
@@ -202,7 +188,6 @@ public final class CreationDraft {
         return method.rollsDice() && offer.rolledTotals(method).isEmpty();
     }
 
-    /** Standard array and roll values are placed by the player; hardcore and point buy are not. */
     public boolean usesPool() {
         return (method == CreationMethod.STANDARD_ARRAY || method == CreationMethod.ROLL) && !awaitingRoll();
     }
@@ -215,7 +200,6 @@ public final class CreationDraft {
         return chip(ability).stream().map(pool::get).findFirst();
     }
 
-    /** The pool index of the value on {@code ability}, if one is placed. */
     public OptionalInt chip(Ability ability) {
         int chip = chipOf[ability.ordinal()];
         return chip == EMPTY ? OptionalInt.empty() : OptionalInt.of(chip);
@@ -233,7 +217,6 @@ public final class CreationDraft {
         return selectedChip;
     }
 
-    /** Selects a chip still in the pool, or deselects it when it already is. */
     public void selectChip(int chip) {
         if (!usesPool() || !inPool(chip)) {
             return;
@@ -242,10 +225,6 @@ public final class CreationDraft {
         selectedChip = alreadySelected ? OptionalInt.empty() : OptionalInt.of(chip);
     }
 
-    /**
-     * Places the selected chip on the ability, or returns the ability's value to the pool. Returns
-     * whether anything changed.
-     */
     public boolean clickAbility(Ability ability) {
         if (!usesPool()) {
             return false;
@@ -264,7 +243,6 @@ public final class CreationDraft {
         return usesPool() && classPreset().isPresent();
     }
 
-    /** Places the pool's values from highest to lowest along the class's suggested ability order. */
     public void useSuggested() {
         if (!canUseSuggested()) {
             return;
@@ -311,7 +289,6 @@ public final class CreationDraft {
         return offer.pointBuy().budget() - offer.pointBuy().totalCost(scores).orElse(0);
     }
 
-    /** Whether the chosen background lets this ability take a bonus. */
     public boolean takesBonus(Ability ability) {
         return background().map(b -> b.abilities().contains(ability)).orElse(false);
     }
@@ -320,18 +297,13 @@ public final class CreationDraft {
         return bonuses[ability.ordinal()];
     }
 
-    /** The bonus splits the chosen background allows; empty for Custom. */
     public List<List<Integer>> bonusOptions() {
         return background().map(offer.presets()::bonusOptionsFor).orElse(List.of());
     }
 
-    /** Why one more point of bonus on an ability is not allowed. */
     public enum BonusLimit {
-        /** The bonuses already make a complete split. */
         ALL_USED,
-        /** One more point would make a split no option allows. */
         NO_SPLIT,
-        /** One more point would raise the score past the cap. */
         OVER_MAX
     }
 
@@ -339,7 +311,6 @@ public final class CreationDraft {
         return takesBonus(ability) && raiseLimit(ability).isEmpty();
     }
 
-    /** What stops one more point of bonus on {@code ability}, if anything. */
     public Optional<BonusLimit> raiseLimit(Ability ability) {
         int[] raised = bonuses.clone();
         raised[ability.ordinal()]++;
@@ -352,7 +323,6 @@ public final class CreationDraft {
         return overMax ? Optional.of(BonusLimit.OVER_MAX) : Optional.empty();
     }
 
-    /** What each allowed split still needs on top of the placed bonuses; an empty one means a split is complete. */
     public List<List<Integer>> bonusesLeft() {
         return BonusSplits.remaining(placed(bonuses), bonusOptions());
     }
@@ -373,7 +343,6 @@ public final class CreationDraft {
         }
     }
 
-    /** The base score plus its background bonus, once a base score is set. */
     public OptionalInt finalScore(Ability ability) {
         OptionalInt base = score(ability);
         return base.isPresent() ? OptionalInt.of(base.getAsInt() + bonus(ability)) : base;
@@ -387,12 +356,10 @@ public final class CreationDraft {
         return skills.contains(skill);
     }
 
-    /** Every skill picked so far, the species' picks included. */
     public int pickedCount() {
         return skills.size() + speciesSkills.size();
     }
 
-    /** Every skill the player must pick, the species' picks included. */
     public int requiredCount() {
         SkillPlan plan = skillPlan();
         return plan.required() + plan.speciesRequired();
@@ -406,7 +373,6 @@ public final class CreationDraft {
         return List.copyOf(speciesSkills);
     }
 
-    /** Whether the skill can be picked next, from the class and background picks; a species pick blocks it. */
     public boolean canPick(ResourceLocation skill) {
         return !speciesSkills.contains(skill) && skillPlan().canPick(skill, skills);
     }
@@ -415,7 +381,6 @@ public final class CreationDraft {
         return skillPlan().canPickForSpecies(skill, speciesSkills, skills);
     }
 
-    /** Picks or unpicks a skill with the species' choices. */
     public void toggleSpeciesSkill(ResourceLocation skill) {
         if (!speciesSkills.remove(skill) && canPickForSpecies(skill)) {
             speciesSkills.add(skill);
@@ -426,7 +391,6 @@ public final class CreationDraft {
         return List.copyOf(skills);
     }
 
-    /** Picks or unpicks a skill; picking stops wherever the skill plan does. */
     public void toggleSkill(ResourceLocation skill) {
         if (skills.remove(skill)) {
             return;
@@ -436,7 +400,6 @@ public final class CreationDraft {
         }
     }
 
-    /** What would stop this draft from being confirmed, if anything. */
     public Optional<Rejection> problem() {
         if (awaitingRoll()) {
             return Optional.of(Rejection.NOT_ROLLED);

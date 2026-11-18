@@ -12,10 +12,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.RandomSource;
 
 /**
- * Lang-file translations that carry their en_us text as the fallback, for text a client without Checks
- * may see: command feedback and chat broadcast to every player. Such a client shows English instead of
- * a raw key. The en_us text is read once from the mod's own lang file, which stays the only copy of
- * every string.
+ * For text a client without Checks may see, so it shows English instead of a raw key. The lang file stays the only copy
+ * of every string.
  */
 public final class FallbackText {
 
@@ -29,16 +27,12 @@ public final class FallbackText {
         return Component.translatableWithFallback(key, english(key), args);
     }
 
-    /**
-     * As {@link #of}, for a key the lang file may lack, such as one named after a mob from another mod: then
-     * the en_us text of {@code fallbackKey} stands in, and a resource pack can still translate {@code key}.
-     */
+    /** For a key the lang file may lack, such as one named after another mod's mob. */
     public static MutableComponent ofOr(String key, String fallbackKey, Object... args) {
         String english = ENGLISH.containsKey(key) ? ENGLISH.get(key) : english(fallbackKey);
         return Component.translatableWithFallback(key, english, args);
     }
 
-    /** How many lines the pool {@code key.1}, {@code key.2}, … has. */
     public static int poolSize(String key) {
         int size = 0;
         while (ENGLISH.containsKey(key + "." + (size + 1))) {
@@ -47,10 +41,7 @@ public final class FallbackText {
         return size;
     }
 
-    /**
-     * One line of the pool {@code key.1}, {@code key.2}, …, chosen with {@code random}: cosmetic variety,
-     * never a game roll.
-     */
+    /** Cosmetic variety, never a game roll. */
     public static MutableComponent oneOf(String key, RandomSource random, Object... args) {
         int size = poolSize(key);
         if (size == 0) {
@@ -59,11 +50,7 @@ public final class FallbackText {
         return of(key + "." + (random.nextInt(size) + 1), args);
     }
 
-    /**
-     * For a key Checks may not ship, such as one a mod or resource pack adds for its own mob: the en_us text
-     * Checks has, else the server's own translation, else {@code fallback}. A client with the key shows its
-     * own line either way.
-     */
+    /** For a key Checks may not ship: its en_us text, else the server's translation, else {@code fallback}. */
     public static MutableComponent ofOrElse(String key, Supplier<String> fallback) {
         String text = ENGLISH.get(key);
         if (text == null) {

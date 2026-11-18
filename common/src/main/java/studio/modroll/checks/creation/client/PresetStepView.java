@@ -40,11 +40,6 @@ import studio.modroll.checks.sheet.SheetTooltips;
 import studio.modroll.checks.ui.Area;
 import studio.modroll.checks.ui.Frames;
 
-/**
- * A species, background or class page. On the left, a tile per choice (Custom last) above what the
- * character has so far; on the right, the selected one under a banner, its details, then its flavor
- * text, scrolling when it does not fit.
- */
 final class PresetStepView implements StepView {
 
     private static final float CHOICES_SHARE = 0.4f;
@@ -85,10 +80,6 @@ final class PresetStepView implements StepView {
         layoutDetails();
     }
 
-    /**
-     * Large tiles when every choice fits in them, else normal ones: whole tiles across the well, leaving
-     * room for a scrollbar, centered, the rows scrolling when even those do not fit.
-     */
     private void layoutGrid() {
         summaryTop = choices.bottom() - summaryHeight();
         if (!layoutGrid(Frames.LARGE_TILE)) {
@@ -96,7 +87,6 @@ final class PresetStepView implements StepView {
         }
     }
 
-    /** Lays the grid out in tiles {@code size} wide and returns whether every row fits. */
     private boolean layoutGrid(int size) {
         tile = size;
         tileSpace = size + TILE_GAP;
@@ -109,7 +99,6 @@ final class PresetStepView implements StepView {
         return totalRows <= fittingRows;
     }
 
-    /** A newly selected entry starts at the top of its details. */
     private void layoutDetails() {
         Optional<ResourceLocation> selected = host.draft().choice(kind);
         if (!selected.equals(shown)) {
@@ -124,7 +113,6 @@ final class PresetStepView implements StepView {
         detailsScroll = Mth.clamp(detailsScroll, 0, maxDetailsScroll());
     }
 
-    /** The details' width, short of the scrollbar's column. */
     private int blockWidth() {
         return details.width() - SCROLLBAR_WIDTH - 1;
     }
@@ -137,7 +125,6 @@ final class PresetStepView implements StepView {
         return Frames.HEADING_HEIGHT + SUMMARY.size() * LINE;
     }
 
-    /** The offered presets by display name, then Custom. */
     private List<Optional<ResourceLocation>> entries() {
         Stream<Optional<ResourceLocation>> presets = host.draft().offer().presets().presets(kind).stream()
                 .map(Preset::id)
@@ -174,7 +161,6 @@ final class PresetStepView implements StepView {
         rows.renderScrollbar(graphics, choices.right() - SCROLLBAR_WIDTH, choices.top(), tileSpace);
     }
 
-    /** What the character has so far, one line per kind of preset. */
     private void renderSummary(GuiGraphics graphics) {
         Font font = host.font();
         graphics.drawString(
@@ -227,7 +213,6 @@ final class PresetStepView implements StepView {
         graphics.fill(details.right() - SCROLLBAR_WIDTH, thumbTop, details.right(), thumbTop + thumb, Frames.MUTED);
     }
 
-    /** Each block below the banner with the area it is drawn in, top to bottom. */
     private void forEachBlock(BiConsumer<Block, Area> action) {
         int y = details.top() - detailsScroll + Frames.BANNER_HEIGHT + GAP;
         for (Block block : detailBlocks()) {
@@ -237,7 +222,6 @@ final class PresetStepView implements StepView {
         }
     }
 
-    /** Hover only over the part of {@code area} the details well shows. */
     private void hoverVisible(Area area, Supplier<List<Component>> lines) {
         int top = Math.max(area.top(), details.top());
         int bottom = Math.min(area.bottom(), details.bottom());
@@ -324,7 +308,6 @@ final class PresetStepView implements StepView {
         return lines;
     }
 
-    /** Nothing until a choice is made; then its details, and its description last as flavor text. */
     private List<Block> detailBlocks() {
         CreationDraft draft = host.draft();
         if (!draft.isChosen(kind)) {
@@ -356,7 +339,6 @@ final class PresetStepView implements StepView {
         }
     }
 
-    /** A single size is only stated; several can be chosen between, the species' default first. */
     private static void addSizes(List<Block> blocks, Species species, Optional<SizeOption> current) {
         if (species.sizes().isEmpty()) {
             return;
@@ -447,12 +429,10 @@ final class PresetStepView implements StepView {
         return lines;
     }
 
-    /** One piece of the details below the banner. */
     private sealed interface Block permits Heading, Text, Bullet, Gap, Kit, SizeChoice {
 
         int height(Font font, int width);
 
-        /** Draws at the area's top left, {@code area.width()} wide. */
         void render(GuiGraphics graphics, PresetStepView view, Area area);
     }
 
@@ -469,7 +449,6 @@ final class PresetStepView implements StepView {
         }
     }
 
-    /** Wrapped text; hovering it shows {@code tooltip} when there is one. */
     private record Text(Component text, int color, Supplier<List<Component>> tooltip) implements Block {
 
         Text(Component text, int color) {
@@ -494,7 +473,6 @@ final class PresetStepView implements StepView {
         }
     }
 
-    /** A bulleted line, its wrapped lines indented past the bullet. */
     private record Bullet(Component text, int color, Supplier<List<Component>> tooltip) implements Block {
 
         Bullet(Component text, int color) {
@@ -515,7 +493,6 @@ final class PresetStepView implements StepView {
         }
     }
 
-    /** One size to pick: a dot, filled when it is the character's size, then its name and scale. */
     private record SizeChoice(SizeOption option, boolean selected) implements Block {
 
         @Override

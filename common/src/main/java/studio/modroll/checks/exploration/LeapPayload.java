@@ -6,7 +6,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import studio.modroll.checks.Checks;
 
-/** Server to client: the horizontal push, in blocks per tick, a made Athletics check adds to the player's leap. */
 public record LeapPayload(double x, double z) implements CustomPacketPayload {
 
     public static final CustomPacketPayload.Type<LeapPayload> TYPE = new CustomPacketPayload.Type<>(Checks.id("leap"));

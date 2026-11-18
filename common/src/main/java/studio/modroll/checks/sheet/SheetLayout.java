@@ -6,14 +6,8 @@ import java.util.List;
 import studio.modroll.checks.ui.Area;
 
 /**
- * Where everything on the stat screen goes, from plain sizes, so it is unit tested without a client. One
- * parchment sheet grows with the window up to a maximum width and is centered inside the margins, with
- * two tabs on its top edge and the buttons under it. Both tabs share the header: the face, name,
- * character line and level. The Overview tab has a card per ability, then its blocks (saves, passive
- * scores, body and the sections other mods add) packed into three columns, each block going under the
- * shortest column so far. The Skills tab lists the skills down two columns. When the window is too short,
- * either tab's content scrolls inside its view under the header: the Overview by pixels through
- * {@link #overview}, the skills by rows. The sheet is as tall as the taller tab, so switching never moves it.
+ * From plain sizes, so it is unit tested without a client. The sheet is as tall as the taller tab, so switching tabs
+ * never moves it.
  */
 public record SheetLayout(
         Area sheet,
@@ -31,29 +25,23 @@ public record SheetLayout(
     public static final int MARGIN = 12;
     public static final int GAP = 4;
     public static final int LINE = 10;
-    /** From the sheet's edge to its content. */
     public static final int SHEET_PADDING = 10;
-    /** The whitespace that separates the header, the ability cards and the blocks. */
     public static final int SPACING = 10;
 
     public static final int COLUMN_GAP = 16;
     public static final int BLOCK_GAP = 8;
-    /** A block's heading and the room under it. */
     public static final int HEADING_HEIGHT = LINE + 3;
 
     public static final int TAB_HEIGHT = 14;
-    /** From a tab's side to its label. */
     public static final int TAB_PADDING = 8;
 
     public static final int TAB_GAP = 2;
 
-    /** The face and the two lines beside it. */
     public static final int HEADER_HEIGHT = 20;
 
     public static final int ABILITY_HEIGHT = 30;
     public static final int BUTTON_WIDTH = 150;
     public static final int BUTTON_HEIGHT = 20;
-    /** Room around each button for its bracket caps. */
     public static final int BUTTON_SPACING = 12;
 
     public static final int COLUMNS = 3;
@@ -62,7 +50,6 @@ public record SheetLayout(
 
     static final int MAX_SHEET_WIDTH = 480;
     static final int MIN_SKILL_ROWS = 3;
-    /** The least the Overview's view shows, however short the window: the ability cards. */
     static final int MIN_OVERVIEW_VIEW = ABILITY_HEIGHT;
 
     public SheetLayout {
@@ -71,10 +58,6 @@ public record SheetLayout(
         buttons = List.copyOf(buttons);
     }
 
-    /**
-     * What the layout depends on: the screen size, the rows of each Overview block in order, how many
-     * skills and buttons there are and the widest tab label.
-     */
     public record Inputs(
             int width, int height, List<Integer> blockRows, int skillCount, int buttonCount, int tabLabelWidth) {
 
@@ -122,37 +105,8 @@ public record SheetLayout(
                 buttons(in, sheet.bottom() + BLOCK_GAP));
     }
 
-    /** The Overview tab's header and view, all inside the sheet. */
-    public List<Area> overviewElements() {
-        return List.of(header, overview);
-    }
-
-    /**
-     * What scrolls in the Overview's view, placed as if unscrolled: from the view's top down to
-     * {@link #overviewHeight} below it.
-     */
-    public List<Area> overviewContent() {
-        List<Area> content = new ArrayList<>(List.of(abilities));
-        content.addAll(blocks);
-        return content;
-    }
-
-    /** How far the Overview scrolls: 0 when it all fits. */
     public int maxOverviewScroll() {
         return overviewHeight - overview.height();
-    }
-
-    /** Everything on the Skills tab, all inside the sheet. */
-    public List<Area> skillsElements() {
-        return List.of(header, skills);
-    }
-
-    /** What sits on the screen around the tabs' contents. */
-    public List<Area> frame() {
-        List<Area> frame = new ArrayList<>(List.of(sheet));
-        frame.addAll(tabs);
-        frame.addAll(buttons);
-        return frame;
     }
 
     public static int blockHeight(int rows) {
@@ -168,7 +122,6 @@ public record SheetLayout(
         return tabs;
     }
 
-    /** Blocks packed into columns: each goes under whichever column is shortest so far, the leftmost on a tie. */
     private record Columns(List<Area> blocks, int height) {
 
         /** The blocks' rects with their tops relative to the columns' top. */
@@ -197,7 +150,6 @@ public record SheetLayout(
         }
     }
 
-    /** One centered row, spaced for the bracket caps; buttons narrow only when the window cannot fit them. */
     private static List<Area> buttons(Inputs in, int top) {
         int count = in.buttonCount();
         if (count == 0) {

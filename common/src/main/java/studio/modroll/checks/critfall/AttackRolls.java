@@ -12,14 +12,11 @@ import studio.modroll.critfall.api.event.PostAttackRollEvent;
 import studio.modroll.critfall.api.event.PreAttackRollEvent;
 
 /**
- * Traits on Critfall's attack rolls: a trait that rerolls natural 1s (Luck) rerolls the attacker's. Rerolls
- * that need the roll's outcome stay with Checks' own rolls, and bonus sources never reach attack rolls. Each
- * hit Critfall rolls is remembered for the rest of its tick, so what the hit does next (Fire Aspect setting the
+ * Each hit Critfall rolls is remembered for the rest of its tick, so what the hit does next (Fire Aspect setting the
  * target alight) calls for no second roll.
  */
 public final class AttackRolls {
 
-    /** Each target of a hit Critfall rolled, by the server tick of the hit; only this tick's are kept. */
     private static final Map<UUID, Long> ROLLED_HITS = new ConcurrentHashMap<>();
 
     private AttackRolls() {}
@@ -46,10 +43,7 @@ public final class AttackRolls {
         }
     }
 
-    /**
-     * Whether a hit Critfall rolled landed on {@code target} earlier this tick. Asking takes the hit, so one
-     * attack roll stands in for one follow-up save, never for a later one.
-     */
+    /** Asking takes the hit, so one attack roll stands in for one follow-up save, never for a later one. */
     public static boolean takeRolledHit(LivingEntity target) {
         MinecraftServer server = target.getServer();
         Long tick = server == null ? null : ROLLED_HITS.remove(target.getUUID());

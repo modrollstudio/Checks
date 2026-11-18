@@ -103,4 +103,4 @@ server restart clears them.
 ## Toggle
 
 `triggers.enabled: false` in `config/checks/scores.json` stops every trigger; clicks behave as
-without Checks. See [scores-config.md](scores-config.md#toggles).
+without Checks. See [scores-config.md](scores-config.md#extensions).

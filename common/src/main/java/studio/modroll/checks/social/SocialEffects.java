@@ -19,14 +19,13 @@ import studio.modroll.checks.score.ScoresRuntime;
 import studio.modroll.critfall.api.RollService;
 import studio.modroll.critfall.api.dice.DiceExpression;
 
-/** What social outcomes do to the world. */
 final class SocialEffects {
 
     private SocialEffects() {}
 
     /**
-     * Price change and refusal on a trader. Only a villager also spreads gossip and calls iron golems: what
-     * happens with a wandering trader stays between him and the player.
+     * Only a villager spreads gossip and calls golems: what happens with a wandering trader stays between him and the
+     * player.
      */
     static void apply(ServerPlayer player, LivingEntity target, SocialAction action, SocialEffect effect) {
         SocialMemory memory = SocialMemory.get(player.server);
@@ -51,7 +50,6 @@ final class SocialEffects {
         }
     }
 
-    /** The villager, or with {@code nearby} every villager within the gossip radius of it. */
     private static List<Villager> listeners(Villager villager, SocialEffect.Gossip gossip) {
         if (!gossip.nearby()) {
             return List.of(villager);
@@ -66,7 +64,6 @@ final class SocialEffects {
         GolemAlarms.callGolems(player, around, radius());
     }
 
-    /** The piglin, and when {@code nearby} every piglin around it, turn on the player for {@code ticks}. */
     static void angerPiglins(ServerPlayer player, Piglin piglin, boolean nearby, int ticks) {
         List<Piglin> piglins = nearby
                 ? player.level()
@@ -81,7 +78,7 @@ final class SocialEffects {
         }
     }
 
-    /** One of the trader's trade results, chosen with a die rolled through Critfall, into the player's inventory. */
+    /** Which trade result is a die rolled through Critfall. */
     static ItemStack takeTradeItem(ServerPlayer player, AbstractVillager trader) {
         MerchantOffers offers = trader.getOffers();
         int roll = RollService.roll(DiceExpression.parse("1d" + offers.size())).total();

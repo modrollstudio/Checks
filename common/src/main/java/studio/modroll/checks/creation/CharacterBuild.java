@@ -5,10 +5,6 @@ import java.util.Set;
 import net.minecraft.resources.ResourceLocation;
 import studio.modroll.checks.api.Ability;
 
-/**
- * A confirmed character: the player's base scores, the skills they picked, the presets they chose and
- * what those presets grant on top.
- */
 public record CharacterBuild(
         CreationMethod method,
         Map<Ability, Integer> scores,
