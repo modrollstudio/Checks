@@ -1,6 +1,16 @@
 # Changelog
 
-## 0.2.1 — unreleased (alpha)
+## 0.2.2 — unreleased (alpha)
+
+Requires Critfall 0.2.18 or newer.
+
+- Extra Attack: a Fighter makes 2 attacks with one Attack action at level 5, 3 at 11 and 4 at 20; a Barbarian, Monk, Paladin or Ranger 2 from level 5 (`levelling.extra_attack.class_levels`, each level listed adds one). Checks only reports the number; real time combat is unchanged, and Initiative uses it on a player's turn.
+- The character sheet's Body block shows Attacks, with what Extra Attack adds and the level your class gets its next one at. The Level up! panel lists Extra Attack at the levels that raise it.
+- `levelling.extra_attack.enabled: false` turns it off: everyone makes 1 attack, and the sheet shows no Attacks row.
+- For other mods: `ChecksApi.attacksPerAction(entity)`, 1 for anyone without Extra Attack, mobs included.
+- A 0.2.2 client and a 0.2.1 server (or the other way round) refuse to connect when joining.
+
+## 0.2.1 — 2026-11-10 (alpha)
 
 Requires Critfall 0.2.18 or newer.
 

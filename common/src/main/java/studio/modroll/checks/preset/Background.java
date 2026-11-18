@@ -17,10 +17,6 @@ import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.api.Skill;
 import studio.modroll.checks.data.LenientJson;
 
-/**
- * A background: the abilities its creation bonuses may go to, the skills it makes proficient, and a
- * starting kit handed out once when the character is confirmed.
- */
 public record Background(
         ResourceLocation id,
         List<Ability> abilities,
@@ -50,10 +46,6 @@ public record Background(
         kit = List.copyOf(kit);
     }
 
-    /**
-     * Abilities and skills must all be known, or the file is rejected; a kit entry naming no registered
-     * item, or with a count below 1, is skipped with a warning.
-     */
     public static Background parse(
             ResourceLocation id,
             JsonObject json,

@@ -20,11 +20,6 @@ import studio.modroll.checks.api.Proficiency;
 import studio.modroll.checks.proficiency.Proficiencies;
 import studio.modroll.checks.skill.Skills;
 
-/**
- * Per-player values in a world-level {@link SavedData} keyed by UUID, which keeps this loader-agnostic.
- * Values for skills a datapack no longer defines are kept, and every key is optional: a player has only
- * the values set for them.
- */
 public final class PlayerScoreStore extends SavedData {
 
     public static final String DATA_NAME = "checks_player_scores";

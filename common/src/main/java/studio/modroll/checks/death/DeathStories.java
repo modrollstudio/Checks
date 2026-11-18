@@ -10,13 +10,6 @@ import studio.modroll.checks.score.ScoresRuntime;
 import studio.modroll.checks.text.FallbackText;
 import studio.modroll.checks.text.Names;
 
-/**
- * Story death messages. Checks records what a player went through; a player who dies within
- * {@code death_messages.window_ticks} of a {@link DeathStory} that fits the death gets one of its lines
- * instead of vanilla's death message. Each line may use the player ({@code %1$s}), the killer
- * ({@code %2$s}) and the item the story is about ({@code %3$s}). A client without Checks shows the English
- * line.
- */
 public final class DeathStories {
 
     private static final StoryLog LOG = new StoryLog();
@@ -31,7 +24,6 @@ public final class DeathStories {
         LOG.record(player.getUUID(), story, item, player.server.getTickCount());
     }
 
-    /** The death message for the player, called from where each loader builds it: a story's, or {@code vanilla}. */
     public static Component deathMessage(ServerPlayer player, DamageSource source, Component vanilla) {
         ScoresConfig.DeathMessageSettings settings = ScoresRuntime.config().deathMessages();
         Optional<StoryLog.Told> told = LOG.take(

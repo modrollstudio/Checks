@@ -12,13 +12,7 @@ import studio.modroll.checks.exploration.Hunger;
 import studio.modroll.checks.exploration.Leaps;
 import studio.modroll.checks.level.Levelling;
 
-/**
- * Fabric API has no XP-gain event; NeoForge fires PlayerXpEvent.XpChange at this same spot. Enchanting,
- * anvils and death never pass through here, so they never take character XP. An orb's points reach
- * here minus what Mending spent, which {@link ExperienceOrbMixin} counts. Neither loader has a food
- * exhaustion event; every exhaustion a player gains passes through {@code causeFoodExhaustion}. Fabric API has
- * no jump event; NeoForge fires LivingJumpEvent within this same jump.
- */
+/** Fabric API has no XP gain or jump event, and neither loader has a food exhaustion event. */
 @Mixin(Player.class)
 abstract class PlayerMixin {
 

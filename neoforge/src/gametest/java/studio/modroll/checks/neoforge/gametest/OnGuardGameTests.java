@@ -7,10 +7,7 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 import studio.modroll.checks.Checks;
 import studio.modroll.checks.gametest.OnGuardScenarios;
 
-/**
- * NeoForge registration shim: delegates to the shared {@link OnGuardScenarios} bodies, each in a batch of
- * its own so no alarm reaches another test's villagers or golems.
- */
+/** Each in a batch of its own, so no alarm reaches another test's villagers or golems. */
 @GameTestHolder(Checks.MOD_ID)
 @PrefixGameTestTemplate(false)
 public class OnGuardGameTests {

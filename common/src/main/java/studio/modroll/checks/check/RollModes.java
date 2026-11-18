@@ -1,21 +1,22 @@
 package studio.modroll.checks.check;
 
+import java.util.Arrays;
 import java.util.Locale;
-import java.util.Optional;
+import studio.modroll.checks.data.LenientJson;
 import studio.modroll.critfall.api.dice.RollMode;
 
-/** Roll mode ids for datapack JSON: {@code normal}, {@code advantage} and {@code disadvantage}. */
 public final class RollModes {
 
     private RollModes() {}
 
-    public static Optional<RollMode> byId(String id) {
-        for (RollMode mode : RollMode.values()) {
-            if (id(mode).equals(id)) {
-                return Optional.of(mode);
-            }
-        }
-        return Optional.empty();
+    public static RollMode parse(LenientJson json) {
+        return json.optionalString("mode")
+                .map(text -> Arrays.stream(RollMode.values())
+                        .filter(mode -> id(mode).equals(text))
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "'mode' must be normal, advantage or disadvantage, was '" + text + "'")))
+                .orElse(RollMode.NORMAL);
     }
 
     public static String id(RollMode mode) {

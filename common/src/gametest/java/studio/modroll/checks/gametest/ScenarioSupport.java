@@ -84,8 +84,8 @@ import studio.modroll.critfall.api.RollService;
 import studio.modroll.critfall.api.dice.DiceRoller;
 
 /**
- * The {@code with*} helpers patch a store, the config or Critfall's roller for one synchronous body and
- * restore it afterwards, so no test fixture ships in the mod jar.
+ * The {@code with*} helpers patch global state for one synchronous body and restore it, so no test fixture ships in the
+ * mod jar.
  */
 final class ScenarioSupport {
 
@@ -208,7 +208,6 @@ final class ScenarioSupport {
                 body);
     }
 
-    /** The default levelling settings, switched on or off. */
     static ScoresConfig.LevellingSettings levellingEnabled(boolean enabled) {
         ScoresConfig.LevellingSettings defaults = ScoresConfig.DEFAULTS.levelling();
         return new ScoresConfig.LevellingSettings(
@@ -217,7 +216,8 @@ final class ScenarioSupport {
                 defaults.proficiencyBonuses(),
                 defaults.xpSources(),
                 defaults.improvements(),
-                defaults.expertise());
+                defaults.expertise(),
+                defaults.extraAttack());
     }
 
     static <T> T withBackgrounds(Map<ResourceLocation, Background> patched, Supplier<T> body) {
@@ -230,10 +230,6 @@ final class ScenarioSupport {
         }
     }
 
-    /**
-     * Runs {@code body} with every server-to-client payload going to {@code patched}, which answers whether
-     * the client took it. A test player's client has no Checks channel, so an untouched payload answers false.
-     */
     static <T> T withSender(BiPredicate<ServerPlayer, CustomPacketPayload> patched, Supplier<T> body) {
         BiPredicate<ServerPlayer, CustomPacketPayload> before = ClientPayloads.sender();
         ClientPayloads.setSender(patched);
@@ -244,7 +240,6 @@ final class ScenarioSupport {
         }
     }
 
-    /** A sender that adds every payload of {@code type} to {@code sent}; no client takes any other. */
     static <P extends CustomPacketPayload> BiPredicate<ServerPlayer, CustomPacketPayload> collecting(
             Class<P> type, List<? super P> sent) {
         return (to, payload) -> type.isInstance(payload) && sent.add(type.cast(payload));
@@ -354,7 +349,6 @@ final class ScenarioSupport {
                 body);
     }
 
-    /** Reads the trait use store back from disk. Call {@link #saveWorldData} first. */
     static TraitUses savedTraitUses(GameTestHelper helper) {
         return TraitUses.load(
                 savedData(helper, TraitUses.DATA_NAME), helper.getLevel().registryAccess());
@@ -463,7 +457,6 @@ final class ScenarioSupport {
                 body);
     }
 
-    /** Runs {@code body} with {@code patched} telling which players' clients have Checks. */
     static <T> T withChecksClients(Predicate<ServerPlayer> patched, Supplier<T> body) {
         Predicate<ServerPlayer> before = SocialFeel.checksClient();
         SocialFeel.setChecksClient(patched);
@@ -552,7 +545,6 @@ final class ScenarioSupport {
                 body);
     }
 
-    /** Runs {@code body} with only these check listeners registered; none are left behind. */
     static <T> T withListeners(Consumer<BeforeCheckEvent> before, Consumer<AfterCheckEvent> after, Supplier<T> body) {
         CheckEvents.clearListeners();
         ChecksApi.onBeforeCheck(before);
@@ -564,7 +556,6 @@ final class ScenarioSupport {
         }
     }
 
-    /** Parses {@code data/checks/checks/bonus/gametest_<i>.json}-style sources from inline JSON. */
     static Map<ResourceLocation, BonusSource> bonusSources(String... jsons) {
         Map<ResourceLocation, BonusSource> sources = new HashMap<>();
         for (int i = 0; i < jsons.length; i++) {
@@ -606,7 +597,6 @@ final class ScenarioSupport {
                 w -> {});
     }
 
-    /** Runs {@code body} with only these triggers loaded and no cooldowns, then restores what was loaded. */
     static <T> T withTriggers(List<CheckTrigger> patched, Supplier<T> body) {
         List<CheckTrigger> before = CheckTriggers.all();
         CheckTriggers.clear();
@@ -626,7 +616,6 @@ final class ScenarioSupport {
                 .performPrefixedCommand(server.createCommandSourceStack().withSuppressedOutput(), command);
     }
 
-    /** A dummy objective, created on first use. */
     static Objective objective(GameTestHelper helper, String name) {
         Scoreboard scoreboard = helper.getLevel().getServer().getScoreboard();
         Objective existing = scoreboard.getObjective(name);
@@ -642,7 +631,6 @@ final class ScenarioSupport {
                 null);
     }
 
-    /** The score of a fake holder like {@code #roll}. */
     static int score(GameTestHelper helper, Objective objective, String holder) {
         return helper.getLevel()
                 .getServer()
@@ -651,12 +639,10 @@ final class ScenarioSupport {
                 .get();
     }
 
-    /** Runs {@code body} as if Checks were absent: Critfall's modifier provider slot is empty. */
     static <T> T withoutModifierProvider(Supplier<T> body) {
         return withModifierProvider(Optional.empty(), body);
     }
 
-    /** Runs {@code body} as if another mod held Critfall's modifier provider slot. */
     static <T> T withOtherModifierProvider(ModifierProvider other, Supplier<T> body) {
         return withModifierProvider(Optional.of(other), body);
     }
@@ -675,12 +661,10 @@ final class ScenarioSupport {
         provider.ifPresentOrElse(RollService::registerModifierProvider, RollService::clearModifierProvider);
     }
 
-    /** Runs {@code body} with Critfall's roller forced to the given d20 faces, in roll order; other dice roll max. */
     static <T> T withD20s(Supplier<T> body, int... faces) {
         return withRoller(scripted(bound -> bound == D20_SIDES, faces), body);
     }
 
-    /** Runs {@code body} with every die, of any size, showing the given faces in roll order; running out fails. */
     static <T> T withDice(Supplier<T> body, int... faces) {
         return withRoller(scripted(bound -> true, faces), body);
     }
@@ -694,7 +678,6 @@ final class ScenarioSupport {
         }
     }
 
-    /** Dice whose size {@code scripts} accepts show {@code faces} in roll order; any other die rolls its max. */
     private static RandomGenerator scripted(IntPredicate scripts, int... faces) {
         Queue<Integer> queue = new ArrayDeque<>();
         for (int face : faces) {
@@ -729,7 +712,6 @@ final class ScenarioSupport {
         return login(helper, profile, new Connection(PacketFlow.SERVERBOUND));
     }
 
-    /** As {@link #login}, with every packet the server sends the player also added to {@code sent}. */
     static ServerPlayer loginWatched(GameTestHelper helper, GameProfile profile, List<Packet<?>> sent) {
         return login(helper, profile, new Connection(PacketFlow.SERVERBOUND) {
             @Override
@@ -753,26 +735,22 @@ final class ScenarioSupport {
         helper.getLevel().getServer().getPlayerList().remove(player);
     }
 
-    /** A player who just joined takes no damage for a while; a test player only ticks when told to. */
     static void waitOutSpawnProtection(ServerPlayer player) {
         for (int tick = 0; tick < SPAWN_PROTECTION_TICKS; tick++) {
             player.tick();
         }
     }
 
-    /** Reads the player store back from disk. Call {@link #saveWorldData} first. */
     static PlayerScoreStore savedPlayerStore(GameTestHelper helper) {
         return PlayerScoreStore.load(
                 savedData(helper, PlayerScoreStore.DATA_NAME), helper.getLevel().registryAccess());
     }
 
-    /** Reads the character store back from disk. Call {@link #saveWorldData} first. */
     static CharacterStore savedCharacterStore(GameTestHelper helper) {
         return CharacterStore.load(
                 savedData(helper, CharacterStore.DATA_NAME), helper.getLevel().registryAccess());
     }
 
-    /** Reads the level store back from disk. Call {@link #saveWorldData} first. */
     static LevelStore savedLevelStore(GameTestHelper helper) {
         return LevelStore.load(
                 savedData(helper, LevelStore.DATA_NAME), helper.getLevel().registryAccess());
@@ -808,7 +786,6 @@ final class ScenarioSupport {
         return villager.getGossips().getReputation(player.getUUID(), gossip -> gossip == type);
     }
 
-    /** Saves every dirty SavedData file and waits until the writes have reached the disk. */
     static void saveWorldData(GameTestHelper helper) {
         helper.getLevel().getServer().overworld().getDataStorage().save();
         SavedDataWrites.await();
@@ -832,7 +809,6 @@ final class ScenarioSupport {
         helper.fail("command \"" + command + "\" must fail");
     }
 
-    /** Runs a command and returns the chat lines it sent back to its source. */
     static List<String> runCapturingOutput(GameTestHelper helper, String command) {
         List<String> lines = new ArrayList<>();
         CommandSource capture = new CommandSource() {
@@ -873,7 +849,6 @@ final class ScenarioSupport {
         return helper.getLevel().getServer().createCommandSourceStack();
     }
 
-    /** Gives the player a confirmed character of {@code species}: every score 10, nothing else chosen. */
     static void confirm(ServerPlayer player, ResourceLocation species, Optional<Size> size) {
         Map<Ability, Integer> scores = new EnumMap<>(Ability.class);
         for (Ability ability : Ability.values()) {
@@ -888,7 +863,6 @@ final class ScenarioSupport {
         CharacterStore.get(player.server).update(player.getUUID(), character -> character.withBuild(build));
     }
 
-    /** The first skills, by id, the species' trait choices may pick besides {@code picks}. */
     static List<ResourceLocation> speciesPicks(
             ServerPlayer player, PresetChoices choices, List<ResourceLocation> picks) {
         SkillPlan plan = SkillPlan.of(CharacterCreation.offerFor(player), choices);

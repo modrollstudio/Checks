@@ -33,12 +33,6 @@ import studio.modroll.checks.trait.TraitHooks;
 import studio.modroll.critfall.api.RollService;
 import studio.modroll.critfall.api.combat.SaveResult;
 
-/**
- * Saving throws against vanilla hazards, called from where each loader hooks them. A made save multiplies
- * the damage, effect duration, knockback or burn time by its configured success multiplier. Players in
- * survival or adventure save, and mobs with an entity profile when that is switched on; anything else,
- * and anything client-side, is left unchanged.
- */
 public final class VanillaSaves {
 
     private static final double UNCHANGED = 1.0;
@@ -53,7 +47,7 @@ public final class VanillaSaves {
 
     private VanillaSaves() {}
 
-    /** Runs {@code addEffect} for a command or function: an effect a command gives never calls for a save. */
+    /** An effect a command gives never calls for a save. */
     public static boolean fromCommand(BooleanSupplier addEffect) {
         FROM_COMMAND.set(true);
         try {
@@ -63,12 +57,10 @@ public final class VanillaSaves {
         }
     }
 
-    /** Whether the effect being added right now comes from a command or function. */
     public static boolean givenByCommand() {
         return FROM_COMMAND.get();
     }
 
-    /** DEX: explosion damage, unless Critfall already rolled for it (an attack roll or a hazard save). */
     public static float explosionDamage(LivingEntity entity, DamageSource source, float amount) {
         if (amount <= 0
                 || !source.is(DamageTypeTags.IS_EXPLOSION)
@@ -80,10 +72,6 @@ public final class VanillaSaves {
         return (float) (amount * factor(entity, VanillaSave.EXPLOSION));
     }
 
-    /**
-     * CON: poison, wither and hunger; WIS: darkness. Effects from mobs, potions, food and the world call for
-     * a save, those a command gives do not. Returns {@code effect} itself when nothing changes.
-     */
     public static MobEffectInstance effect(LivingEntity entity, MobEffectInstance effect) {
         Optional<VanillaSave> save = Optional.ofNullable(EFFECT_SAVES.get(effect.getEffect()));
         if (save.isEmpty() || effect.isInfiniteDuration() || givenByCommand()) {
@@ -102,16 +90,14 @@ public final class VanillaSaves {
                 effect.showIcon());
     }
 
-    /** STR: a hit's knockback, when it is above the configured minimum strength. */
     public static double knockback(LivingEntity entity, double strength) {
         double minStrength = ScoresRuntime.config().saves().knockbackMinStrength();
-        if (!SaveRules.bigKnockback(strength, minStrength)) {
+        if (strength <= minStrength) {
             return strength;
         }
         return strength * factor(entity, VanillaSave.KNOCKBACK);
     }
 
-    /** STR: an explosion's or wind charge's push. */
     public static Vec3 explosionKnockback(Entity entity, Vec3 push) {
         if (!(entity instanceof LivingEntity living) || push.lengthSqr() == 0) {
             return push;
@@ -119,10 +105,6 @@ public final class VanillaSaves {
         return push.scale(factor(living, VanillaSave.KNOCKBACK));
     }
 
-    /**
-     * DEX: catching fire, unless in lava, the ignition would not change the burn time anyway, or Critfall
-     * already rolled for the hit that sets it (Fire Aspect after a Critfall attack roll).
-     */
     public static int igniteTicks(Entity entity, int ticks) {
         if (!(entity instanceof LivingEntity living)
                 || ticks <= entity.getRemainingFireTicks()
@@ -157,7 +139,6 @@ public final class VanillaSaves {
         return settings.profiledMobs() && ScoreService.hasProfile(entity);
     }
 
-    /** A save still cooling down reuses its result; a canceled roll counts as failed and starts no cooldown. */
     private static boolean saved(
             LivingEntity entity, VanillaSave save, ScoresConfig.SaveSetting setting, int cooldown) {
         long now = entity.getServer().getTickCount();

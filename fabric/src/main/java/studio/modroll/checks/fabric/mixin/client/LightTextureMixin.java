@@ -10,10 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import studio.modroll.checks.trait.client.ClientDarkvision;
 
-/**
- * Neither loader has a lightmap event. Darkvision reuses night vision's brightening at a lower strength:
- * the lightmap runs it whenever darkvision is on, at the stronger of the two.
- */
+/** Neither loader has a lightmap event. */
 @Mixin(LightTexture.class)
 abstract class LightTextureMixin {
 

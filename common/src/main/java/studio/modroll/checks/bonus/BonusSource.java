@@ -18,15 +18,10 @@ import studio.modroll.checks.data.LenientJson;
 import studio.modroll.checks.data.MatchEntry;
 import studio.modroll.critfall.api.dice.RollMode;
 
-/**
- * One {@code data/<ns>/checks/bonus/*.json} file: while its condition holds (an item in a slot, or a
- * mob effect), checks and saves it targets get a flat bonus and/or a roll mode.
- */
 public record BonusSource(ResourceLocation id, Condition condition, BonusTargets targets, int bonus, RollMode mode) {
 
     public static final int FORMAT_VERSION = 1;
 
-    /** What a condition can ask of an entity; a seam so conditions are testable without a world. */
     public interface Bearer {
 
         boolean wears(List<EquipmentSlot> slots, MatchEntry item);
@@ -87,10 +82,6 @@ public record BonusSource(ResourceLocation id, Condition condition, BonusTargets
         return new BonusPart(id, bonus, mode);
     }
 
-    /**
-     * An unknown item, effect, slot or mode, a missing source, or a file that changes nothing rejects
-     * the file; an unknown skill target is skipped with a warning.
-     */
     public static BonusSource parse(
             ResourceLocation id,
             JsonObject json,
@@ -103,11 +94,7 @@ public record BonusSource(ResourceLocation id, Condition condition, BonusTargets
         Condition condition = parseCondition(j.object("source"), itemExists, effectExists);
         BonusTargets targets = BonusTargets.parse(j.object("applies_to"), skills);
         int bonus = j.getInt("bonus", 0);
-        RollMode mode = j.optionalString("mode")
-                .map(text -> RollModes.byId(text)
-                        .orElseThrow(() -> new IllegalArgumentException(
-                                "'mode' must be normal, advantage or disadvantage, was '" + text + "'")))
-                .orElse(RollMode.NORMAL);
+        RollMode mode = RollModes.parse(j);
         if (bonus == 0 && mode == RollMode.NORMAL) {
             throw new IllegalArgumentException("a bonus source needs a non-zero 'bonus' or a 'mode'");
         }

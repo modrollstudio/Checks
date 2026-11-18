@@ -4,7 +4,6 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.function.BooleanSupplier;
 
-/** A queue of steps run one client tick at a time; a step stays at the head until it reports done. */
 final class ShotScript {
 
     private static final int WAIT_TIMEOUT_TICKS = 600;
@@ -14,7 +13,6 @@ final class ShotScript {
 
     @FunctionalInterface
     interface Step {
-        /** Returns whether the step is done; {@code tick} counts the ticks spent on it so far. */
         boolean run(int tick);
     }
 
@@ -31,7 +29,6 @@ final class ShotScript {
         return this;
     }
 
-    /** Fails the run when {@code condition} still does not hold after the timeout. */
     ShotScript waitFor(String what, BooleanSupplier condition) {
         steps.add(tick -> {
             if (condition.getAsBoolean()) {

@@ -11,10 +11,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import studio.modroll.checks.Checks;
 
-/**
- * Server to client: a roll result to show above the hotbar for {@code durationTicks}: the {@code roll} and,
- * on a line of its own, the {@code detail} that goes with it, such as a social action's flavor line.
- */
 public record RollLinePayload(Component roll, Optional<Component> detail, int durationTicks)
         implements CustomPacketPayload {
 
@@ -30,7 +26,6 @@ public record RollLinePayload(Component roll, Optional<Component> detail, int du
             RollLinePayload::durationTicks,
             RollLinePayload::new);
 
-    /** The roll, then the detail when there is one. */
     public List<Component> lines() {
         return Stream.concat(Stream.of(roll), detail.stream()).toList();
     }

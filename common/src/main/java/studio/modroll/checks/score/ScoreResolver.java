@@ -19,18 +19,6 @@ import studio.modroll.checks.proficiency.Proficiencies;
 import studio.modroll.checks.skill.Skills;
 import studio.modroll.checks.trait.TraitEffectType;
 
-/**
- * The precedence rules, free of Minecraft entities so they are unit-testable. Every value prefers a
- * persisted player value, then a datapack profile, then a fallback: the config default for player
- * scores and the proficiency bonus, attribute derivation for other entities' scores, 0 for skill
- * bonuses and none for proficiency levels. A confirmed character slots in between the command value
- * and the profile for scores and skill and save proficiency, while character creation is enabled; what
- * its presets grant (background bonuses and skills, class saves) counts only while presets are on too.
- * While levelling is enabled, a player's chosen ability score improvements add to their score below the
- * command value, as many as their level and class earn, and their level's proficiency bonus replaces the
- * profile and config default; Expertise they chose raises a skill they are proficient in. Stored
- * player values, characters and levels are empty for non-players.
- */
 public final class ScoreResolver {
 
     private ScoreResolver() {}
@@ -147,7 +135,6 @@ public final class ScoreResolver {
         return config.creation().enabled() ? character : Optional.empty();
     }
 
-    /** The character's class while presets are on; empty for a Custom class. */
     private static Optional<ResourceLocation> activeClass(Optional<CharacterBuild> character, ScoresConfig config) {
         return activeCharacter(character, config)
                 .filter(build -> config.creation().presets().enabled())

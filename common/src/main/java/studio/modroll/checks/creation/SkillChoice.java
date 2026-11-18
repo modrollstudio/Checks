@@ -8,7 +8,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 
-/** The extra skill picks a species gives at creation: {@code count} skills from {@code from}, any skill when empty. */
 public record SkillChoice(int count, Set<ResourceLocation> from) {
 
     public static final SkillChoice NONE = new SkillChoice(0, Set.of());
@@ -24,7 +23,6 @@ public record SkillChoice(int count, Set<ResourceLocation> from) {
         from = Set.copyOf(from);
     }
 
-    /** All of a species' choices as one: the counts add up and the lists join; one open to any skill opens all. */
     public static SkillChoice pooled(List<SkillChoice> choices) {
         int count = choices.stream().mapToInt(SkillChoice::count).sum();
         boolean anySkill = choices.stream().anyMatch(choice -> choice.from().isEmpty());

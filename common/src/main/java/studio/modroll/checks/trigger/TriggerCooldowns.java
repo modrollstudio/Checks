@@ -6,10 +6,6 @@ import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.resources.ResourceLocation;
 
-/**
- * When each trigger can fire again, per player and per target, in server ticks. Kept in memory only:
- * a restart clears every cooldown.
- */
 public final class TriggerCooldowns {
 
     private record PlayerKey(ResourceLocation trigger, UUID player) {}
@@ -19,7 +15,6 @@ public final class TriggerCooldowns {
     private final Map<PlayerKey, Long> players = new HashMap<>();
     private final Map<TargetKey, Long> targets = new HashMap<>();
 
-    /** {@code target} is empty for an item use, which has no target. */
     public synchronized boolean ready(ResourceLocation trigger, UUID player, Optional<String> target, long now) {
         return now >= players.getOrDefault(new PlayerKey(trigger, player), now)
                 && target.map(key -> now >= targets.getOrDefault(new TargetKey(trigger, key), now))

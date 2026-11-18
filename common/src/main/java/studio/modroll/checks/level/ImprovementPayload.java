@@ -8,7 +8,6 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import studio.modroll.checks.Checks;
 import studio.modroll.checks.api.Ability;
 
-/** Client to server: one ability score improvement, the increase per ability in ability order. */
 public record ImprovementPayload(List<Integer> increases) implements CustomPacketPayload {
 
     public static final CustomPacketPayload.Type<ImprovementPayload> TYPE =

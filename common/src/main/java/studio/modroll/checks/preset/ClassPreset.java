@@ -19,10 +19,6 @@ import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.api.Skill;
 import studio.modroll.checks.data.LenientJson;
 
-/**
- * A class preset: saving-throw proficiencies, the skills a player picks {@code skillChoices} of, the
- * order its scores are suggested in (all six abilities), and its hit die, kept for levelling.
- */
 public record ClassPreset(
         ResourceLocation id,
         List<Ability> saves,
@@ -67,11 +63,6 @@ public record ClassPreset(
         suggestedOrder = List.copyOf(suggestedOrder);
     }
 
-    /**
-     * {@code skills.from} is a list of skill ids, where one naming no loaded skill is skipped with a
-     * warning, or {@code "any"} for every skill in {@code allSkills}. {@code suggested_order} may list
-     * only the top abilities; the rest follow in STR to CHA order.
-     */
     public static ClassPreset parse(
             ResourceLocation id,
             JsonObject json,

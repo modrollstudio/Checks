@@ -7,13 +7,13 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 import studio.modroll.checks.Checks;
 import studio.modroll.checks.gametest.RestScenarios;
 
-/** NeoForge registration shim: delegates to the shared {@link RestScenarios} bodies. */
 @GameTestHolder(Checks.MOD_ID)
 @PrefixGameTestTemplate(false)
 public class RestGameTests {
 
     private static final String TEMPLATE = "empty";
 
+    // A batch of its own: its rest lasts a few ticks, and other rest tests tick every rest on the server.
     @GameTest(template = TEMPLATE, batch = "rest_short")
     public void aShortRestSpendsHitDiceUntilFullHealth(GameTestHelper helper) {
         RestScenarios.aShortRestSpendsHitDiceUntilFullHealth(helper);

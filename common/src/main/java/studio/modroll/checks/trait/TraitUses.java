@@ -11,10 +11,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
 import studio.modroll.checks.PlayerSavedData;
 
-/**
- * When each player last used each once-a-day trait, in game time, in its own world-level {@link SavedData}
- * so it survives relogs and restarts.
- */
 public final class TraitUses extends SavedData {
 
     public static final String DATA_NAME = "checks_trait_uses";
@@ -34,14 +30,12 @@ public final class TraitUses extends SavedData {
         setDirty();
     }
 
-    /** Readies every once-a-day trait of the player's, as a long rest does. */
     public void recharge(UUID player) {
         if (lastUses.remove(player) != null) {
             setDirty();
         }
     }
 
-    /** Ready when never used, or {@code rechargeTicks} after the last use. */
     public static boolean ready(Optional<Long> lastUse, long now, int rechargeTicks) {
         return lastUse.map(last -> now - last >= rechargeTicks).orElse(true);
     }

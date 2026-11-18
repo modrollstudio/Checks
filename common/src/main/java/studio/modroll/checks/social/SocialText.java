@@ -4,7 +4,6 @@ import java.util.Optional;
 import net.minecraft.network.chat.Component;
 import studio.modroll.checks.text.FallbackText;
 
-/** Lang-file text for the social menu and its action bar messages. */
 public final class SocialText {
 
     private static final int TICKS_PER_SECOND = 20;
@@ -13,11 +12,6 @@ public final class SocialText {
 
     private SocialText() {}
 
-    /**
-     * The flavor pool for an outcome ({@code result}, such as {@code success} or {@code piglin.failure}):
-     * a wandering trader has pools of his own, {@code checks.social.<action>.wandering_trader.<result>},
-     * and falls back to the generic one where the lang file has none.
-     */
     static String flavorPool(SocialAction action, Optional<SocialTarget> target, String result) {
         String generic = "checks.social." + action.id() + "." + result;
         String own = "checks.social." + action.id() + "." + WANDERING_TRADER + "." + result;
@@ -27,10 +21,6 @@ public final class SocialText {
         return hasOwn ? own : generic;
     }
 
-    /**
-     * The menu's title around the target's name: "Face" while Intimidate fits the mob, else "Calm" while
-     * Calm does, else "Talk to".
-     */
     public static Component title(SocialMenu menu, Component name) {
         return FallbackText.of(titleKey(menu), name);
     }
@@ -55,7 +45,6 @@ public final class SocialText {
         return FallbackText.of("checks.social.action." + action.id());
     }
 
-    /** Why an option is greyed out; empty text for an available one. */
     public static Component unavailable(SocialMenu.Option option) {
         return switch (option.availability()) {
             case AVAILABLE -> Component.empty();
@@ -73,7 +62,7 @@ public final class SocialText {
         };
     }
 
-    /** Whole seconds under a minute, else whole minutes; both rounded up so a cooldown never reads 0. */
+    /** Rounded up, so a cooldown never reads 0. */
     static Component duration(long ticks) {
         long seconds = Math.ceilDiv(ticks, TICKS_PER_SECOND);
         if (seconds < SECONDS_PER_MINUTE) {

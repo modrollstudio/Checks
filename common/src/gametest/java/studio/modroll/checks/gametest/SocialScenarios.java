@@ -63,21 +63,12 @@ import studio.modroll.checks.social.SocialOutcome;
 import studio.modroll.checks.social.SocialPrices;
 import studio.modroll.checks.social.Socials;
 
-/**
- * GameTest bodies for the social menu's actions on villagers, wandering traders and piglins. Players are
- * new survival players with every score 10, so a check adds +0 and the d20 face is the total. Most tests
- * run without cooldowns so one target can be tried again.
- */
 public final class SocialScenarios {
 
-    /*
-     * Every spot is inside the 8×8×8 test structure, with room for what a mob launches: outside it, an
-     * entity may land in a chunk whose entities are not loaded yet, where no search finds it. Targets
-     * face south (+z), toward IN_FRONT.
-     */
+    // Inside the 8×8×8 structure: outside it, a launched entity may land in a chunk whose entities are not loaded yet,
+    // where no search finds it.
     static final BlockPos TARGET_SPOT = new BlockPos(1, 2, 3);
     static final BlockPos SECOND_SPOT = new BlockPos(2, 2, 3);
-    /** Over six blocks from the target, yet inside the structure. */
     static final BlockPos FAR_SPOT = new BlockPos(6, 2, 7);
 
     private static final BlockPos LLAMA_SPOT = new BlockPos(3, 2, 5);
@@ -97,7 +88,6 @@ public final class SocialScenarios {
     private static final int EXPIRY_WAIT_TICKS = 5;
     private static final int ITEM_SEARCH_RANGE = 4;
     private static final int SPIT_SEARCH_RANGE = 12;
-    /** Reaches the neighbour next to the target, not the villager at FAR_SPOT. */
     private static final double SHORT_GOSSIP_RADIUS = 2;
 
     private static final double REACHING_GOSSIP_RADIUS = 8;
@@ -105,12 +95,10 @@ public final class SocialScenarios {
     private static final String WATCHFUL_VILLAGER =
             "{\"matches\": [\"minecraft:villager\"], \"abilities\": {\"wis\": 14}}";
     private static final ScoresConfig.SocialSettings DEFAULTS = ScoresConfig.DEFAULTS.social();
-    /** Vanilla's golems attack a player a villager near them rates at this or lower (DefendVillageTargetGoal). */
     private static final int VANILLA_GOLEM_REPUTATION = -100;
 
     private SocialScenarios() {}
 
-    /** Persuade: natural 1, failure, barely, success and natural 20 each set their price change and gossip. */
     public static void persuadeOutcomesFollowTheDie(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "soc-persuade", IN_FRONT);
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -146,7 +134,6 @@ public final class SocialScenarios {
         helper.succeed();
     }
 
-    /** A made Persuasion check lowers the prices shown when trading starts; they return when trading stops. */
     public static void pricesApplyWhileTradingAndAreTakenBack(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "soc-trade", IN_FRONT);
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -173,7 +160,6 @@ public final class SocialScenarios {
         helper.succeed();
     }
 
-    /** A price change lasts its ticks, then trading shows the usual prices again. */
     public static void priceChangeExpires(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "soc-expire", IN_FRONT);
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -197,7 +183,6 @@ public final class SocialScenarios {
         });
     }
 
-    /** Deceive's DC is the target's passive Insight, 15 for WIS 20; making it by 1 barely succeeds. */
     public static void deceiveRollsAgainstPassiveInsight(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "soc-deceive", IN_FRONT);
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -225,10 +210,6 @@ public final class SocialScenarios {
         helper.succeed();
     }
 
-    /**
-     * Pickpocketing rolls against passive Perception (12 for WIS 14), with advantage only from behind; a
-     * success takes one of the villager's trade results.
-     */
     public static void pickpocketUsesPassivePerceptionAndAdvantageFromBehind(GameTestHelper helper) {
         ServerPlayer front = survivor(helper, "soc-pick-front", IN_FRONT);
         ServerPlayer behind = survivor(helper, "soc-pick-back", BEHIND);
@@ -263,7 +244,6 @@ public final class SocialScenarios {
         helper.succeed();
     }
 
-    /** After an action its option shows the cooldown, and trying again rolls nothing. */
     public static void cooldownBlocksARepeat(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "soc-cooldown", IN_FRONT);
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -297,10 +277,6 @@ public final class SocialScenarios {
         helper.succeed();
     }
 
-    /**
-     * A caught pickpocket: strong negative gossip, the villager refuses to trade, and a village golem turns
-     * on the player; one the player built does not.
-     */
     public static void caughtPickpocketAngersGolemsAndIsRefused(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "soc-caught", IN_FRONT);
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -331,11 +307,6 @@ public final class SocialScenarios {
         helper.succeed();
     }
 
-    /**
-     * One caught pickpocket or failed threat leaves the player's reputation with the target and every villager
-     * who heard the gossip at -95: above the -100 at which vanilla's golems attack on their own, and still
-     * low enough to make them wary.
-     */
     public static void aSingleCrimeStaysAboveTheGolemThreshold(GameTestHelper helper) {
         ServerPlayer thief = survivor(helper, "soc-one-theft", IN_FRONT);
         ServerPlayer bully = survivor(helper, "soc-one-threat", IN_FRONT);
@@ -367,10 +338,6 @@ public final class SocialScenarios {
         helper.succeed();
     }
 
-    /**
-     * Intimidating a villager: success hands over a trade result and raises prices with fear gossip;
-     * failure brings refusal, strong gossip and golems.
-     */
     public static void intimidateVillagerOutcomes(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "soc-intimidate", IN_FRONT);
         Villager scared = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -405,10 +372,6 @@ public final class SocialScenarios {
         helper.succeed();
     }
 
-    /**
-     * Deceiving a piglin: success makes piglins see gold on the player, until deception is switched off;
-     * failure angers that piglin.
-     */
     public static void deceivingPiglins(GameTestHelper helper) {
         ServerPlayer liar = survivor(helper, "soc-piglin-ok", IN_FRONT);
         ServerPlayer caught = survivor(helper, "soc-piglin-bad", IN_FRONT);
@@ -436,7 +399,6 @@ public final class SocialScenarios {
         helper.succeed();
     }
 
-    /** Intimidating a piglin: success throws a barter item; failure angers every piglin nearby. */
     public static void intimidatingPiglins(GameTestHelper helper) {
         ServerPlayer bully = survivor(helper, "soc-pig-bully", IN_FRONT);
         ServerPlayer weakling = survivor(helper, "soc-pig-weak", IN_FRONT);
@@ -462,11 +424,6 @@ public final class SocialScenarios {
         helper.succeed();
     }
 
-    /**
-     * CHA 14 (+2) lowers every villager's prices by 4%; Religion +3 lowers a cleric's by 6% more, History
-     * +1 a librarian's and a cartographer's by 2% more; wandering traders have no profession. CHA 6 raises
-     * prices instead.
-     */
     public static void passivePricesShiftByProfession(GameTestHelper helper) {
         ServerPlayer charming = survivor(helper, "soc-passive", IN_FRONT);
         ServerPlayer rude = survivor(helper, "soc-rude", IN_FRONT);
@@ -505,10 +462,6 @@ public final class SocialScenarios {
         helper.succeed();
     }
 
-    /**
-     * Each action switched off alone disappears from the menu, rolls nothing and stops its price changes and
-     * refusals counting; the master switch closes the menu and stops every effect.
-     */
     public static void eachActionSwitchesOff(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "soc-off", IN_FRONT);
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -552,10 +505,6 @@ public final class SocialScenarios {
         helper.succeed();
     }
 
-    /**
-     * The menu greys out what does not fit the target: a piglin can't be persuaded or pickpocketed, and a
-     * villager without trades has nothing to haggle over.
-     */
     public static void menuGreysOutWhatDoesNotFit(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "soc-menu", IN_FRONT);
         Piglin piglin = piglin(helper, TARGET_SPOT);
@@ -579,7 +528,6 @@ public final class SocialScenarios {
         helper.succeed();
     }
 
-    /** Another player, or a cow, gets no menu, and nothing can be tried on them. */
     public static void playersAndOtherMobsAreNeverTargets(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "soc-player", IN_FRONT);
         ServerPlayer other = survivor(helper, "soc-other", Vec3.atBottomCenterOf(TARGET_SPOT));
@@ -601,11 +549,6 @@ public final class SocialScenarios {
         helper.succeed();
     }
 
-    /**
-     * Negative gossip marked {@code nearby} reaches every villager within the gossip radius at once (3 blocks
-     * here): the neighbour hears about the theft, the villager six blocks away does not. Praise stays with
-     * the target.
-     */
     public static void negativeGossipReachesTheVillage(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "soc-gossip", IN_FRONT);
         Villager victim = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -646,7 +589,6 @@ public final class SocialScenarios {
         helper.succeed();
     }
 
-    /** A caught pickpocket: the villager shakes its head and runs from the player; see WitnessScenarios for the rest. */
     public static void caughtPickpocketMakesTheVictimRun(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "soc-react-pick", IN_FRONT);
         Villager victim = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -665,10 +607,6 @@ public final class SocialScenarios {
         helper.succeed();
     }
 
-    /**
-     * Intimidate: a scared villager runs; a brave one shakes its head and stands its ground. Persuade: a
-     * pleased villager doesn't shake its head, an unconvinced one does.
-     */
     public static void intimidateAndPersuadeReactions(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "soc-react", IN_FRONT);
         Villager scared = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -697,10 +635,6 @@ public final class SocialScenarios {
         helper.succeed();
     }
 
-    /**
-     * A wandering trader who catches the lie refuses the player and his llama spits; a villager caught lying
-     * still trades. With reactions off the llama keeps quiet, but the trader still refuses.
-     */
     public static void lyingToAWanderingTraderGetsYouSpatAt(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "soc-llama", IN_FRONT);
         ServerPlayer quiet = survivor(helper, "soc-llama-off", IN_FRONT);
@@ -734,7 +668,6 @@ public final class SocialScenarios {
         helper.succeed();
     }
 
-    /** With reactions off nothing shakes its head or runs, but the outcome itself still happens. */
     public static void reactionsSwitchOff(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "soc-react-off", IN_FRONT);
         Villager victim = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -756,10 +689,6 @@ public final class SocialScenarios {
         helper.succeed();
     }
 
-    /**
-     * What happens with a wandering trader stays with him: a natural 1 lie tells no villager around him, and
-     * calls no golem even when the outcome is set to.
-     */
     public static void wanderingTraderOutcomesStayWithTheTrader(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "soc-trader-only", IN_FRONT);
         WanderingTrader trader = trader(helper, TARGET_SPOT);
@@ -808,7 +737,6 @@ public final class SocialScenarios {
         return villager.getBrain().hasMemoryValue(MemoryModuleType.WALK_TARGET);
     }
 
-    /** Spits the llama launched toward the target; where they land is up to vanilla. */
     private static int spitsAt(GameTestHelper helper, Llama llama, LivingEntity target) {
         AABB area = new AABB(helper.absolutePos(TARGET_SPOT)).inflate(SPIT_SEARCH_RANGE);
         return helper.getLevel()
@@ -889,12 +817,10 @@ public final class SocialScenarios {
         return helper.getLevel().getEntitiesOfClass(ItemEntity.class, area);
     }
 
-    /** How many rolls {@code body} made. */
     static int rolls(Runnable body) {
         return dcsOf(body).size();
     }
 
-    /** The DC of each roll {@code body} made, in order. */
     private static List<Integer> dcsOf(Runnable body) {
         List<Integer> dcs = new ArrayList<>();
         withListeners(before -> {}, after -> dcs.add(after.result().dc().orElse(-1)), () -> {
@@ -908,7 +834,6 @@ public final class SocialScenarios {
         return placed(helper, login(helper, newProfile(name)), at);
     }
 
-    /** A survivor in front of the target spot, with every packet the server sends them added to {@code sent}. */
     static ServerPlayer watchedSurvivor(GameTestHelper helper, String name, List<Packet<?>> sent) {
         return placed(helper, loginWatched(helper, newProfile(name), sent), IN_FRONT);
     }
@@ -919,7 +844,6 @@ public final class SocialScenarios {
         return player;
     }
 
-    /** A villager facing south with two trades: 10 emeralds for bread, 20 wheat for an emerald. */
     static Villager villager(GameTestHelper helper, VillagerProfession profession, BlockPos at) {
         Villager villager = calm(helper, EntityType.VILLAGER, at);
         villager.setVillagerData(new VillagerData(VillagerType.PLAINS, profession, 1));
@@ -933,7 +857,6 @@ public final class SocialScenarios {
         return trader;
     }
 
-    /** Replaces the trades in place; {@code overrideOffers} only works on a client-side merchant. */
     private static void setOffers(AbstractVillager trader, MerchantOffers offers) {
         trader.getOffers().clear();
         trader.getOffers().addAll(offers);
@@ -973,11 +896,7 @@ public final class SocialScenarios {
         return mob;
     }
 
-    /**
-     * Defaults with these actions on, passive prices on or off, and every cooldown set to {@code cooldown}.
-     * Witnesses and the golem alarm are off: they reach past the test structure into the tests next to it.
-     * Wariness is off too, so trying a target twice never rolls a second d20.
-     */
+    /** Witnesses and the golem alarm are off: they reach past the test structure into neighbouring tests. */
     static ScoresConfig.SocialSettings settings(Predicate<SocialAction> on, boolean passive, int cooldown) {
         ScoresConfig.PassivePriceSettings prices = DEFAULTS.passivePrices();
         return new ScoresConfig.SocialSettings(
@@ -1026,7 +945,6 @@ public final class SocialScenarios {
                 DEFAULTS.performance());
     }
 
-    /** {@code base} with these settings for mobs, Insight and Performance. */
     static ScoresConfig.SocialSettings replacing(
             ScoresConfig.SocialSettings base,
             ScoresConfig.IntimidateMobSettings intimidateMob,
@@ -1054,7 +972,6 @@ public final class SocialScenarios {
                 performance);
     }
 
-    /** All actions on with no cooldowns, as the master switch says. */
     private static ScoresConfig.SocialSettings master(boolean enabled) {
         ScoresConfig.SocialSettings all = settings(action -> true, true, 0);
         return new ScoresConfig.SocialSettings(
@@ -1078,7 +995,6 @@ public final class SocialScenarios {
                 all.performance());
     }
 
-    /** All actions on with no cooldowns, gossip reaching {@code gossipRadius} and reactions on or off. */
     private static ScoresConfig.SocialSettings village(double gossipRadius, boolean reactions) {
         ScoresConfig.SocialSettings all = settings(action -> true, false, 0);
         ScoresConfig.ReactionSettings defaults = all.reactions();
@@ -1104,7 +1020,6 @@ public final class SocialScenarios {
                 all.performance());
     }
 
-    /** No cooldowns, and a natural 1 lie also angering golems. */
     private static ScoresConfig.SocialSettings golemsOnCriticalLies() {
         ScoresConfig.SocialSettings base = settings(action -> true, false, 0);
         ScoresConfig.DeceiveSettings deceive = base.deceive();
@@ -1144,7 +1059,6 @@ public final class SocialScenarios {
                 base.performance());
     }
 
-    /** No cooldowns, no passive prices, and a made Persuasion check's discount lasting two ticks. */
     private static ScoresConfig.SocialSettings shortSuccess() {
         ScoresConfig.SocialSettings base = settings(action -> true, false, 0);
         ScoresConfig.Deal deal = base.persuade().deal();

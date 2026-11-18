@@ -29,8 +29,9 @@ Farmer, Explorer and Smith are Minecraft-flavoured backgrounds of our own.
 - **Class:** two saving-throw proficiencies, a skill list with how many to pick, a suggested ability
   order, and a hit die, which sets the hit points every level after the first adds (see
   [body.md](body.md#max-health)) and the Hit Dice spent on rests (see [rests.md](rests.md)). Fighters and
-  Rogues earn extra ability score improvements, and Rogues and Bards Expertise (see
-  [levelling.md](levelling.md)); there are no other class features yet.
+  Rogues earn extra ability score improvements, Rogues and Bards Expertise, and Fighters, Barbarians,
+  Monks, Paladins and Rangers Extra Attack (see [levelling.md](levelling.md)); there are no other class
+  features yet.
 
 ## Skills
 

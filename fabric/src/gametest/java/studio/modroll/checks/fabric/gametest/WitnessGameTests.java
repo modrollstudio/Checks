@@ -5,7 +5,6 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import studio.modroll.checks.gametest.WitnessScenarios;
 
-/** Fabric registration shim: delegates to the shared {@link WitnessScenarios} bodies. */
 public class WitnessGameTests implements FabricGameTest {
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)

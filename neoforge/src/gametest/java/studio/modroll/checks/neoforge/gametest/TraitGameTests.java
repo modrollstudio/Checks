@@ -7,7 +7,6 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 import studio.modroll.checks.Checks;
 import studio.modroll.checks.gametest.TraitScenarios;
 
-/** NeoForge registration shim: delegates to the shared {@link TraitScenarios} bodies. */
 @GameTestHolder(Checks.MOD_ID)
 @PrefixGameTestTemplate(false)
 public class TraitGameTests {

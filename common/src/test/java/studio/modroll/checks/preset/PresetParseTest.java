@@ -220,7 +220,6 @@ class PresetParseTest {
         return item.getNamespace().equals(ResourceLocation.DEFAULT_NAMESPACE);
     }
 
-    /** Knows athletics and stealth; a bare name means the checks: skill, as with the skill store. */
     private static Optional<Skill> skill(ResourceLocation id) {
         ResourceLocation checksId = ResourceLocation.fromNamespaceAndPath("checks", id.getPath());
         return Set.of(ATHLETICS, STEALTH).contains(checksId)

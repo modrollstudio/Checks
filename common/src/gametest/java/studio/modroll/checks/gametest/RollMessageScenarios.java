@@ -40,11 +40,6 @@ import studio.modroll.checks.check.RollLinePayload;
 import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.social.SocialAction;
 
-/**
- * GameTest bodies for roll lines above the hotbar: a client with Checks gets the roll and its detail with
- * their duration, anyone else only the roll as vanilla's action bar message. A poison save (a d20 of 19
- * makes it) and a made persuasion are the rolls.
- */
 public final class RollMessageScenarios {
 
     private static final int SAVE = 19;
@@ -55,7 +50,6 @@ public final class RollMessageScenarios {
 
     private RollMessageScenarios() {}
 
-    /** A client with Checks gets the save's line with the configured duration, and it survives the wire. */
     public static void checksClientsGetTheLineWithItsDuration(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "roll-line");
         try {
@@ -79,7 +73,6 @@ public final class RollMessageScenarios {
         helper.succeed();
     }
 
-    /** With roll messages off nothing is offered to the client: it gets vanilla's action bar message. */
     public static void rollMessagesSwitchOff(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "roll-line-off");
         try {
@@ -94,10 +87,6 @@ public final class RollMessageScenarios {
         helper.succeed();
     }
 
-    /**
-     * A social action's roll and its flavor line go to a client with Checks as two lines, and both survive
-     * the wire.
-     */
     public static void socialRollsSendTheFlavorOnALineOfItsOwn(GameTestHelper helper) {
         ServerPlayer player = SocialScenarios.survivor(helper, "roll-line-social", IN_FRONT);
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -128,7 +117,6 @@ public final class RollMessageScenarios {
         helper.succeed();
     }
 
-    /** A client without Checks gets only the roll, as vanilla's action bar message, so it fits on one line. */
     public static void clientsWithoutChecksGetOnlyTheRoll(GameTestHelper helper) {
         List<Packet<?>> packets = new ArrayList<>();
         ServerPlayer player = watchedSurvivor(helper, "roll-line-vanilla", packets);

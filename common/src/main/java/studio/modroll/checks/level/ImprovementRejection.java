@@ -5,10 +5,6 @@ import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.data.ScoresConfig.ImprovementSettings;
 import studio.modroll.checks.sheet.SheetText;
 
-/**
- * Why the server refused an ability score improvement or an Expertise choice; each has a lang line under
- * {@code checks.level.rejected}.
- */
 public enum ImprovementRejection {
     LEVELLING_DISABLED("levelling_disabled"),
     NONE_PENDING("none_pending"),

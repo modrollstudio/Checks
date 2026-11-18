@@ -19,12 +19,6 @@ import net.minecraft.world.level.saveddata.SavedData;
 import studio.modroll.checks.Checks;
 import studio.modroll.checks.PlayerSavedData;
 
-/**
- * What social actions left behind, per player and target, each until a game time: action cooldowns,
- * price changes, trade refusals, refusals by witnesses, piglin disguises, and the piglin charm a
- * Performance gives. In its own world-level {@link SavedData} so a long cooldown survives restarts;
- * anything past its time is dropped on the next change.
- */
 public final class SocialMemory extends SavedData {
 
     public static final String DATA_NAME = "checks_social";
@@ -50,14 +44,12 @@ public final class SocialMemory extends SavedData {
     private final Map<ActionKey, Long> refusals = new HashMap<>();
     private final Map<ActionKey, Long> witnessRefusals = new HashMap<>();
     private final Map<UUID, Long> disguises = new HashMap<>();
-    /** Kept apart from disguises so that switching Performance or Deceive off lifts only its own. */
     private final Map<UUID, Long> charms = new HashMap<>();
 
     public static SocialMemory get(MinecraftServer server) {
         return PlayerSavedData.get(server, DATA_NAME, SocialMemory::new, SocialMemory::load);
     }
 
-    /** The ticks until {@code action} is ready again on this target; empty when it is ready now. */
     public OptionalLong cooldownLeft(SocialAction action, UUID player, UUID target, long now) {
         Long readyAt = cooldowns.get(new ActionKey(action, player, target));
         return readyAt == null || readyAt <= now ? OptionalLong.empty() : OptionalLong.of(readyAt - now);
@@ -71,7 +63,6 @@ public final class SocialMemory extends SavedData {
         }
     }
 
-    /** Replaces any earlier price change this action made for the player at this target. */
     public void changePrices(SocialAction action, UUID player, UUID target, double percent, long now, int ticks) {
         prune(now);
         if (percent != 0 && ticks > 0) {
@@ -80,7 +71,6 @@ public final class SocialMemory extends SavedData {
         }
     }
 
-    /** The player's current price changes at this target, per action that made one. */
     public Map<SocialAction, Double> priceChanges(UUID player, UUID target, long now) {
         Map<SocialAction, Double> current = new EnumMap<>(SocialAction.class);
         prices.forEach((key, change) -> {
@@ -95,22 +85,18 @@ public final class SocialMemory extends SavedData {
         refuse(refusals, action, player, target, now, ticks);
     }
 
-    /** A refusal by a villager that saw the action, kept apart so that switching witnesses off lifts it. */
     public void refuseAsWitness(SocialAction action, UUID player, UUID witness, long now, int ticks) {
         refuse(witnessRefusals, action, player, witness, now, ticks);
     }
 
-    /** Whether the target refuses to trade with the player over something one of {@code actions} did. */
     public boolean refuses(UUID player, UUID target, long now, Predicate<SocialAction> actions) {
         return refuses(refusals, player, target, now, actions);
     }
 
-    /** Whether the target refuses the player over one of {@code actions} it saw them do to another villager. */
     public boolean refusesAsWitness(UUID player, UUID target, long now, Predicate<SocialAction> actions) {
         return refuses(witnessRefusals, player, target, now, actions);
     }
 
-    /** Halves the time left on the player's refusals, the witnesses' too, over one of {@code actions}. */
     public void halveRefusals(UUID player, long now, Predicate<SocialAction> actions) {
         prune(now);
         for (Map<ActionKey, Long> map : List.of(refusals, witnessRefusals)) {
@@ -153,7 +139,6 @@ public final class SocialMemory extends SavedData {
         return now < disguises.getOrDefault(player, now);
     }
 
-    /** Piglins take the player for a gold wearer after a Performance, as after a lie. */
     public void charm(UUID player, long now, int ticks) {
         extend(charms, player, now, ticks);
     }
@@ -231,13 +216,11 @@ public final class SocialMemory extends SavedData {
         return entry;
     }
 
-    /** Empty for an action this version does not know. */
     private static Optional<ActionKey> actionKey(CompoundTag entry) {
         return SocialAction.byId(entry.getString(ACTION))
                 .map(action -> new ActionKey(action, entry.getUUID(PLAYER), entry.getUUID(TARGET)));
     }
 
-    /** An entry missing a UUID is skipped with a warning. */
     private static void read(CompoundTag tag, String key, Consumer<CompoundTag> reader) {
         ListTag list = tag.getList(key, Tag.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++) {

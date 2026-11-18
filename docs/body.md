@@ -149,7 +149,8 @@ saved data, and health above the vanilla max is capped as usual.
 
 The stat screen shows a **Body** section, under the passive scores, with hit points, armor class and
 size, each explaining where it comes from on hover, e.g. `CON +3: +6 max health` or `DEX +2 (medium body armor, max +2)`, and
-the Hit Dice left (see [rests.md](rests.md)). The AC row
+the Hit Dice left (see [rests.md](rests.md)) and the attacks one Attack action makes (see
+[levelling.md](levelling.md#extra-attack)). The AC row
 appears while Checks supplies Critfall's modifiers. Each ability box lists its extras, e.g.
 `Mining speed +15%`. See [stat-screen.md](stat-screen.md).
 

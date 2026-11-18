@@ -48,12 +48,6 @@ import studio.modroll.checks.exploration.Landings;
 import studio.modroll.checks.exploration.LeapPayload;
 import studio.modroll.checks.exploration.Tripwires;
 
-/**
- * GameTest bodies for exploration skill uses. Players are new survival players with every score 10 and no
- * skill proficiency, so every check adds +0 and every passive score is 10; a d20 of 15 makes a DC 12 check
- * and a d20 of 2 fails it. A test that forces no d20 fails if anything rolls. Jumps, falls and looks go
- * through each loader's own hooks.
- */
 public final class ExplorationScenarios {
 
     private static final int MADE = 15;
@@ -67,7 +61,6 @@ public final class ExplorationScenarios {
 
     private static final Vec3 STAND = new Vec3(1.5, 4, 1.5);
     private static final BlockPos UNDERFOOT = new BlockPos(1, 3, 1);
-    /** South of the player, the way they face: the floor a plain jump would land on. */
     private static final BlockPos FLOOR_AHEAD = new BlockPos(1, 3, 2);
 
     private static final int MIN_DROP = 3;
@@ -79,13 +72,11 @@ public final class ExplorationScenarios {
 
     private static final float FALL = 6;
     private static final int BASE_DC = 10;
-    /** 10 + half of 6. */
     private static final int FALL_DC = 13;
 
     private static final float FULL_HEALTH = 20;
     private static final double HALF = 0.5;
 
-    /** Inside the player's body, standing at STAND. */
     private static final BlockPos WEB = new BlockPos(1, 4, 1);
 
     private static final int NO_RETRY = 0;
@@ -94,7 +85,6 @@ public final class ExplorationScenarios {
     private static final double CLIMB_MAX_BONUS = 0.5;
     private static final float EPSILON_SPEED = 1e-6f;
 
-    /** Passive Perception 7: WIS 4. */
     private static final String DULL_ZOMBIE = "{\"matches\": [\"minecraft:zombie\"], \"abilities\": {\"wis\": 4}}";
 
     private static final double VANILLA_SNEAK = 0.8;
@@ -118,10 +108,6 @@ public final class ExplorationScenarios {
 
     private ExplorationScenarios() {}
 
-    /**
-     * A sprinting jump toward a drop of three blocks rolls Athletics: a made check sends the client a push
-     * along the facing to add to its leap, a failed one sends nothing. Neither touches the jump itself.
-     */
     public static void aMadeAthleticsCheckCarriesALeapFurther(GameTestHelper helper) {
         ServerPlayer player = sprinter(helper, "leap-made", MIN_DROP);
         List<CustomPacketPayload> sent = new ArrayList<>();
@@ -146,10 +132,6 @@ public final class ExplorationScenarios {
         helper.succeed();
     }
 
-    /**
-     * An ordinary jump always happens: whatever the roll, and whether one is rolled at all, the server leaves
-     * the jump exactly as vanilla made it and never sends the player a new speed. Only a push may be added.
-     */
     public static void anOrdinaryJumpAlwaysHappens(GameTestHelper helper) {
         ServerPlayer player = sprinter(helper, "leap-ordinary", FLAT);
         try {
@@ -171,10 +153,6 @@ public final class ExplorationScenarios {
         helper.succeed();
     }
 
-    /**
-     * A jump onto flat ground or toward a drop of only two blocks is a plain jump that rolls nothing; so is a
-     * standing jump toward a deep drop, and any jump while leaps are off.
-     */
     public static void aLeapRollsOnlyWhenItCouldMatter(GameTestHelper helper) {
         ServerPlayer player = sprinter(helper, "leap-plain", FLAT);
         try {
@@ -192,11 +170,6 @@ public final class ExplorationScenarios {
         helper.succeed();
     }
 
-    /**
-     * Two leaps in quick succession, in the same tick, each roll once: the second rolls as soon as the player
-     * is back on the ground, with no cooldown carrying the first result over, and shows its own readout. A
-     * second call for a jump still in the air rolls nothing.
-     */
     public static void twoLeapsInQuickSuccessionEachRollOnce(GameTestHelper helper) {
         ServerPlayer player = sprinter(helper, "leap-twice", MIN_DROP);
         List<CustomPacketPayload> sent = new ArrayList<>();
@@ -216,10 +189,6 @@ public final class ExplorationScenarios {
         helper.succeed();
     }
 
-    /**
-     * Fall damage rolls Acrobatics against 10 plus half the damage, DC 13 for 6: a made check halves it, a
-     * failed one takes it all; other damage, and a fall that does no damage, roll nothing.
-     */
     public static void aMadeAcrobaticsCheckSoftensAFall(GameTestHelper helper) {
         ServerPlayer player = faller(helper, "landing-made");
         List<CustomPacketPayload> lines = new ArrayList<>();
@@ -255,7 +224,6 @@ public final class ExplorationScenarios {
         helper.succeed();
     }
 
-    /** With landings off a fall rolls nothing and hurts in full. */
     public static void landingsSwitchOff(GameTestHelper helper) {
         ServerPlayer player = faller(helper, "landing-off");
         try {
@@ -267,10 +235,6 @@ public final class ExplorationScenarios {
         helper.succeed();
     }
 
-    /**
-     * A player caught in a cobweb rolls Athletics: a made check tears the web down with nothing dropped, a
-     * failed one leaves them stuck and waiting out the retry time before the next roll.
-     */
     public static void aMadeAthleticsCheckTearsThroughACobweb(GameTestHelper helper) {
         helper.setBlock(WEB, Blocks.COBWEB);
         ServerPlayer player = survivor(helper, "cobweb-made", STAND);
@@ -294,7 +258,6 @@ public final class ExplorationScenarios {
         helper.succeed();
     }
 
-    /** Out of a web, or with cobwebs off, nothing rolls and a web stays. */
     public static void aCobwebRollsOnlyWhenCaughtAndSwitchedOn(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "cobweb-none", STAND);
         try {
@@ -308,11 +271,6 @@ public final class ExplorationScenarios {
         helper.succeed();
     }
 
-    /**
-     * Climbing speeds up 10% per positive Athletics point, at most 50%, with no roll: STR 16 (+3) climbs 30%
-     * faster, STR 30 (+10) 50%, STR 8 (-1) as in vanilla, and so does anyone while climbing is off. The client
-     * hears of a new speed only when it changes.
-     */
     public static void athleticsSpeedsUpClimbing(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "climber", STAND);
         List<Float> sent = new ArrayList<>();
@@ -339,11 +297,6 @@ public final class ExplorationScenarios {
         helper.succeed();
     }
 
-    /**
-     * A sneaking player whose passive Stealth beats a zombie's passive Perception by 3 is noticed from 30%
-     * closer on top of vanilla's sneak, never closer than the minimum; standing, or with sneaking off, only
-     * vanilla counts.
-     */
     public static void sneakingPastADullMobGetsCloser(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "sneak", STAND);
         Mob zombie = calm(helper, EntityType.ZOMBIE, TARGET_SPOT);
@@ -365,10 +318,6 @@ public final class ExplorationScenarios {
         helper.succeed();
     }
 
-    /**
-     * Armed tripwires in range glint for a player whose passive Perception meets the DC, a loose string never
-     * does, and a newly spotted wire is pointed out once; below the DC or with spotting off, nothing glints.
-     */
     public static void passivePerceptionSpotsArmedTripwires(GameTestHelper helper) {
         List<Packet<?>> packets = new ArrayList<>();
         ServerPlayer player = watchedSurvivor(helper, "spot-wires", packets);
@@ -400,7 +349,6 @@ public final class ExplorationScenarios {
         helper.succeed();
     }
 
-    /** A made Sleight of Hand check takes the string off quietly: the hooks never fire and one string drops. */
     public static void aMadeSleightOfHandCheckDisarmsATripwire(GameTestHelper helper) {
         stringTrap(helper);
         ServerPlayer player = disarmer(helper, "disarm-made");
@@ -419,7 +367,6 @@ public final class ExplorationScenarios {
         helper.succeed();
     }
 
-    /** A failed Sleight of Hand check snaps the string and springs the trap. */
     public static void aFailedSleightOfHandCheckSpringsTheTrap(GameTestHelper helper) {
         stringTrap(helper);
         ServerPlayer player = disarmer(helper, "disarm-failed");
@@ -435,10 +382,6 @@ public final class ExplorationScenarios {
         helper.succeed();
     }
 
-    /**
-     * Using an armed tripwire rolls nothing without sneaking, with something in hand or with disarming off;
-     * nor does using a string that is not armed.
-     */
     public static void disarmingRollsOnlyWhenItCouldMatter(GameTestHelper helper) {
         stringTrap(helper);
         helper.setBlock(SPARE_STRING, Blocks.TRIPWIRE);
@@ -480,14 +423,12 @@ public final class ExplorationScenarios {
         return player;
     }
 
-    /** Air for {@code drop} blocks down from where a plain jump would land, then stone. */
     private static void dropAhead(GameTestHelper helper, int drop) {
         for (int down = 0; down < MIN_DROP; down++) {
             helper.setBlock(FLOOR_AHEAD.below(down), down < drop ? Blocks.AIR : Blocks.STONE);
         }
     }
 
-    /** A jump that must roll nothing and send nothing; a test fails if anything rolls a d20. */
     private static void expectPlainJump(
             GameTestHelper helper, ServerPlayer player, ScoresConfig.ExplorationSettings settings, String what) {
         List<CustomPacketPayload> sent = new ArrayList<>();
@@ -495,7 +436,6 @@ public final class ExplorationScenarios {
         expect(helper, sent.isEmpty(), what + " must be a plain jump, sent " + sent);
     }
 
-    /** The jump with {@code d20s} forced: the speed vanilla gave it, kept, and no new speed sent to the client. */
     private static void expectOrdinaryJump(
             GameTestHelper helper,
             ServerPlayer player,
@@ -517,12 +457,10 @@ public final class ExplorationScenarios {
         expect(helper, !player.hurtMarked, what + " must send the client no new speed");
     }
 
-    /** The speed vanilla gives this jump, with leaps off so nothing can change it. */
     private static Vec3 vanillaJump(ServerPlayer player) {
         return leaping(leap(false), new ArrayList<>(), () -> withD20s(() -> jump(player)));
     }
 
-    /** As {@link #exploring}, also collecting the leap pushes sent. */
     private static <T> T leaping(
             ScoresConfig.ExplorationSettings settings, List<CustomPacketPayload> sent, Supplier<T> body) {
         return withExploration(
@@ -558,7 +496,6 @@ public final class ExplorationScenarios {
         expect(helper, Math.abs(expected - speed) < EPSILON_SPEED, "climbing speed at " + score + " was " + speed);
     }
 
-    /** Runs the server's climbing sync, adding each speed sent to {@code player} to {@code sent}. */
     private static void syncClimbing(GameTestHelper helper, ServerPlayer player, List<Float> sent) {
         withSender(
                 (to, payload) ->
@@ -569,10 +506,6 @@ public final class ExplorationScenarios {
                 });
     }
 
-    /**
-     * As the server sees a jump: from the ground, at the speed the client last reported, with nothing marked to
-     * send yet, through each loader's own hook. The speed it leaves the player with.
-     */
     private static Vec3 jump(ServerPlayer player) {
         player.setOnGround(true);
         player.setDeltaMovement(Vec3.ZERO);
@@ -582,7 +515,6 @@ public final class ExplorationScenarios {
         return player.getDeltaMovement();
     }
 
-    /** The jump hook called again for a jump already in the air, as a second call for the same jump would be. */
     private static Void jumpInMidAir(ServerPlayer player) {
         player.setOnGround(false);
         player.jumpFromGround();
@@ -611,7 +543,6 @@ public final class ExplorationScenarios {
         return null;
     }
 
-    /** Hooks facing each other on stone, two strings between them, armed by the last string placed. */
     private static void stringTrap(GameTestHelper helper) {
         helper.setBlock(WEST_SUPPORT, Blocks.STONE);
         helper.setBlock(EAST_SUPPORT, Blocks.STONE);

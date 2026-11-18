@@ -2,10 +2,6 @@ package studio.modroll.checks.social;
 
 import java.util.Optional;
 
-/**
- * The mood a target voices after a social action. A pickpocket that goes unnoticed leaves the target with
- * nothing to say.
- */
 public enum SocialMood {
     ANGRY("angry", 0),
     HAPPY("happy", 2),
@@ -20,12 +16,10 @@ public enum SocialMood {
         this.delayTicks = delayTicks;
     }
 
-    /** The second half of the voice sound id, as in {@code checks:villager.angry}. */
     public String id() {
         return id;
     }
 
-    /** How long the target pauses before speaking: a snap of anger, a slow suspicious beat. */
     public int delayTicks() {
         return delayTicks;
     }
@@ -45,7 +39,6 @@ public enum SocialMood {
         };
     }
 
-    /** How a listener takes a Performance: delighted, unimpressed or annoyed. */
     public static SocialMood ofPerformance(SocialOutcome outcome) {
         if (outcome.succeeded()) {
             return HAPPY;

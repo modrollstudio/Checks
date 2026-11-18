@@ -10,9 +10,8 @@ import net.minecraft.util.FormattedCharSequence;
 import org.joml.Vector2ic;
 
 /**
- * A tooltip whose lines wrap to a width, drawn as vanilla draws one but with the gap that sets the
- * first line apart as a title after all of that line's wrapped parts; vanilla puts it after the
- * first wrapped part, splitting the title.
+ * Vanilla puts the title gap after the first wrapped part, splitting the title; this puts it after all of the title's
+ * lines.
  */
 public final class WrappedTooltip {
 
@@ -24,7 +23,6 @@ public final class WrappedTooltip {
 
     private WrappedTooltip() {}
 
-    /** Draws nothing for no lines. */
     public static void render(
             GuiGraphics graphics, Font font, List<Component> lines, int width, int mouseX, int mouseY) {
         if (lines.isEmpty()) {
@@ -46,7 +44,6 @@ public final class WrappedTooltip {
         graphics.pose().popPose();
     }
 
-    /** How far below the tooltip's top a line starts: the title's lines, the gap, then the rest. */
     static int lineTop(int index, int titleLines) {
         return index * LINE_HEIGHT + (index >= titleLines ? TITLE_GAP : 0);
     }

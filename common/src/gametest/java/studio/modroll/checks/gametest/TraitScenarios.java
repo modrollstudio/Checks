@@ -64,10 +64,6 @@ import studio.modroll.critfall.api.combat.AttackResult;
 import studio.modroll.critfall.api.combat.ContestResult;
 import studio.modroll.critfall.api.combat.SaveResult;
 
-/**
- * GameTest bodies for species traits, each effect type on a player of a shipped species that has it. Every
- * score is 10, so every modifier is +0: a d20 of 2 fails and 19 makes the DCs used here.
- */
 public final class TraitScenarios {
 
     private static final int FAIL = 2;
@@ -82,7 +78,6 @@ public final class TraitScenarios {
 
     private TraitScenarios() {}
 
-    /** Dwarven Resilience: the poison save keeps the better of 2 and 19; an orc keeps the 2. */
     public static void vanillaSaveAdvantage(GameTestHelper helper) {
         ServerPlayer dwarf = character(helper, "trait-dwarf", "dwarf");
         ServerPlayer orc = character(helper, "trait-orc-poison", "orc");
@@ -100,7 +95,6 @@ public final class TraitScenarios {
         helper.succeed();
     }
 
-    /** Gnomish Cunning: advantage on every WIS save through Checks; Naturally Stealthy: on Stealth checks. */
     public static void rollBonusGrantsAdvantage(GameTestHelper helper) {
         ServerPlayer gnome = character(helper, "trait-gnome", "gnome");
         ServerPlayer halfling = character(helper, "trait-halfling", "halfling");
@@ -127,7 +121,6 @@ public final class TraitScenarios {
         helper.succeed();
     }
 
-    /** Fiendish Legacy halves fire, Draconic Flight halves falls; a human takes it in full. */
     public static void damageResistanceHalvesMatchingDamage(GameTestHelper helper) {
         ServerPlayer tiefling = character(helper, "trait-tiefling", "tiefling");
         ServerPlayer dragonborn = character(helper, "trait-dragon", "dragonborn");
@@ -155,10 +148,6 @@ public final class TraitScenarios {
         helper.succeed();
     }
 
-    /**
-     * Dwarven Toughness: one hit point per level, scaled by the per level multiplier (0.2) and rounded down, so +2 at
-     * level 10 and nothing yet at level 4.
-     */
     public static void extraHealthFollowsTheLevel(GameTestHelper helper) {
         ServerPlayer dwarf = character(helper, "trait-tough", "dwarf");
         try {
@@ -170,7 +159,6 @@ public final class TraitScenarios {
         helper.succeed();
     }
 
-    /** What the trait adds at {@code level}: the max health with extra health on, less that with it off. */
     private static void expectToughness(GameTestHelper helper, ServerPlayer dwarf, PlayerLevel level, float extra) {
         LevelStore.get(dwarf.server).set(dwarf.getUUID(), level);
         PlayerBodies.sync(dwarf);
@@ -183,7 +171,6 @@ public final class TraitScenarios {
         expectClose(helper, extra, with - without, "Dwarven Toughness at level " + level.level());
     }
 
-    /** The server sends an elf the configured strength and a human none; strength 0 turns it off. */
     public static void darkvisionIsSentToTheClient(GameTestHelper helper) {
         ServerPlayer elf = character(helper, "trait-elf", "elf");
         ServerPlayer human = character(helper, "trait-human3", "human");
@@ -212,7 +199,6 @@ public final class TraitScenarios {
         helper.succeed();
     }
 
-    /** Luck rerolls a natural 1 on checks and saves through Checks, but never a contest side. */
     public static void luckRerollsNaturalOnes(GameTestHelper helper) {
         ServerPlayer halfling = character(helper, "trait-lucky", "halfling");
         ServerPlayer dwarf = character(helper, "trait-unlucky", "dwarf");
@@ -236,7 +222,6 @@ public final class TraitScenarios {
         helper.succeed();
     }
 
-    /** Luck rerolls a natural 1 on a Critfall attack roll too; a dwarf's natural 1 stays. */
     public static void luckRerollsNaturalOnesOnAttacks(GameTestHelper helper) {
         ServerPlayer halfling = character(helper, "trait-lucky-attacker", "halfling");
         ServerPlayer dwarf = character(helper, "trait-unlucky-attacker", "dwarf");
@@ -257,7 +242,6 @@ public final class TraitScenarios {
         return withD20s(() -> RollService.attackRoll(attacker, target, sword), faces);
     }
 
-    /** Resourceful rerolls one failed check a day, and the spent use survives a relog and the world save. */
     public static void resourcefulRerollsOnceADay(GameTestHelper helper) {
         GameProfile profile = newProfile("trait-resourceful");
         ServerPlayer human = character(helper, profile, "human");
@@ -286,7 +270,6 @@ public final class TraitScenarios {
         helper.succeed();
     }
 
-    /** Relentless Endurance: an orc survives one killing blow a day on 1 HP; the void always kills. */
     public static void lastStandOnceADay(GameTestHelper helper) {
         ServerPlayer orc = character(helper, "trait-orc", "orc");
         ServerPlayer voidOrc = character(helper, "trait-orc-void", "orc");
@@ -305,7 +288,6 @@ public final class TraitScenarios {
         helper.succeed();
     }
 
-    /** A ready last stand comes before a Totem of Undying; once it is spent, the totem saves the orc. */
     public static void lastStandBeforeTheTotem(GameTestHelper helper) {
         ServerPlayer orc = character(helper, "trait-orc-totem", "orc");
         orc.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.TOTEM_OF_UNDYING));
@@ -324,7 +306,6 @@ public final class TraitScenarios {
         helper.succeed();
     }
 
-    /** With last stand off, the totem saves the orc as in vanilla. */
     public static void totemWhenLastStandIsOff(GameTestHelper helper) {
         ServerPlayer orc = character(helper, "trait-orc-off-totem", "orc");
         orc.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.TOTEM_OF_UNDYING));
@@ -347,7 +328,6 @@ public final class TraitScenarios {
         helper.succeed();
     }
 
-    /** Otherworldly Presence: piglins never target a tiefling; Trance: phantoms never target an elf. */
     public static void ignoredByMobs(GameTestHelper helper) {
         ServerPlayer tiefling = character(helper, "trait-kin", "tiefling");
         ServerPlayer elf = character(helper, "trait-trance", "elf");
@@ -374,7 +354,6 @@ public final class TraitScenarios {
         helper.succeed();
     }
 
-    /** Keen Senses: an elf picks one of Insight, Perception or Survival; it is saved and switches off. */
     public static void skillChoicesAtCreation(GameTestHelper helper) {
         ServerPlayer elf = login(helper, newProfile("trait-keen"));
         ResourceLocation perception = standardSkill("perception").id();
@@ -411,7 +390,6 @@ public final class TraitScenarios {
         helper.succeed();
     }
 
-    /** Large Form and Giant Ancestry: a goliath reaches further and hits harder; the modifiers go when off. */
     public static void attributeModifiers(GameTestHelper helper) {
         ServerPlayer goliath = character(helper, "trait-goliath", "goliath");
         ServerPlayer human = character(helper, "trait-human4", "human");
@@ -434,7 +412,6 @@ public final class TraitScenarios {
         helper.succeed();
     }
 
-    /** With traits off, a dwarf, a tiefling and an orc are plain players again. */
     public static void masterSwitchTurnsEveryTraitOff(GameTestHelper helper) {
         ServerPlayer dwarf = character(helper, "trait-off-dwarf", "dwarf");
         ServerPlayer tiefling = character(helper, "trait-off-tiefling", "tiefling");
@@ -488,7 +465,6 @@ public final class TraitScenarios {
         return player.getEffect(MobEffects.POISON).getDuration();
     }
 
-    /** With Acrobatics landings off, so a fall is never softened by a roll and the damage is the trait's alone. */
     private static float damage(ServerPlayer player, DamageSource source) {
         return withExploration(withoutLandings(), () -> {
             player.setHealth(FULL_HEALTH);
@@ -534,7 +510,6 @@ public final class TraitScenarios {
         return character(helper, newProfile(name), species);
     }
 
-    /** A survival player of a shipped species, past spawn protection, at full health. */
     private static ServerPlayer character(GameTestHelper helper, GameProfile profile, String species) {
         ServerPlayer player = login(helper, profile);
         player.setGameMode(GameType.SURVIVAL);

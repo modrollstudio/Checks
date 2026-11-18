@@ -23,7 +23,8 @@ without it.
 - **Character creation**: species, background and class, then standard array, point buy or dice
   rolled through Critfall, then skills.
 - **Levels 1–20**: character XP from vanilla XP and advancements, hit points per level, ability score
-  improvements (Fighters and Rogues get extra ones) and Expertise for Rogues and Bards.
+  improvements (Fighters and Rogues get extra ones), Expertise for Rogues and Bards, and Extra Attack
+  for Fighters, Barbarians, Monks, Paladins and Rangers, for turn based fights such as Initiative's.
 - **Hit Dice and rests**: a short rest at a campfire spends Hit Dice to heal, and sleeping through the
   night is a long rest that heals fully and gives them back.
 - **Stat screen**: a character sheet on a key (K by default) with a breakdown of every bonus.

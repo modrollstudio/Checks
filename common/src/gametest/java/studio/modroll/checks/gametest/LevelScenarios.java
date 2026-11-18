@@ -44,6 +44,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
+import studio.modroll.checks.Checks;
 import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.api.ChecksApi;
 import studio.modroll.checks.api.LevelUpEvent;
@@ -67,10 +68,6 @@ import studio.modroll.checks.sheet.StatSheetPayload;
 import studio.modroll.checks.sheet.StatSheets;
 import studio.modroll.critfall.api.CombatSuppression;
 
-/**
- * GameTest bodies for levelling. Each runs under the default levelling settings, so the numbers below
- * follow the shipped XP table: level 2 at 30 XP, 4 at 270, 5 at 650, 7 at 2300.
- */
 public final class LevelScenarios {
 
     private static final ScoresConfig.LevellingSettings DEFAULTS = ScoresConfig.DEFAULTS.levelling();
@@ -91,7 +88,6 @@ public final class LevelScenarios {
 
     private LevelScenarios() {}
 
-    /** Points count as they are gained; enchanting, anvil costs, negative points or dying take none back. */
     public static void vanillaXpCountsWhenGained(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-lv-xp"));
         try {
@@ -124,10 +120,6 @@ public final class LevelScenarios {
         helper.succeed();
     }
 
-    /**
-     * The first death to a mob earns the shown Adventure advancement, which must give no XP; with or without
-     * keepInventory, the level stays and respawning does not announce it again.
-     */
     public static void dyingToAMobGivesNoXp(GameTestHelper helper) {
         expectNoXpFromDeath(helper, "checks-lv-death", false);
         expectNoXpFromDeath(helper, "checks-lv-death-keep", true);
@@ -161,7 +153,6 @@ public final class LevelScenarios {
         }
     }
 
-    /** A survival player past spawn protection, so a mob's blow lands. */
     private static ServerPlayer survivor(GameTestHelper helper, String name) {
         ServerPlayer player = login(helper, newProfile(name));
         player.setGameMode(GameType.SURVIVAL);
@@ -181,11 +172,6 @@ public final class LevelScenarios {
         }
     }
 
-    /**
-     * A collected orb counts in full, the points Mending spends on repairs included: 10 points repair 20
-     * durability, so an orb of 10 on a pickaxe missing 500 never reaches the XP bar, and on one missing 4
-     * only 8 do.
-     */
     public static void orbCountsInFullWithMending(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-lv-mending"));
         try {
@@ -216,7 +202,6 @@ public final class LevelScenarios {
         helper.succeed();
     }
 
-    /** A shown advancement gives its XP once; a recipe unlock gives none, and neither does a disabled source. */
     public static void advancementsGiveXpOnce(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-lv-adv"));
         try {
@@ -242,7 +227,6 @@ public final class LevelScenarios {
         helper.succeed();
     }
 
-    /** Crossing thresholds levels up one event per level; staying within a level or lowering it fires none. */
     public static void levelUpFiresOncePerLevel(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-lv-events"));
         List<String> events = new ArrayList<>();
@@ -266,10 +250,6 @@ public final class LevelScenarios {
         helper.succeed();
     }
 
-    /**
-     * Players use their level's bonus over a player profile unless a command sets one; mobs keep their
-     * profile or the default.
-     */
     public static void proficiencyFollowsLevel(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-lv-prof"));
         try {
@@ -304,10 +284,6 @@ public final class LevelScenarios {
         helper.succeed();
     }
 
-    /**
-     * With STR 19, +2 STR passes the max and +1 STR alone is no allowed split; +1 STR +1 DEX is accepted.
-     * Improvements earned at levels 8 and 12 then wait together until chosen, one at a time.
-     */
     public static void abilityScoreImprovements(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-lv-asi"));
         List<CustomPacketPayload> sent = new ArrayList<>();
@@ -351,7 +327,6 @@ public final class LevelScenarios {
         helper.succeed();
     }
 
-    /** Levels must be 1..20 and XP added must be positive; the commands return the new level and total XP. */
     public static void levelCommands(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-lv-cmds"));
         try {
@@ -372,10 +347,6 @@ public final class LevelScenarios {
         helper.succeed();
     }
 
-    /**
-     * With levelling off, players get the flat bonus and no improvements, gain no XP, and the commands and
-     * choice are refused; turning it back on restores the stored level.
-     */
     public static void levellingOffRestoresPreviousRules(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-lv-toggle"));
         try {
@@ -425,7 +396,6 @@ public final class LevelScenarios {
         helper.succeed();
     }
 
-    /** {@code /checks reset} clears the level, XP and chosen improvements along with the character. */
     public static void resetClearsLevel(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-lv-reset"));
         try {
@@ -445,10 +415,6 @@ public final class LevelScenarios {
         helper.succeed();
     }
 
-    /**
-     * A Fighter earns improvements at 4 and 6 as well as the shared levels; once a Custom class earns only the one
-     * at level 4, only the first improvement chosen applies, and as a Fighter again both do.
-     */
     public static void classImprovementsAreCappedAtTheNumberEarned(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-lv-class-asi"));
         try {
@@ -478,11 +444,6 @@ public final class LevelScenarios {
         helper.succeed();
     }
 
-    /**
-     * A level 1 Rogue picks two skills they are proficient in for Expertise, which doubles the proficiency bonus on
-     * them; a skill without proficiency, one already chosen, or more than are waiting is refused. A level 6 Rogue
-     * gets two more; another class has none, and its chosen skills fall back to proficient.
-     */
     public static void expertiseDoublesTheProficiencyBonus(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-lv-expertise"));
         Skill stealth = ChecksApi.skill(STEALTH).orElseThrow();
@@ -542,11 +503,6 @@ public final class LevelScenarios {
         helper.succeed();
     }
 
-    /**
-     * The Level up! panel lists each level: a level 6 Rogue's level 1 gives Expertise and the starting proficiency
-     * bonus, 4 an improvement, 5 a higher bonus and 6 more Expertise. A d8 adds 1 a level, in whole hearts: nothing at
-     * level 2, a heart at level 3. The health they list adds up to the max health.
-     */
     public static void levelUpPanelListsWhatEachLevelGave(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-lv-gains"));
         try {
@@ -560,7 +516,7 @@ public final class LevelScenarios {
             expectEquals(helper, 6, gains.size(), "levels listed");
             expect(
                     helper,
-                    gains.get(0).equals(new LevelGain(1, 20, Optional.of(2), 0, 2)),
+                    gains.get(0).equals(new LevelGain(1, 20, Optional.of(2), 0, 2, Optional.empty())),
                     "level 1 must give 20 max health, +2 and two Expertise, gave " + gains.get(0));
             expect(helper, gains.get(1).health() == 0.0, "level 2 must add no whole heart, added " + gains.get(1));
             expect(helper, gains.get(2).health() == 2.0, "level 3 must add a heart, added " + gains.get(2));
@@ -578,6 +534,117 @@ public final class LevelScenarios {
         helper.succeed();
     }
 
+    public static void extraAttackFollowsClassAndLevel(GameTestHelper helper) {
+        ServerPlayer player = login(helper, newProfile("checks-lv-extra-attack"));
+        try {
+            levelled(() -> unprofiled(() -> {
+                setClass(player, FIGHTER);
+                Levelling.setLevel(player, 4);
+                expectAttacks(helper, player, 1, Optional.of(5), "a level 4 Fighter");
+                Levelling.setLevel(player, 5);
+                expectAttacks(helper, player, 2, Optional.of(11), "a level 5 Fighter");
+                Levelling.setLevel(player, 11);
+                expectAttacks(helper, player, 3, Optional.of(20), "a level 11 Fighter");
+                Levelling.setLevel(player, 20);
+                expectAttacks(helper, player, 4, Optional.empty(), "a level 20 Fighter");
+                List<Optional<Integer>> raised = sheetLevel(player).gains().stream()
+                        .map(LevelGain::attacks)
+                        .toList();
+                expect(
+                        helper,
+                        raised.get(4).equals(Optional.of(2))
+                                && raised.get(10).equals(Optional.of(3))
+                                && raised.get(19).equals(Optional.of(4))
+                                && raised.stream().filter(Optional::isPresent).count() == 3,
+                        "the Level up! panel must list Extra Attack at 5, 11 and 20, listed " + raised);
+
+                for (String martial : List.of("barbarian", "monk", "paladin", "ranger")) {
+                    setClass(player, Optional.of(Checks.id(martial)));
+                    Levelling.setLevel(player, 4);
+                    expectAttacks(helper, player, 1, Optional.of(5), "a level 4 " + martial);
+                    Levelling.setLevel(player, 5);
+                    expectAttacks(helper, player, 2, Optional.empty(), "a level 5 " + martial);
+                }
+                Levelling.setLevel(player, 20);
+                setClass(player, Optional.of(Checks.id("wizard")));
+                expectAttacks(helper, player, 1, Optional.empty(), "a level 20 Wizard");
+                setClass(player, Optional.empty());
+                expectAttacks(helper, player, 1, Optional.empty(), "a level 20 Custom class");
+                return null;
+            }));
+            Mob zombie = spawnCalm(helper, EntityType.ZOMBIE);
+            expectEquals(helper, 1, ChecksApi.attacksPerAction(zombie), "a zombie's attacks");
+        } finally {
+            logout(helper, player);
+        }
+        helper.succeed();
+    }
+
+    public static void extraAttackOffLeavesOneAttack(GameTestHelper helper) {
+        ServerPlayer player = login(helper, newProfile("checks-lv-extra-attack-off"));
+        try {
+            levelled(() -> {
+                setClass(player, FIGHTER);
+                Levelling.setLevel(player, 20);
+                return null;
+            });
+            withLevelling(
+                    extraAttackOff(),
+                    () -> unprofiled(() -> {
+                        expectEquals(helper, 1, ChecksApi.attacksPerAction(player), "attacks with Extra Attack off");
+                        expect(
+                                helper,
+                                StatSheets.forPlayer(player)
+                                        .orElseThrow()
+                                        .body()
+                                        .attacks()
+                                        .isEmpty(),
+                                "the sheet must have no attacks row with Extra Attack off");
+                        expect(
+                                helper,
+                                sheetLevel(player).gains().stream()
+                                        .noneMatch(gain -> gain.attacks().isPresent()),
+                                "the Level up! panel must list no Extra Attack with it off");
+                        return null;
+                    }));
+            withLevelling(
+                    levellingEnabled(false),
+                    () -> unprofiled(() -> {
+                        expectAttacks(helper, player, 1, Optional.empty(), "a Fighter with levelling off");
+                        return null;
+                    }));
+        } finally {
+            logout(helper, player);
+        }
+        helper.succeed();
+    }
+
+    private static void expectAttacks(
+            GameTestHelper helper, ServerPlayer player, int attacks, Optional<Integer> nextLevel, String who) {
+        expectEquals(helper, attacks, ChecksApi.attacksPerAction(player), who + "'s attacks");
+        Optional<StatSheet.AttacksLine> shown =
+                StatSheets.forPlayer(player).orElseThrow().body().attacks();
+        Optional<StatSheet.AttacksLine> expected = Optional.of(new StatSheet.AttacksLine(attacks, nextLevel));
+        expect(helper, shown.equals(expected), "the sheet must show " + expected + " for " + who + ", showed " + shown);
+    }
+
+    private static void setClass(ServerPlayer player, Optional<ResourceLocation> classId) {
+        CharacterStore.get(player.server)
+                .update(player.getUUID(), character -> character.withBuild(build(classId, Set.of())));
+    }
+
+    private static ScoresConfig.LevellingSettings extraAttackOff() {
+        return new ScoresConfig.LevellingSettings(
+                DEFAULTS.enabled(),
+                DEFAULTS.xpThresholds(),
+                DEFAULTS.proficiencyBonuses(),
+                DEFAULTS.xpSources(),
+                DEFAULTS.improvements(),
+                DEFAULTS.expertise(),
+                new ScoresConfig.ExtraAttackSettings(
+                        false, DEFAULTS.extraAttack().classLevels()));
+    }
+
     private static void expectExpertiseRejected(
             GameTestHelper helper, ServerPlayer player, List<ResourceLocation> skills, ImprovementRejection expected) {
         Optional<ImprovementRejection> rejection = Levelling.chooseExpertise(player, skills);
@@ -591,7 +658,6 @@ public final class LevelScenarios {
         return StatSheets.forPlayer(player).orElseThrow().level().orElseThrow();
     }
 
-    /** The sheet carries the level, XP, both thresholds and pending improvements. */
     public static void sheetShowsLevel(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-lv-sheet"));
         try {
@@ -612,7 +678,6 @@ public final class LevelScenarios {
         helper.succeed();
     }
 
-    /** Level, XP and improvements survive logout and a fresh login, and reach the world save. */
     public static void levelSurvivesRelogAndSave(GameTestHelper helper) {
         GameProfile profile = newProfile("checks-lv-relog");
         ServerPlayer firstSession = login(helper, profile);
@@ -655,7 +720,8 @@ public final class LevelScenarios {
                 DEFAULTS.proficiencyBonuses(),
                 sources,
                 DEFAULTS.improvements(),
-                DEFAULTS.expertise());
+                DEFAULTS.expertise(),
+                DEFAULTS.extraAttack());
     }
 
     private static void collectOrb(GameTestHelper helper, ServerPlayer player, int value) {
@@ -695,7 +761,6 @@ public final class LevelScenarios {
         }
     }
 
-    /** Checks the events recorded since the last call, then forgets them. */
     private static void expectEvents(GameTestHelper helper, List<String> events, List<String> expected, String when) {
         expect(
                 helper,
@@ -726,7 +791,6 @@ public final class LevelScenarios {
         return LevelStore.get(player.server).level(player.getUUID());
     }
 
-    /** All scores 10, proficient in {@code skills}, of {@code classId} (empty for a Custom class). */
     private static CharacterBuild build(Optional<ResourceLocation> classId, Set<ResourceLocation> skills) {
         Map<Ability, Integer> scores = new EnumMap<>(Ability.class);
         for (Ability ability : Ability.values()) {

@@ -40,12 +40,10 @@ import studio.modroll.checks.score.PlayerScoreStore;
 import studio.modroll.checks.score.ScoresRuntime;
 import studio.modroll.critfall.api.combat.SaveResult;
 
-/** GameTest bodies for proficiency: bonus, skill and save proficiency, commands and persistence. */
 public final class ProficiencyScenarios {
 
     private ProficiencyScenarios() {}
 
-    /** DEX 16 (+3), flat stealth bonus 1, proficiency +2: none +4, proficient +6, expertise +8. */
     public static void skillModifierForEachProficiencyLevel(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-pf-levels"));
         try {
@@ -74,11 +72,6 @@ public final class ProficiencyScenarios {
         helper.succeed();
     }
 
-    /**
-     * A saving throw adds the proficiency bonus only when proficient in that save. A CON 8 (-1) zombie
-     * with proficiency +3 and CON save proficiency saves at +2; its DEX 14 (+2) save stays +2; a CON
-     * ability check stays at the plain -1.
-     */
     public static void saveAddsProficiencyOnlyWhenProficient(GameTestHelper helper) {
         Mob zombie = spawnCalm(helper, EntityType.ZOMBIE);
         Map<ResourceLocation, EntityScoreProfile> profile = profiles("{\"matches\": [\"minecraft:zombie\"],"
@@ -131,7 +124,6 @@ public final class ProficiencyScenarios {
         helper.succeed();
     }
 
-    /** Players: config default, then a profile, then commands win. Mobs: config default, then a profile. */
     public static void proficiencyResolutionOrder(GameTestHelper helper) {
         int configDefault = ScoresRuntime.config().proficiency().defaultBonus();
         Mob zombie = spawnCalm(helper, EntityType.ZOMBIE);
@@ -197,7 +189,6 @@ public final class ProficiencyScenarios {
         helper.succeed();
     }
 
-    /** Expertise on a save, unknown levels and out-of-range bonuses are rejected and change nothing. */
     public static void invalidProficiencyCommandsAreRejected(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-pf-reject"));
         try {
@@ -230,7 +221,6 @@ public final class ProficiencyScenarios {
         helper.succeed();
     }
 
-    /** A set proficiency bonus and levels survive logout and a fresh login, and reach the world save. */
     public static void proficiencySurvivesRelogAndSave(GameTestHelper helper) {
         GameProfile profile = newProfile("checks-pf-relog");
         Skill stealth = standardSkill("stealth");
@@ -276,7 +266,6 @@ public final class ProficiencyScenarios {
         helper.succeed();
     }
 
-    /** With proficiency disabled, skills and saves fall back to the pre-proficiency rules; stored values come back after. */
     public static void proficiencyDisabledRestoresPreviousRules(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-pf-toggle"));
         try {
@@ -341,7 +330,6 @@ public final class ProficiencyScenarios {
         helper.succeed();
     }
 
-    /** {@code /checks get} prints the proficiency bonus, save modifiers and proficiency markers. */
     public static void getShowsProficiencyMarkersAndSaveModifiers(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-pf-get"));
         try {

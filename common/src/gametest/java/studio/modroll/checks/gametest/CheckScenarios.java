@@ -35,17 +35,10 @@ import studio.modroll.critfall.api.dice.RollDetail;
 import studio.modroll.critfall.api.dice.RollMode;
 import studio.modroll.critfall.api.dice.RollResult;
 
-/**
- * GameTest bodies for the public API and {@code /checks roll}, with every die forced through Critfall's
- * roller seam. The rogue is a zombie with DEX 14 (+2), CON 8 (-1), STR 12 (+1) and stealth
- * bonus 3 (stealth +5); the watcher is a skeleton with WIS 12 (+1, passive perception 11), STR 14 (+2)
- * and athletics bonus 1 (athletics +3).
- */
 public final class CheckScenarios {
 
     private CheckScenarios() {}
 
-    /** The read side of the API reports the profiled scores, modifiers and passive score. */
     public static void apiReadsScoresAndModifiers(GameTestHelper helper) {
         Mob rogue = spawnCalm(helper, EntityType.ZOMBIE);
         Skill stealth = standardSkill("stealth");
@@ -61,7 +54,6 @@ public final class CheckScenarios {
         helper.succeed();
     }
 
-    /** d20 + ability modifier against a DC: exactly meeting the DC passes, one below fails. */
     public static void abilityCheckMeetsBeatsAndMisses(GameTestHelper helper) {
         Mob rogue = spawnCalm(helper, EntityType.ZOMBIE);
         SaveResult exact = cast(() ->
@@ -79,7 +71,6 @@ public final class CheckScenarios {
         helper.succeed();
     }
 
-    /** A skill check adds the skill modifier (governing ability + bonus), not just the ability. */
     public static void skillCheckAddsSkillModifier(GameTestHelper helper) {
         Mob rogue = spawnCalm(helper, EntityType.ZOMBIE);
         Skill stealth = standardSkill("stealth");
@@ -92,7 +83,6 @@ public final class CheckScenarios {
         helper.succeed();
     }
 
-    /** A saving throw is d20 + ability modifier against a DC, including a negative modifier. */
     public static void savingThrowUsesAbilityModifier(GameTestHelper helper) {
         Mob rogue = spawnCalm(helper, EntityType.ZOMBIE);
         SaveResult saved = cast(() -> withD20s(
@@ -104,7 +94,6 @@ public final class CheckScenarios {
         helper.succeed();
     }
 
-    /** Each side adds its own stat; either side can win. Initiator's die is drawn first. */
     public static void contestGoesEitherWay(GameTestHelper helper) {
         Mob rogue = spawnCalm(helper, EntityType.ZOMBIE);
         Mob watcher = spawnCalm(helper, EntityType.SKELETON);
@@ -129,7 +118,6 @@ public final class CheckScenarios {
         helper.succeed();
     }
 
-    /** Critfall's contest rule: a tie goes to the opponent. Also mixes an ability against a skill. */
     public static void contestTieGoesToOpponent(GameTestHelper helper) {
         Mob rogue = spawnCalm(helper, EntityType.ZOMBIE);
         Mob watcher = spawnCalm(helper, EntityType.SKELETON);
@@ -150,7 +138,6 @@ public final class CheckScenarios {
         helper.succeed();
     }
 
-    /** The target's passive score is the DC: meeting it succeeds, and the target rolls no die. */
     public static void checkAgainstPassiveScore(GameTestHelper helper) {
         Mob rogue = spawnCalm(helper, EntityType.ZOMBIE);
         Mob watcher = spawnCalm(helper, EntityType.SKELETON);
@@ -171,7 +158,6 @@ public final class CheckScenarios {
         helper.succeed();
     }
 
-    /** Advantage and disadvantage reach Critfall: two dice, the right one kept, the mode recorded. */
     public static void rollModesPassThroughToCritfall(GameTestHelper helper) {
         Mob rogue = spawnCalm(helper, EntityType.ZOMBIE);
         Mob watcher = spawnCalm(helper, EntityType.SKELETON);
@@ -225,7 +211,6 @@ public final class CheckScenarios {
         helper.succeed();
     }
 
-    /** With skills disabled in the config, a skill check falls back to the plain ability modifier. */
     public static void skillsDisabledUseAbilityModifier(GameTestHelper helper) {
         Mob rogue = spawnCalm(helper, EntityType.ZOMBIE);
         Skill stealth = standardSkill("stealth");
@@ -264,7 +249,6 @@ public final class CheckScenarios {
         helper.succeed();
     }
 
-    /** An open roll is d20 + modifier through Critfall, with the modifier reported on the result. */
     public static void openRollAddsModifier(GameTestHelper helper) {
         Mob rogue = spawnCalm(helper, EntityType.ZOMBIE);
         RollResult stealthRoll = cast(() ->
@@ -282,7 +266,6 @@ public final class CheckScenarios {
         helper.succeed();
     }
 
-    /** {@code /checks roll} rolls through the API and returns the total, with or without a DC. */
     public static void rollCommandReturnsTotal(GameTestHelper helper) {
         Mob rogue = spawnCalm(helper, EntityType.ZOMBIE);
         String target = rogue.getStringUUID();
@@ -293,10 +276,6 @@ public final class CheckScenarios {
         helper.succeed();
     }
 
-    /**
-     * {@code execute store result} records the roll total; {@code /checks check} returns 1 on success
-     * and fails the command otherwise, so {@code store success} and {@code store result} both record 1 or 0.
-     */
     public static void commandResultsWorkWithExecuteStore(GameTestHelper helper) {
         Mob rogue = spawnCalm(helper, EntityType.ZOMBIE);
         String target = rogue.getStringUUID();

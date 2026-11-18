@@ -5,9 +5,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import studio.modroll.checks.gametest.PerformanceScenarios;
 
-/** Fabric registration shim: delegates to the shared {@link PerformanceScenarios} bodies. The on-guard one runs in a batch of
- * its own: its alarm reaches past its structure.
- */
+/** The on guard test runs in a batch of its own: its alarm reaches past its structure. */
 public class PerformanceGameTests implements FabricGameTest {
 
     private static final String WIDE = "checks:wide";

@@ -72,8 +72,8 @@ class StatSheetPayloadTest {
                         new StatSheet.Improvements(1, List.of(List.of(2), List.of(1, 1)), 20),
                         new StatSheet.ExpertiseChoice(2, List.of(ResourceLocation.parse("checks:stealth"))),
                         List.of(
-                                new LevelGain(1, 23, Optional.of(2), 0, 2),
-                                new LevelGain(4, 1.5, Optional.empty(), 1, 0)))),
+                                new LevelGain(1, 23, Optional.of(2), 0, 2, Optional.empty()),
+                                new LevelGain(5, 1.5, Optional.of(3), 0, 0, Optional.of(2))))),
                 true,
                 new StatSheet.Body(
                         Optional.of(new StatSheet.HealthLine(27.5f, 3, 6.0, 6, 1.5, -1.0)),
@@ -87,6 +87,7 @@ class StatSheetPayloadTest {
                                 2)),
                         Optional.of(new SizeOption(Size.SMALL, 0.6)),
                         Optional.of(new StatSheet.HitDiceLine(6, 3, 5, 0.5, true)),
+                        Optional.of(new StatSheet.AttacksLine(2, Optional.of(11))),
                         List.of(
                                 new StatSheet.ExtraLine(Extra.KNOCKBACK, -0.1),
                                 new StatSheet.ExtraLine(Extra.EXHAUSTION, 0.15))));

@@ -10,10 +10,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.Screenshot;
 
-/**
- * Renders at a fixed 1920×1080 whatever size the window manager gives the window, places the mouse
- * and saves the last rendered frame.
- */
 final class Camera {
 
     static final int WIDTH = 1920;
@@ -50,7 +46,6 @@ final class Camera {
         minecraft.resizeDisplay();
     }
 
-    /** Puts the mouse on a point in GUI coordinates, as the next frames' screen sees it. */
     static void mouseAt(int guiX, int guiY) {
         Minecraft minecraft = Minecraft.getInstance();
         double scale = minecraft.getWindow().getGuiScale();

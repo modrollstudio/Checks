@@ -55,12 +55,6 @@ import studio.modroll.checks.exploration.MobHints;
 import studio.modroll.checks.exploration.MonsterLore;
 import studio.modroll.checks.exploration.StructureLore;
 
-/**
- * GameTest bodies for the knowledge skills: Investigation on looted chests, Nature, Arcana and Religion on
- * mobs, History on structures. Players are new survival players with every score 10 and no proficiency, so
- * every check adds +0; a d20 of 15 makes the DC and a d20 of 2 fails it. A test that forces no d20 fails if
- * anything rolls.
- */
 public final class LoreScenarios {
 
     private static final int MADE = 15;
@@ -93,7 +87,6 @@ public final class LoreScenarios {
             new BlockPos(1, 4, 3),
             new BlockPos(2, 4, 3));
 
-    /** Vanilla 1.21.1 has 82. */
     private static final int MOB_TYPES_AT_LEAST = 80;
 
     private static final int MAX_HINT_LENGTH = 70;
@@ -104,10 +97,6 @@ public final class LoreScenarios {
 
     private LoreScenarios() {}
 
-    /**
-     * The first sneaking use of an opened loot chest rolls Investigation: a made check finds one item from its
-     * loot table. Using it before it was opened rolls nothing, and once searched it never rolls again.
-     */
     public static void aMadeInvestigationCheckFindsOneMoreItem(GameTestHelper helper) {
         RandomizableContainerBlockEntity chest = lootChest(helper, CHEST, Blocks.CHEST.defaultBlockState());
         ServerPlayer player = searcher(helper, "search-made");
@@ -129,7 +118,6 @@ public final class LoreScenarios {
         helper.succeed();
     }
 
-    /** A failed Investigation check finds nothing else, and searches both halves of a double chest for good. */
     public static void aFailedInvestigationCheckFindsNothingElse(GameTestHelper helper) {
         RandomizableContainerBlockEntity west = lootChest(helper, CHEST, doubleChestHalf(ChestType.LEFT));
         RandomizableContainerBlockEntity east = lootChest(helper, CHEST_EAST_HALF, doubleChestHalf(ChestType.RIGHT));
@@ -153,10 +141,6 @@ public final class LoreScenarios {
         helper.succeed();
     }
 
-    /**
-     * A chest no loot table filled, one used without sneaking, by a creative player or with searching off
-     * rolls nothing and is left to vanilla.
-     */
     public static void searchingRollsOnlyWhenItCouldMatter(GameTestHelper helper) {
         helper.setBlock(CHEST_EAST_HALF, Blocks.CHEST);
         RandomizableContainerBlockEntity chest = lootChest(helper, CHEST, Blocks.CHEST.defaultBlockState());
@@ -189,10 +173,6 @@ public final class LoreScenarios {
         helper.succeed();
     }
 
-    /**
-     * Seeing a zombie up close for the first time rolls Religion: a made check shows a hint about zombies and
-     * is saved, so zombies never roll again for that player.
-     */
     public static void aMadeLoreCheckRecallsAMobTypeForGood(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "lore-made", STAND);
         Mob zombie = calm(helper, EntityType.ZOMBIE, MOB_SPOT);
@@ -218,7 +198,6 @@ public final class LoreScenarios {
         helper.succeed();
     }
 
-    /** After a failed lore check the mob type waits out the retry time before it rolls again. */
     public static void aFailedLoreCheckWaitsBeforeTheNextTry(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "lore-failed", STAND);
         Mob skeleton = calm(helper, EntityType.SKELETON, MOB_SPOT);
@@ -239,10 +218,6 @@ public final class LoreScenarios {
         helper.succeed();
     }
 
-    /**
-     * A mob out of range or behind a wall rolls nothing, nor does an armor stand, which is no mob; neither
-     * does anything for a creative player or with monster lore off.
-     */
     public static void loreRollsOnlyForMobsInSightAndInRange(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "lore-none", STAND);
         ArmorStand stand = helper.spawn(EntityType.ARMOR_STAND, MOB_SPOT);
@@ -265,7 +240,6 @@ public final class LoreScenarios {
         helper.succeed();
     }
 
-    /** Every vanilla mob has a hint line of its own, and the hint it would get without one stays short. */
     public static void everyVanillaMobHasAHintOfItsOwn(GameTestHelper helper) {
         List<Mob> mobs = vanillaMobs(helper);
         expect(helper, mobs.size() > MOB_TYPES_AT_LEAST, "only " + mobs.size() + " vanilla mobs found");
@@ -285,10 +259,6 @@ public final class LoreScenarios {
         helper.succeed();
     }
 
-    /**
-     * A lore tag decides the skill; a mob in none falls back to Religion if undead, Nature if an animal, water
-     * animal, arthropod or aquatic, and Arcana otherwise.
-     */
     public static void loreSkillsComeFromTagsThenTheFallback(GameTestHelper helper) {
         expectSkill(helper, EntityType.ZOMBIE, "religion");
         expectSkill(helper, EntityType.GIANT, "religion");
@@ -305,7 +275,6 @@ public final class LoreScenarios {
         helper.succeed();
     }
 
-    /** A hint built from the mob: its hearts, its hit if it attacks, its weakness and fire immunity. */
     public static void aHintIsBuiltFromTheMobsData(GameTestHelper helper) {
         expectBuiltHint(helper, EntityType.ZOMBIE, "About 10 hearts, hits for 1.5. Weak to Smite.");
         expectBuiltHint(helper, EntityType.SPIDER, "About 8 hearts, hits for 1. Weak to Bane of Arthropods.");
@@ -317,10 +286,6 @@ public final class LoreScenarios {
         helper.succeed();
     }
 
-    /**
-     * Standing in an igloo for the first time rolls History: a made check shows the igloo hint and is saved,
-     * so igloos never roll again for that player.
-     */
     public static void aMadeHistoryCheckRecallsAStructureKindForGood(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "history-made", STAND);
         List<CustomPacketPayload> lines = new ArrayList<>();
@@ -337,10 +302,6 @@ public final class LoreScenarios {
         helper.succeed();
     }
 
-    /**
-     * After a failed History check the kind waits out the retry time; outside any structure, or with
-     * structure lore off, nothing rolls.
-     */
     public static void historyRollsOnlyInsideAStructureAndWaitsAfterAFailure(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "history-failed", STAND);
         List<CustomPacketPayload> lines = new ArrayList<>();
@@ -361,7 +322,6 @@ public final class LoreScenarios {
         helper.succeed();
     }
 
-    /** A mob of every vanilla entity type that makes one, none of them added to the world. */
     private static List<Mob> vanillaMobs(GameTestHelper helper) {
         return BuiltInRegistries.ENTITY_TYPE.stream()
                 .filter(type -> BuiltInRegistries.ENTITY_TYPE
@@ -401,7 +361,6 @@ public final class LoreScenarios {
         return chest;
     }
 
-    /** One half of a double chest facing north: the left half is the west one. */
     private static BlockState doubleChestHalf(ChestType type) {
         return Blocks.CHEST
                 .defaultBlockState()
@@ -447,10 +406,6 @@ public final class LoreScenarios {
         exploring(settings, new ArrayList<>(), () -> withD20s(() -> lookForMobs(player)));
     }
 
-    /**
-     * Runs {@code body} with an igloo's top piece around the player, its start and reference in the player's
-     * chunk, as world generation leaves them; then puts the chunk back and logs the player out.
-     */
     private static void inIgloo(GameTestHelper helper, ServerPlayer player, Runnable body) {
         Structure igloo = helper.getLevel()
                 .registryAccess()

@@ -31,11 +31,6 @@ import studio.modroll.checks.social.SocialMenuRequestPayload;
 import studio.modroll.checks.social.client.SocialScreen;
 import studio.modroll.checks.ui.Area;
 
-/**
- * Dev-only screenshot run: opens a superflat world and saves every Checks screen at several GUI scales,
- * then quits. Each loader's {@code runUiShots} task calls {@link #tick} every client tick and names the
- * output folder with the {@value #DIRECTORY_PROPERTY} system property.
- */
 public final class UiShots {
 
     public static final String DIRECTORY_PROPERTY = "checks.uishots.dir";
@@ -43,12 +38,9 @@ public final class UiShots {
     private static final List<Integer> GUI_SCALES = List.of(2, 3, 4);
     private static final String WORLD = "uishots";
     private static final long SEED = 1L;
-    /** Long enough for a resize or a screen change to reach a rendered frame. */
     private static final int SETTLE_TICKS = 3;
-    /** Long enough for the server to answer and the roll line and speech bubble to fade in. */
     private static final int REPLY_TICKS = 10;
 
-    /** The first level with an ability score improvement waiting. */
     private static final int IMPROVEMENT_LEVEL = 4;
 
     private static final int OVERVIEW_TAB = 0;
@@ -142,7 +134,6 @@ public final class UiShots {
                 .then(() -> camera.save(name + "-gui" + scale));
     }
 
-    /** No sound, no pausing when the window loses focus, no onboarding or tutorial over the screens. */
     private static void quietOptions() {
         Minecraft minecraft = Minecraft.getInstance();
         minecraft.options.getSoundSourceOptionInstance(SoundSource.MASTER).set(0.0);
@@ -175,7 +166,6 @@ public final class UiShots {
                         new TitleScreen());
     }
 
-    /** A farmer facing the player, close enough to talk to, the player looking straight at it. */
     private static void placeVillager() {
         // Otherwise chat in the roll shot shows these commands echoed to the player.
         command("gamerule sendCommandFeedback false");
@@ -198,7 +188,6 @@ public final class UiShots {
         Camera.mouseAt(abilities.left() + SheetLayout.GAP, abilities.top() + SheetLayout.GAP);
     }
 
-    /** Over the first skill's proficiency dot, which shows the legend. */
     private static void hoverFirstSkillDot() {
         Area skills = sheetLayout().skills();
         Camera.mouseAt(skills.left() + 1, skills.top() + SheetLayout.GAP);
@@ -220,7 +209,6 @@ public final class UiShots {
         throw new IllegalStateException("UI shots expected character creation, found " + screen());
     }
 
-    /** Expects every page, as with presets on, so each file is named after the page it shows. */
     private static void fillCreationPage(CreationStep expected) {
         CharacterCreationScreen creation = creation();
         if (creation.draft().step() != expected) {
@@ -231,7 +219,6 @@ public final class UiShots {
         creation.refresh();
     }
 
-    /** The scores page with its chips still to place. */
     private static void chooseStandardArray() {
         creation().draft().select(CreationMethod.STANDARD_ARRAY);
         creation().refresh();
@@ -245,7 +232,6 @@ public final class UiShots {
                 .orElseThrow(() -> new IllegalStateException("UI shots found no Next or Confirm button"));
     }
 
-    /** The first active button whose label is {@code key}, translated or literal. */
     private static Optional<Button> button(String key) {
         return buttons().stream()
                 .filter(button -> button.active && key.equals(labelKey(button.getMessage())))

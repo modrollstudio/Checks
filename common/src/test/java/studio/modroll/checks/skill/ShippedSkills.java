@@ -15,7 +15,6 @@ import studio.modroll.checks.Checks;
 import studio.modroll.checks.api.Skill;
 import studio.modroll.checks.data.SkillParser;
 
-/** Parses the skill files Checks ships in its built-in datapack, straight from the source tree. */
 public final class ShippedSkills {
 
     private static final Path DIRECTORY = Path.of("src/main/resources/data/checks/checks/skill");

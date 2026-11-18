@@ -19,10 +19,6 @@ import net.minecraft.world.phys.Vec3;
 import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.score.ScoresRuntime;
 
-/**
- * GameTest bodies for {@code /checks roll} run by players without op: a player rolls for their own character,
- * the result reaches every player within {@code player_rolls.radius}, and rolling for anyone else stays op only.
- */
 public final class PlayerRollScenarios {
 
     private static final int PLAYER_PERMISSION = 0;
@@ -31,7 +27,6 @@ public final class PlayerRollScenarios {
 
     private PlayerRollScenarios() {}
 
-    /** The roller and a player nearby see the result, with the roller's name; a player far off does not. */
     public static void aPlayerRollsForThemselvesAndPlayersNearbySeeIt(GameTestHelper helper) {
         List<Packet<?>> rollerSent = new ArrayList<>();
         List<Packet<?>> nearSent = new ArrayList<>();
@@ -56,7 +51,6 @@ public final class PlayerRollScenarios {
         helper.succeed();
     }
 
-    /** The short form rolls for whoever runs it, with or without a DC; naming yourself still works too. */
     public static void theShortFormRollsForThePlayerWhoRunsIt(GameTestHelper helper) {
         ServerPlayer roller = placed(helper, loginWatched(helper, newProfile("PrShort"), new ArrayList<>()), 0);
         try {
@@ -74,7 +68,6 @@ public final class PlayerRollScenarios {
         helper.succeed();
     }
 
-    /** Without op a player may not roll for another player. */
     public static void aPlayerCannotRollForAnotherPlayer(GameTestHelper helper) {
         ServerPlayer roller = placed(helper, loginWatched(helper, newProfile("PrOther"), new ArrayList<>()), 0);
         ServerPlayer other = placed(helper, loginWatched(helper, newProfile("PrTarget"), new ArrayList<>()), NEAR);
@@ -87,7 +80,6 @@ public final class PlayerRollScenarios {
         helper.succeed();
     }
 
-    /** With {@code player_rolls.enabled: false} the command is op only again, even for your own character. */
     public static void playerRollsOffMakeTheCommandOpOnly(GameTestHelper helper) {
         ServerPlayer roller = placed(helper, loginWatched(helper, newProfile("PrOff"), new ArrayList<>()), 0);
         try {

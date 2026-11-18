@@ -6,7 +6,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import studio.modroll.checks.Checks;
 
-/** Client to server: the entity under the crosshair; the server checks it is in reach. */
 public record SocialMenuRequestPayload(int entityId) implements CustomPacketPayload {
 
     public static final CustomPacketPayload.Type<SocialMenuRequestPayload> TYPE =

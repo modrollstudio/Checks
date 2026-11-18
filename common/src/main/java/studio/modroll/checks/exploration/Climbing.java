@@ -11,11 +11,7 @@ import studio.modroll.checks.ClientPayloads;
 import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.score.ScoresRuntime;
 
-/**
- * Athletics, passively and with no roll: a positive Athletics modifier speeds up climbing. Climbing is the
- * client's own movement, so the server decides each player's climb speed and tells their client whenever it
- * changes, as darkvision does; a client without Checks climbs as in vanilla.
- */
+/** Climbing is the client's own movement, so the server decides the speed and tells the client when it changes. */
 public final class Climbing {
 
     private static final ResourceLocation ATHLETICS = Checks.id("athletics");
@@ -25,7 +21,6 @@ public final class Climbing {
 
     private Climbing() {}
 
-    /** What the player's climbing speed is multiplied by. */
     public static float speed(ServerPlayer player) {
         ScoresConfig.ClimbingSettings settings =
                 ScoresRuntime.config().exploration().climbing();
@@ -35,7 +30,6 @@ public final class Climbing {
         return speed(ExplorationChecks.modifier(player, ATHLETICS), settings.perPoint(), settings.maxBonus());
     }
 
-    /** {@code 1 +} the modifier times {@code perPoint}, the bonus at most {@code maxBonus}; unchanged unless positive. */
     static float speed(int athleticsModifier, double perPoint, double maxBonus) {
         return (float) (UNCHANGED + ExplorationChecks.share(athleticsModifier, perPoint, maxBonus));
     }

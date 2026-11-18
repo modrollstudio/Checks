@@ -50,7 +50,6 @@ import studio.modroll.checks.score.ScoresRuntime;
 import studio.modroll.checks.sheet.StatSheets;
 import studio.modroll.critfall.api.dice.DieRoll;
 
-/** GameTest bodies for character creation: the server rolls, validates and stores every character. */
 public final class CreationScenarios {
 
     private static final ResourceLocation ATHLETICS = ResourceLocation.parse("checks:athletics");
@@ -59,18 +58,15 @@ public final class CreationScenarios {
     private static final List<ResourceLocation> TWO_SKILLS = List.of(ATHLETICS, STEALTH);
     private static final List<Integer> ARRAY_ASSIGNED = List.of(8, 10, 12, 13, 14, 15);
     private static final List<Integer> DEFAULT_SCORES = List.of(10, 10, 10, 10, 10, 10);
-    /** Six 4d6 rolls, the lowest of each dropped; the second is 1, 1, 2 and a dropped 1. */
     private static final int[] ROLL_FACES = {5, 5, 5, 2, 1, 1, 2, 1, 6, 6, 6, 1, 3, 3, 3, 3, 4, 4, 4, 1, 2, 2, 3, 1};
 
     private static final List<Integer> ROLL_TOTALS = List.of(15, 4, 18, 9, 12, 7);
-    /** Six 3d6 rolls in ability order. */
     private static final int[] HARDCORE_FACES = {6, 6, 6, 1, 1, 1, 2, 3, 4, 5, 5, 5, 1, 2, 3, 4, 4, 4};
 
     private static final List<Integer> HARDCORE_TOTALS = List.of(18, 3, 9, 15, 6, 12);
 
     private CreationScenarios() {}
 
-    /** A valid submission for each method becomes the player's scores, and the picked skills proficient. */
     public static void eachMethodProducesValidScores(GameTestHelper helper) {
         for (CreationMethod method : CreationMethod.values()) {
             ServerPlayer player = login(helper, newProfile("checks-cr-m" + method.ordinal()));
@@ -94,7 +90,6 @@ public final class CreationScenarios {
         helper.succeed();
     }
 
-    /** Wrong arrays, overspent points, edited rolls and too many skills are refused, and nothing is saved. */
     public static void serverRejectsInvalidSubmissions(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-cr-bad"));
         try {
@@ -136,7 +131,6 @@ public final class CreationScenarios {
         helper.succeed();
     }
 
-    /** Rolls are stored on the server: reopening, relogging or asking again never rerolls. */
     public static void rollsDoNotChangeOnReopenOrRelog(GameTestHelper helper) {
         GameProfile profile = newProfile("checks-cr-fixed");
         ServerPlayer first = login(helper, profile);
@@ -168,7 +162,6 @@ public final class CreationScenarios {
         helper.succeed();
     }
 
-    /** Hardcore rolls land on STR to CHA in order; any other order is refused. */
     public static void hardcoreAssignsInOrder(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-cr-hard"));
         try {
@@ -189,7 +182,6 @@ public final class CreationScenarios {
         helper.succeed();
     }
 
-    /** Each broadcast line lists every die, the dropped one struck through; the offer carries the same dice. */
     public static void rollChatListsEveryDie(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-cr-chat"));
         try {
@@ -230,7 +222,6 @@ public final class CreationScenarios {
         helper.succeed();
     }
 
-    /** Creation opens on the first join only; {@code /checks reset} clears the character and opens it again. */
     public static void resetReopensCreation(GameTestHelper helper) {
         GameProfile profile = newProfile("checks-cr-reset");
         expectEquals(
@@ -257,7 +248,6 @@ public final class CreationScenarios {
         helper.succeed();
     }
 
-    /** With creation off nothing opens or saves, and a confirmed character is ignored until it is back on. */
     public static void creationToggleOffSkipsIt(GameTestHelper helper) {
         ServerPlayer created = login(helper, newProfile("checks-cr-off1"));
         GameProfile newcomer = newProfile("checks-cr-off2");
@@ -298,7 +288,6 @@ public final class CreationScenarios {
         helper.succeed();
     }
 
-    /** Character scores beat a {@code minecraft:player} profile; {@code /checks set} beats both. */
     public static void characterRanksBetweenCommandAndProfile(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-cr-rank"));
         try {
@@ -316,7 +305,6 @@ public final class CreationScenarios {
         helper.succeed();
     }
 
-    /** A confirmed character, its rolls included, reaches the world save. */
     public static void characterPersistsInTheWorldSave(GameTestHelper helper) {
         GameProfile profile = newProfile("checks-cr-save");
         ServerPlayer player = login(helper, profile);
@@ -399,10 +387,6 @@ public final class CreationScenarios {
                 method.id() + " rolls " + when + " must be " + totals + ", were " + rolled);
     }
 
-    /**
-     * Logs in, runs the join hook (the loader's own join event may already have), runs {@code then}, logs
-     * out, and counts the creation offers sent meanwhile.
-     */
     private static int offersOnJoin(GameTestHelper helper, GameProfile profile, Function<ServerPlayer, ?> then) {
         List<CreationOffer> offers = new ArrayList<>();
         withSender(capturingOffers(offers), () -> {

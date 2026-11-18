@@ -7,10 +7,6 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.item.ItemStack;
 import studio.modroll.checks.Checks;
 
-/**
- * Server to client: {@code item} flies from the target to the thief, or with {@code caught} drops halfway
- * and is snatched back. See {@link ItemArc} for the path.
- */
 public record ItemArcPayload(int fromId, int toId, ItemStack item, boolean caught) implements CustomPacketPayload {
 
     public static final CustomPacketPayload.Type<ItemArcPayload> TYPE =

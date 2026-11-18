@@ -26,7 +26,6 @@ import studio.modroll.checks.score.ScoresRuntime;
 import studio.modroll.checks.sheet.StatSheet;
 import studio.modroll.checks.sheet.StatSheets;
 
-/** GameTest bodies for the stat screen's server-built snapshot. */
 public final class StatSheetScenarios {
 
     private static final ResourceLocation STEALTH = ResourceLocation.parse("checks:stealth");
@@ -35,10 +34,6 @@ public final class StatSheetScenarios {
 
     private StatSheetScenarios() {}
 
-    /**
-     * DEX 16 (+3), WIS 14 (+2), INT 8 (-1), proficiency +3, DEX save proficient, stealth expertise with a
-     * flat +1, perception proficient, plus a datapack-added lockpicking skill.
-     */
     public static void sheetMatchesSetScoresAndProficiency(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-sh-values"));
         try {
@@ -84,7 +79,6 @@ public final class StatSheetScenarios {
         helper.succeed();
     }
 
-    /** The snapshot follows the skills and proficiency toggles, and the screen toggle withholds it. */
     public static void sheetFollowsToggles(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-sh-toggle"));
         try {

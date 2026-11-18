@@ -5,7 +5,6 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import studio.modroll.checks.gametest.ScoreScenarios;
 
-/** Fabric registration shim: delegates to the shared {@link ScoreScenarios} bodies. */
 public class ScoreGameTests implements FabricGameTest {
 
     // A reload finishes off-thread; the GameTest server ticks fast enough to outrun it.

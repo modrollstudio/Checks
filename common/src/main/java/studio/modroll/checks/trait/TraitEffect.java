@@ -18,12 +18,10 @@ import studio.modroll.checks.data.MatchEntry;
 import studio.modroll.checks.save.VanillaSave;
 import studio.modroll.critfall.api.dice.RollMode;
 
-/** One effect of a trait, as written in its {@code effects} list. */
 public sealed interface TraitEffect {
 
     TraitEffectType type();
 
-    /** Advantage on these vanilla saves. */
     record VanillaSaveAdvantage(Set<VanillaSave> against) implements TraitEffect {
         public VanillaSaveAdvantage {
             against = Set.copyOf(against);
@@ -35,7 +33,6 @@ public sealed interface TraitEffect {
         }
     }
 
-    /** An always-on bonus source: a flat bonus and/or a roll mode on the rolls it targets. */
     record RollBonus(BonusTargets targets, int bonus, RollMode mode) implements TraitEffect {
         @Override
         public TraitEffectType type() {
@@ -43,7 +40,6 @@ public sealed interface TraitEffect {
         }
     }
 
-    /** Matching incoming damage is multiplied by {@code multiplier}. */
     record DamageResistance(List<MatchEntry> damageTypes, double multiplier) implements TraitEffect {
         static final double DEFAULT_MULTIPLIER = 0.5;
 
@@ -57,7 +53,6 @@ public sealed interface TraitEffect {
         }
     }
 
-    /** Max health plus {@code perLevel} per character level, rounded down. */
     record ExtraHealth(double perLevel) implements TraitEffect {
         @Override
         public TraitEffectType type() {
@@ -65,7 +60,6 @@ public sealed interface TraitEffect {
         }
     }
 
-    /** Darkness looks like dim light; how dim is {@code traits.darkvision.strength}. */
     record Darkvision() implements TraitEffect {
         @Override
         public TraitEffectType type() {
@@ -73,7 +67,6 @@ public sealed interface TraitEffect {
         }
     }
 
-    /** Rerolls a Checks d20 roll that comes up 1, or that fails; {@code daily} limits it to once per recharge. */
     record Reroll(When on, boolean daily) implements TraitEffect {
         @Override
         public TraitEffectType type() {
@@ -90,7 +83,6 @@ public sealed interface TraitEffect {
         }
     }
 
-    /** Once per recharge, damage that would kill leaves the player at 1 HP instead. */
     record LastStand() implements TraitEffect {
         @Override
         public TraitEffectType type() {
@@ -98,7 +90,6 @@ public sealed interface TraitEffect {
         }
     }
 
-    /** These mobs never pick the player as a target. */
     record IgnoredBy(List<MatchEntry> entities) implements TraitEffect {
         public IgnoredBy {
             entities = List.copyOf(entities);
@@ -110,7 +101,6 @@ public sealed interface TraitEffect {
         }
     }
 
-    /** {@code count} more skill picks at creation, from {@code from} or, when empty, from any skill. */
     record SkillChoices(int count, Set<ResourceLocation> from) implements TraitEffect {
         public SkillChoices {
             from = Set.copyOf(from);
@@ -122,7 +112,6 @@ public sealed interface TraitEffect {
         }
     }
 
-    /** A transient attribute modifier. */
     record Attribute(ResourceLocation attribute, double amount, AttributeModifier.Operation operation)
             implements TraitEffect {
         @Override
@@ -131,13 +120,11 @@ public sealed interface TraitEffect {
         }
     }
 
-    /** What an effect's parser may look up. */
     record Lookups(
             Function<ResourceLocation, Optional<Skill>> skills,
             Predicate<ResourceLocation> entityExists,
             Predicate<ResourceLocation> attributeExists) {}
 
-    /** An unknown type, a missing or bad required key rejects the trait file. */
     static TraitEffect parse(LenientJson json, Lookups lookups) {
         String typeId = json.optionalString("type").orElse("");
         TraitEffectType type = TraitEffectType.byId(typeId)
@@ -175,11 +162,7 @@ public sealed interface TraitEffect {
     private static RollBonus parseRollBonus(LenientJson json, Lookups lookups) {
         BonusTargets targets = BonusTargets.parse(json.object("applies_to"), lookups.skills());
         int bonus = json.getInt("bonus", 0);
-        RollMode mode = json.optionalString("mode")
-                .map(text -> RollModes.byId(text)
-                        .orElseThrow(() -> new IllegalArgumentException(
-                                "'mode' must be normal, advantage or disadvantage, was '" + text + "'")))
-                .orElse(RollMode.NORMAL);
+        RollMode mode = RollModes.parse(json);
         if (bonus == 0 && mode == RollMode.NORMAL) {
             throw new IllegalArgumentException("a roll_bonus needs a non-zero 'bonus' or a 'mode'");
         }
@@ -209,7 +192,6 @@ public sealed interface TraitEffect {
                         () -> new IllegalArgumentException("'on' must be natural_1 or failure, was '" + text + "'"));
     }
 
-    /** An unknown skill in {@code from} is skipped with a warning; a list that names none left rejects the file. */
     private static SkillChoices parseSkillChoices(LenientJson json, Lookups lookups) {
         int count = json.getInt("count", 0);
         if (count < 1) {
@@ -248,7 +230,6 @@ public sealed interface TraitEffect {
         return new Attribute(attribute, amount, operation);
     }
 
-    /** A required value when {@code fallback} is NaN. */
     private static double nonNegative(LenientJson json, String key, double fallback) {
         double value = json.getDouble(key, fallback);
         if (Double.isNaN(value) || value < 0) {

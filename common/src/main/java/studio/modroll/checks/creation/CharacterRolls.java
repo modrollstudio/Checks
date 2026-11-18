@@ -5,7 +5,6 @@ import java.util.List;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
-/** The six scores a player rolled, fixed for good once rolled; hardcore scores are in ability order. */
 public record CharacterRolls(CreationMethod method, List<RolledScore> scores) {
 
     public static final StreamCodec<ByteBuf, CharacterRolls> STREAM_CODEC = StreamCodec.composite(

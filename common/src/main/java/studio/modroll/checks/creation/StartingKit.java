@@ -6,7 +6,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import studio.modroll.checks.preset.KitItem;
 
-/** Hands a background's kit to a player; whatever does not fit drops at their feet, as with {@code /give}. */
 final class StartingKit {
 
     private StartingKit() {}

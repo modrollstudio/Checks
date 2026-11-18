@@ -5,7 +5,6 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import studio.modroll.checks.gametest.CritfallScenarios;
 
-/** Fabric registration shim: delegates to the shared {@link CritfallScenarios} bodies. */
 public class CritfallGameTests implements FabricGameTest {
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)

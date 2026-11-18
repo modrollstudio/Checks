@@ -6,7 +6,6 @@ import net.minecraft.resources.ResourceLocation;
 import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.api.Skill;
 
-/** Parses one {@code data/<ns>/checks/skill/*.json} file into a {@link Skill}. */
 public final class SkillParser {
 
     public static final int FORMAT_VERSION = 1;

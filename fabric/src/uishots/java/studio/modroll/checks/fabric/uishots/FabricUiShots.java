@@ -4,7 +4,6 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import studio.modroll.checks.uishots.UiShots;
 
-/** Drives the dev-only screenshot run; only runUiShots puts this source set on the classpath. */
 public final class FabricUiShots implements ClientModInitializer {
 
     @Override

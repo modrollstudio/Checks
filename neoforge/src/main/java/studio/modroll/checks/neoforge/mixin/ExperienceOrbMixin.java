@@ -8,10 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import studio.modroll.checks.level.Levelling;
 
-/**
- * No event reports the points Mending spends from a collected orb; they never reach the player's XP
- * bar. Counting them here, and the remainder where it reaches the bar, credits the orb's full value once.
- */
+/** No event reports the points Mending spends from a collected orb. */
 @Mixin(ExperienceOrb.class)
 abstract class ExperienceOrbMixin {
 

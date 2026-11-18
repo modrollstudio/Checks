@@ -67,7 +67,6 @@ class ScoreResolverTest {
 
     @Test
     void mobDerivesUnprofiledAbility() {
-        // 8 + 1.0 * 3 = 11
         assertEquals(
                 11,
                 ScoreResolver.resolveScore(
@@ -437,7 +436,8 @@ class ScoreResolverTest {
                         live.proficiencyBonuses(),
                         live.xpSources(),
                         live.improvements(),
-                        live.expertise()),
+                        live.expertise(),
+                        live.extraAttack()),
                 CONFIG.extensions(),
                 CONFIG.body(),
                 CONFIG.saves(),
@@ -548,7 +548,6 @@ class ScoreResolverTest {
                 CreationMethod.STANDARD_ARRAY, scores, skills, PresetChoices.CUSTOM, PresetGrants.NONE);
     }
 
-    /** A Soldier-Fighter: base STR 15 with +2, Athletics from the background, STR and CON saves from the class. */
     private static Optional<CharacterBuild> presetCharacter() {
         CharacterBuild base = character(15, Set.of());
         return Optional.of(new CharacterBuild(

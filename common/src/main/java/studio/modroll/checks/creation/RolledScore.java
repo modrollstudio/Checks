@@ -7,7 +7,6 @@ import net.minecraft.network.codec.StreamCodec;
 import studio.modroll.critfall.api.dice.DieRoll;
 import studio.modroll.critfall.api.dice.RollResult;
 
-/** One rolled score and every die behind it, dropped dice included, so the screen can show the roll. */
 public record RolledScore(int total, List<DieRoll> dice) {
 
     private static final int MAX_DICE_ON_WIRE = 64;

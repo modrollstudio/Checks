@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import studio.modroll.checks.save.VanillaSaves;
 
-/** Neither loader has an ignite event; fire, fire aspect, burning arrows and lava all set entities alight here. */
+/** Neither loader has an ignite event. */
 @Mixin(Entity.class)
 abstract class EntityMixin {
 

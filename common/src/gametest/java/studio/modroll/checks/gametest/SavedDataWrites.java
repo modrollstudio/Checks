@@ -1,8 +1,7 @@
 package studio.modroll.checks.gametest;
 
 /**
- * How the shared scenarios wait for SavedData to reach the disk. Vanilla, and so Fabric, writes it in place;
- * NeoForge hands the write to its IO worker, so its GameTests set a wait for that worker.
+ * Vanilla, and so Fabric, writes SavedData in place; NeoForge hands it to its IO worker, so its GameTests set a wait.
  */
 public final class SavedDataWrites {
 

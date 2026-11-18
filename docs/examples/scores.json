@@ -65,6 +65,16 @@
       "enabled": true,
       "skills_per_level": 2,
       "class_levels": { "checks:rogue": [1, 6], "checks:bard": [3, 10] }
+    },
+    "extra_attack": {
+      "enabled": true,
+      "class_levels": {
+        "checks:fighter": [5, 11, 20],
+        "checks:barbarian": [5],
+        "checks:monk": [5],
+        "checks:paladin": [5],
+        "checks:ranger": [5]
+      }
     }
   },
   "events": { "enabled": true },

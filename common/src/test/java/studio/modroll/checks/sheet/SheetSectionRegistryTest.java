@@ -12,7 +12,6 @@ import studio.modroll.checks.api.SheetRow;
 import studio.modroll.checks.api.SheetSection;
 import studio.modroll.checks.api.StatSheetSections;
 
-/** The data the stat screen draws for sections other mods register; the drawing itself is not tested. */
 class SheetSectionRegistryTest {
 
     private static final SheetSection REPUTATION = new SheetSection(

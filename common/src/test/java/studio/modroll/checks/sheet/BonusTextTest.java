@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import studio.modroll.checks.ModLang;
 import studio.modroll.checks.api.Ability;
 
-/** The plain-language bonus and suggested-order lines on the creation screen. */
 class BonusTextTest {
 
     private final Language before = Language.getInstance();

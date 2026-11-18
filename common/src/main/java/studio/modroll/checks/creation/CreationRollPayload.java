@@ -5,7 +5,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import studio.modroll.checks.Checks;
 
-/** Client to server: roll the dice for a rolling method. The server ignores repeats, so rolls never change. */
 public record CreationRollPayload(CreationMethod method) implements CustomPacketPayload {
 
     public static final CustomPacketPayload.Type<CreationRollPayload> TYPE =

@@ -14,7 +14,8 @@ It reopens on the tab it last showed, and keeps one size across both, so switchi
   ability score improvements wait.
 - **Overview:** a card per ability, the modifier large in gold beside the abbreviation and the score;
   then, in three columns, saving throws, passive Perception, Investigation and Insight, **Body** (hit
-  points, armor class and size, each while its switch is on, see [body.md](body.md)) and any
+  points, Hit Dice, armor class, attacks and size, each while its switch is on, see [body.md](body.md)
+  and [levelling.md](levelling.md#extra-attack)) and any
   [sections other mods add](api.md#stat-screen-sections). Each block goes under whichever column is
   shortest so far.
 - **Skills:** every loaded skill, datapack-added ones included, with its modifier, down two columns.
@@ -60,6 +61,11 @@ Hovering shows a short explanation in a tooltip:
   last line adds back what keeps it at the AC without the body armor
   (`Never below your AC without body armor: +2`). An AC Critfall did not derive from the armor, such
   as an entity profile's, shows as one line (`Set by Critfall: AC 15`).
+- **Attacks:** how many attacks one Attack action makes on your turn in a turn based fight, such as
+  Initiative's; real time combat is unchanged. Then what Extra Attack from your class adds
+  (`Extra Attack from your class: +1`) and the level your class gets its next one at
+  (`One more at level 11.`). Shown while `levelling.extra_attack.enabled` is on, see
+  [levelling.md](levelling.md#extra-attack).
 - **Size:** the scale your species gives, e.g. `Scale ×0.6`.
 - **Passive:** `10 +` skill modifier plus bonus sources (flat bonuses, +5 for advantage, -5 for
   disadvantage), used when you're not actively rolling.

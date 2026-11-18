@@ -11,10 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import studio.modroll.checks.rest.Rests;
 import studio.modroll.checks.social.Performances;
 
-/**
- * Fabric API has no game event hook; NeoForge's VanillaGameEvent fires at the same spot. Nor has it one for a night
- * slept through: vanilla wakes everyone in {@code wakeUpAllPlayers} only then, while they are still asleep.
- */
+/** Fabric API has no game event hook, and none for a night slept through. */
 @Mixin(ServerLevel.class)
 abstract class ServerLevelMixin {
 

@@ -8,7 +8,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import studio.modroll.checks.Checks;
 
-/** Server to client: {@code line} floats above the entity's head for {@code durationTicks}. */
 public record SpeechBubblePayload(int entityId, Component line, int durationTicks) implements CustomPacketPayload {
 
     public static final CustomPacketPayload.Type<SpeechBubblePayload> TYPE =

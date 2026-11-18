@@ -81,10 +81,6 @@ class FallbackTextTest {
         assertEquals("built", contents.getFallback());
     }
 
-    /**
-     * Catches a typo on a path no test runs, in every file that uses fallback text. Keys built from parts
-     * (per help command, per ability) are checked by the tests of those files.
-     */
     @Test
     void everyKeyNamedWhereFallbackTextIsUsedIsInTheLangFile() throws IOException {
         Map<String, String> english = english();

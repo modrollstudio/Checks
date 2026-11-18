@@ -209,7 +209,6 @@ class CreationDraftTest {
 
         draft.useSuggested();
 
-        // Wizard: INT, CON, DEX, WIS, CHA, STR.
         assertEquals(List.of(8, 13, 14, 15, 12, 10), draft.submission().scores());
     }
 
