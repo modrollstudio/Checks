@@ -26,20 +26,11 @@ import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.social.GolemAlarms;
 import studio.modroll.checks.social.SocialAction;
 
-/**
- * GameTest bodies for golems calling for backup, in the 32 blocks wide {@code wide} structure. Each runs
- * in a batch of its own: an alarm reaches far past its structure, and must not turn a neighbouring test's
- * golems. A caught pickpocket turns the golem next to the villager; the others stand further along.
- * Players are new survival players with every score 10, so a d20 of 2 is caught.
- */
 public final class GolemAlarmScenarios {
 
     private static final int CAUGHT = 2;
-    /** Makes Calm's DC 13 with a Persuasion modifier of +0. */
     private static final int CALMED = 18;
-    /** 22 blocks from the golem next to the villager, and out of its golem-calling range. */
     private static final BlockPos FAR_GOLEM = new BlockPos(24, 2, 3);
-    /** Within 16 blocks of both the near and the far golem. */
     private static final BlockPos MIDDLE_GOLEM = new BlockPos(12, 2, 3);
 
     private static final BlockPos BUILT_GOLEM = new BlockPos(26, 2, 5);
@@ -52,7 +43,6 @@ public final class GolemAlarmScenarios {
 
     private GolemAlarmScenarios() {}
 
-    /** A golem 22 blocks away joins the chase; one a player built stays out of it. */
     public static void guardsCallForBackup(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "alarm-backup", IN_FRONT);
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -70,11 +60,6 @@ public final class GolemAlarmScenarios {
         helper.succeed();
     }
 
-    /**
-     * A golem beyond the radius of every golem after the player is not called; one that comes into range
-     * later joins on the next tick, and calls it on the tick after. The ticks run here, under the short
-     * radius; the server's own run under the live config.
-     */
     public static void backupReachesItsRadiusAndSpreads(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "alarm-radius", IN_FRONT);
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -102,7 +87,6 @@ public final class GolemAlarmScenarios {
         helper.succeed();
     }
 
-    /** Past its time, the alarm calls no golem that comes into range. */
     public static void alarmExpires(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "alarm-expiry", IN_FRONT);
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -123,7 +107,6 @@ public final class GolemAlarmScenarios {
         });
     }
 
-    /** Once the player dies, the alarm calls no golem that comes into range. */
     public static void alarmEndsWhenThePlayerDies(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "alarm-death", IN_FRONT);
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -143,7 +126,6 @@ public final class GolemAlarmScenarios {
         });
     }
 
-    /** With the alarm off, only the golems around the villager turn, as before. */
     public static void golemAlarmSwitchesOff(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "alarm-off", IN_FRONT);
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -163,7 +145,6 @@ public final class GolemAlarmScenarios {
         });
     }
 
-    /** On Peaceful no golem turns on a player, so none calls for backup. */
     public static void noBackupOnPeaceful(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "alarm-peaceful", IN_FRONT);
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -183,10 +164,6 @@ public final class GolemAlarmScenarios {
         helper.succeed();
     }
 
-    /**
-     * A golem the player calms sits out the rest of the alarm: the golem still after them, well within the
-     * alarm radius of it, can't call it back in.
-     */
     public static void aCalmedGolemSitsOutTheAlarm(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "alarm-calm", IN_FRONT);
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -212,7 +189,6 @@ public final class GolemAlarmScenarios {
         helper.succeed();
     }
 
-    /** Test settings with this golem alarm on top. */
     private static void alarmed(ScoresConfig.GolemAlarmSettings alarm, Runnable body) {
         ScoresConfig.SocialSettings base = settings(action -> true, false, 0);
         ScoresConfig.SocialSettings withAlarm = new ScoresConfig.SocialSettings(

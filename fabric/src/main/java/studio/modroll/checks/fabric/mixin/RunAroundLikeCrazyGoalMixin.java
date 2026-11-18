@@ -10,9 +10,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import studio.modroll.checks.exploration.Taming;
 
 /**
- * As {@link WolfMixin}: a horse, donkey, mule or llama with a player on its back decides now and
- * then whether to accept them, tamed when a draw falls below its temper, so a made Animal Handling check
- * counts its temper as full.
+ * As {@link WolfMixin}: a mount tames when a draw falls below its temper, so a made Animal Handling check counts its
+ * temper as full.
  */
 @Mixin(RunAroundLikeCrazyGoal.class)
 abstract class RunAroundLikeCrazyGoalMixin {

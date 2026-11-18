@@ -3,14 +3,12 @@ package studio.modroll.checks.creation.client;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.util.Mth;
 
-/** A list that only ever shows whole rows and scrolls by one row at a time. */
 final class ScrollRows {
 
     private int first;
     private int visible;
     private int total;
 
-    /** Keeps the scroll position across rebuilds, clamped to the new size. */
     void layout(int totalRows, int fittingRows) {
         total = totalRows;
         visible = Mth.clamp(fittingRows, 0, totalRows);

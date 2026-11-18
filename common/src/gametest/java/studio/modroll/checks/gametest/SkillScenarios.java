@@ -30,7 +30,6 @@ import studio.modroll.checks.data.EntityScoreProfile;
 import studio.modroll.checks.data.SkillStore;
 import studio.modroll.checks.score.ScoreService;
 
-/** GameTest bodies for skills, skill bonuses and passive scores on live entities. */
 public final class SkillScenarios {
 
     private static final int STANDARD_SKILL_COUNT = 18;
@@ -38,7 +37,6 @@ public final class SkillScenarios {
 
     private SkillScenarios() {}
 
-    /** The 18 standard skills load from Checks' built-in datapack on this loader. */
     public static void standardSkillsLoadFromBuiltInDatapack(GameTestHelper helper) {
         long standard = SkillStore.skills().keySet().stream()
                 .filter(id -> id.getNamespace().equals("checks"))
@@ -51,7 +49,6 @@ public final class SkillScenarios {
         helper.succeed();
     }
 
-    /** A skill modifier follows its governing ability and only that ability; passive = 10 + modifier. */
     public static void skillUsesGoverningAbility(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-governing"));
         try {
@@ -75,7 +72,6 @@ public final class SkillScenarios {
         helper.succeed();
     }
 
-    /** Bonus order for players: 0 by default, then a player profile, then {@code /checks set} wins. */
     public static void playerSkillBonusResolutionOrder(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-sk-order"));
         try {
@@ -97,7 +93,6 @@ public final class SkillScenarios {
         helper.succeed();
     }
 
-    /** A mob takes its skill bonus from a profile; unprofiled skills stay at the bare ability modifier. */
     public static void profiledMobGetsSkillBonus(GameTestHelper helper) {
         Mob zombie = spawnCalm(helper, EntityType.ZOMBIE);
         Skill athletics = standardSkill("athletics");
@@ -112,7 +107,6 @@ public final class SkillScenarios {
         helper.succeed();
     }
 
-    /** A datapack-added skill resolves for mobs (profile bonus) and players (command) alike. */
     public static void datapackAddedSkillWorks(GameTestHelper helper) {
         Map<ResourceLocation, Skill> withSailing = new HashMap<>(SkillStore.skills());
         Skill sailing = new Skill(SAILING, Ability.WISDOM);
@@ -139,7 +133,6 @@ public final class SkillScenarios {
         helper.succeed();
     }
 
-    /** A set skill bonus survives logout and a fresh login, and reaches the world save on disk. */
     public static void playerSkillBonusSurvivesRelogAndSave(GameTestHelper helper) {
         GameProfile profile = newProfile("checks-sk-relog");
         Skill insight = standardSkill("insight");
@@ -165,11 +158,7 @@ public final class SkillScenarios {
         helper.succeed();
     }
 
-    /**
-     * A real {@code /reload} re-runs this loader's skill listener: a skill missing from the datapacks
-     * is dropped and the standard skills are back. The sentinel only adds a skill, so scenarios
-     * running alongside still see the standard ones.
-     */
+    /** The sentinel only adds a skill, so scenarios running alongside still see the standard ones. */
     public static void reloadReplacesSkills(GameTestHelper helper) {
         ResourceLocation sentinel = ResourceLocation.fromNamespaceAndPath("gametest", "reload_sentinel");
         Map<ResourceLocation, Skill> patched = new HashMap<>(SkillStore.skills());

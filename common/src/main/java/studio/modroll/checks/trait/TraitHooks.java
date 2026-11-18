@@ -23,7 +23,6 @@ import studio.modroll.checks.sheet.SheetText;
 import studio.modroll.checks.text.FallbackText;
 import studio.modroll.critfall.api.dice.RollMode;
 
-/** What traits do, called from where each loader hooks damage, death, targeting and Checks' own rolls. */
 public final class TraitHooks {
 
     private static final float LAST_HIT_POINT = 1f;
@@ -31,7 +30,6 @@ public final class TraitHooks {
 
     private TraitHooks() {}
 
-    /** The lowest multiplier of the resistances that match; resistances never stack. */
     public static float incomingDamage(LivingEntity entity, DamageSource source, float amount) {
         Optional<ResourceLocation> type = source.typeHolder().unwrapKey().map(ResourceKey::location);
         double multiplier = Traits.effects(entity, TraitEffect.DamageResistance.class).stream()
@@ -47,11 +45,6 @@ public final class TraitHooks {
                 .orElse(false);
     }
 
-    /**
-     * Whether a last stand keeps the entity alive: it is left on 1 HP and the trait is spent until it
-     * recharges. Damage that bypasses invulnerability (the void, {@code /kill}) is never survived. A ready
-     * last stand comes before a Totem of Undying, which is kept for when the last stand is spent or off.
-     */
     public static boolean survivesDeath(LivingEntity entity, DamageSource source) {
         Optional<ResourceLocation> trait = readyLastStand(entity, source);
         trait.ifPresent(id -> {
@@ -64,7 +57,6 @@ public final class TraitHooks {
         return trait.isPresent();
     }
 
-    /** Whether a last stand would keep the entity alive through this damage, without spending it. */
     public static boolean lastStandReady(LivingEntity entity, DamageSource source) {
         return readyLastStand(entity, source).isPresent();
     }
@@ -79,7 +71,6 @@ public final class TraitHooks {
                 .findFirst();
     }
 
-    /** False when the target's traits make mobs of the attacker's type ignore it. */
     public static boolean canTarget(LivingEntity attacker, LivingEntity target) {
         ResourceLocation type = BuiltInRegistries.ENTITY_TYPE.getKey(attacker.getType());
         return Traits.effects(target, TraitEffect.IgnoredBy.class).stream()
@@ -88,14 +79,12 @@ public final class TraitHooks {
                                 type, tag -> attacker.getType().is(TagKey.create(Registries.ENTITY_TYPE, tag)))));
     }
 
-    /** Advantage on this vanilla save when a trait grants it. */
     public static RollMode vanillaSaveMode(LivingEntity entity, VanillaSave save) {
         boolean advantage = Traits.effects(entity, TraitEffect.VanillaSaveAdvantage.class).stream()
                 .anyMatch(effect -> effect.against().contains(save));
         return advantage ? RollMode.ADVANTAGE : RollMode.NORMAL;
     }
 
-    /** The trait roll bonuses that apply to this roll, each named after its trait. */
     public static List<BonusPart> rollBonuses(LivingEntity entity, CheckKind kind, Stat stat) {
         return Traits.granted(entity, TraitEffect.RollBonus.class).stream()
                 .filter(granted -> granted.effect().targets().appliesTo(kind, stat))
@@ -106,10 +95,6 @@ public final class TraitHooks {
                 .toList();
     }
 
-    /**
-     * The trait that lets a d20 roll be rolled again, if any: an unlimited one first, then a once-a-day
-     * one that is ready, which is then spent. {@code failed} is empty for a roll with no DC.
-     */
     public static Optional<ResourceLocation> reroll(LivingEntity entity, int natural, Optional<Boolean> failed) {
         if (!(entity instanceof ServerPlayer player)) {
             return Optional.empty();
@@ -134,10 +119,6 @@ public final class TraitHooks {
         return trait;
     }
 
-    /**
-     * Whether a trait rerolls every natural 1 the entity rolls, as Luck does: the reroll Critfall can make
-     * itself. A failure reroll or a once-a-day one needs Checks to see the roll, so it is not counted.
-     */
     public static boolean rerollsOnes(LivingEntity entity) {
         return Traits.effects(entity, TraitEffect.Reroll.class).stream()
                 .anyMatch(reroll -> reroll.on() == TraitEffect.When.NATURAL_1 && !reroll.daily());

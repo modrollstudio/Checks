@@ -3,7 +3,6 @@ package studio.modroll.checks.score;
 import studio.modroll.checks.critfall.ChecksModifierProvider;
 import studio.modroll.checks.data.ScoresConfig;
 
-/** The live scores config, swapped on load and {@code /reload}; Critfall's provider slot follows it. */
 public final class ScoresRuntime {
 
     private static volatile ScoresConfig config = ScoresConfig.DEFAULTS;

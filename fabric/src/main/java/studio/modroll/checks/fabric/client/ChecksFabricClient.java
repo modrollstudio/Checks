@@ -91,10 +91,6 @@ public final class ChecksFabricClient implements ClientModInitializer {
         });
     }
 
-    /**
-     * The client's side of {@link FabricNetworkVersion}: answer the server's version with ours, and leave a server
-     * whose Checks is from before the check.
-     */
     private static void registerNetworkVersion() {
         NetworkVersionPayload ours = FabricNetworkVersion.ours();
         ClientConfigurationNetworking.registerGlobalReceiver(

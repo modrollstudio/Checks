@@ -5,7 +5,6 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import studio.modroll.checks.gametest.SocialFeelScenarios;
 
-/** Fabric registration shim: delegates to the shared {@link SocialFeelScenarios} bodies. */
 public class SocialFeelGameTests implements FabricGameTest {
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)

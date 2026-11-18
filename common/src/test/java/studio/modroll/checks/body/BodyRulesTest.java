@@ -52,14 +52,12 @@ class BodyRulesTest {
         assertEquals(0.0, BodyRules.conHealth(0, HEALTH));
     }
 
-    /** A d10 is worth 6, plus CON +2: 8 for each of levels 2 to 4, times 0.5. */
     @Test
     void levelHealthCountsEveryLevelAfterTheFirst() {
         assertEquals(12.0, BodyRules.levelHealth(4, 10, 2, HEALTH));
         assertEquals(0.0, BodyRules.levelHealth(1, 10, 2, HEALTH));
     }
 
-    /** At the shipped 0.2: a d8 with CON 10 adds 5 × 0.2 = 1 a level, and 4 levels of a d6 add 3.2, rounded down. */
     @Test
     void levelHealthRoundsDownTheTotal() {
         ScoresConfig.HealthSettings shipped = ScoresConfig.DEFAULTS.body().health();
@@ -146,7 +144,6 @@ class BodyRulesTest {
         assertEquals(Optional.empty(), BodyRules.restoredHealth(0f, 0f, 20f, 26f));
     }
 
-    /** The player's own save says 5 HP: a higher stored health from an earlier save must not heal them. */
     @Test
     void aStoredHealthOlderThanThePlayersSaveNeverHeals() {
         assertEquals(Optional.empty(), BodyRules.restoredHealth(26f, 5f, 20f, 26f));

@@ -54,7 +54,6 @@ import studio.modroll.critfall.api.combat.SaveResult;
 import studio.modroll.critfall.api.dice.RollDetail;
 import studio.modroll.critfall.api.dice.RollResult;
 
-/** {@code /checks get|set|prof|roll|check|reset|level|xp|help}; see {@code docs/scores-config.md#commands}. */
 public final class ChecksCommands {
 
     public static final String ROOT = "checks";
@@ -254,10 +253,6 @@ public final class ChecksCommands {
         return Command.SINGLE_SUCCESS;
     }
 
-    /**
-     * Ops may roll for anyone; while player rolls are on, any player may roll for their own character, by leaving
-     * out the target or naming themselves.
-     */
     private static boolean mayRoll(CommandSourceStack source) {
         return source.hasPermission(OP_PERMISSION_LEVEL)
                 || (ScoresRuntime.config().playerRolls().enabled() && source.isPlayer());
@@ -272,10 +267,6 @@ public final class ChecksCommands {
         return target;
     }
 
-    /**
-     * A player rolling for their own character, while player rolls are on, shows the result to every player
-     * within the radius, themselves included. Any other roll replies to its source alone.
-     */
     private static void announceRoll(CommandContext<CommandSourceStack> ctx, LivingEntity target, Component line) {
         ScoresConfig.PlayerRollSettings settings = ScoresRuntime.config().playerRolls();
         if (!settings.enabled()
@@ -323,8 +314,8 @@ public final class ChecksCommands {
     }
 
     /**
-     * Returns 1 on success. A failed check fails the command, since {@code execute store success} counts
-     * any command that does not fail as a success, whatever it returns.
+     * A failed check fails the command, since {@code execute store success} counts any command that does not fail as a
+     * success.
      */
     private static int check(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         LivingEntity target = livingTarget(ctx);
@@ -457,10 +448,6 @@ public final class ChecksCommands {
                 "commands.checks.get.ability", ability.id(), score, SheetText.signed(Abilities.modifier(score)));
     }
 
-    /**
-     * Proficiency levels are shown by their command ids ({@code proficient}, {@code expertise}). Like the
-     * stat screen, the modifier and passive score include bonus sources.
-     */
     private static Component describe(LivingEntity target, Skill skill) {
         Proficiency proficiency = ScoreService.skillProficiency(target, skill);
         String modifier = SheetText.signed(BonusSources.skillModifier(target, skill));

@@ -1,9 +1,5 @@
 package studio.modroll.checks.social;
 
-/**
- * How a social check went. A natural 1 or 20 decides it outright; otherwise a check that meets the DC by
- * no more than the barely margin only barely succeeds.
- */
 public enum SocialOutcome {
     CRITICAL_FAILURE("critical_failure"),
     FAILURE("failure"),
@@ -20,12 +16,10 @@ public enum SocialOutcome {
         this.id = id;
     }
 
-    /** The key in {@code scores.json} and in the lang file. */
     public String id() {
         return id;
     }
 
-    /** This outcome's key in {@code action}'s lang pools: Plead and Lie have none for barely, which counts as a success. */
     public String poolId(SocialAction action) {
         return action.deEscalates() && this == BARELY ? SUCCESS.id() : id;
     }

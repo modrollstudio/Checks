@@ -60,7 +60,6 @@ class BonusSourceTest {
         return skills.get(ResourceLocation.parse("checks:" + path));
     }
 
-    /** Wears exactly {@code item} in {@code slot} and has exactly {@code effects}. */
     private static BonusSource.Bearer bearer(EquipmentSlot slot, String item, Set<String> effects) {
         return new BonusSource.Bearer() {
             @Override

@@ -10,11 +10,6 @@ import studio.modroll.checks.api.Ability;
 import studio.modroll.checks.preset.PresetKind;
 import studio.modroll.checks.sheet.SheetText;
 
-/**
- * The confirm page's paragraph, in the second person: who the character is by species, background and
- * class, their two best abilities and their proficient skills, e.g. "You are Dev1, Dwarf by birth,
- * Soldier by upbringing and Fighter by calling. …". A Custom or unchosen preset is left out.
- */
 public final class CharacterStory {
 
     static final int BEST_ABILITIES = 2;
@@ -54,7 +49,6 @@ public final class CharacterStory {
         return Component.translatable(key, SheetText.andList(best));
     }
 
-    /** The highest scores first, ties in STR to CHA order. */
     static List<Ability> bestAbilities(Map<Ability, Integer> scores) {
         return scores.keySet().stream()
                 .sorted(Comparator.comparing((Ability ability) -> scores.get(ability))

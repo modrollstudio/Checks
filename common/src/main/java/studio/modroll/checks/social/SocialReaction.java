@@ -3,22 +3,14 @@ package studio.modroll.checks.social;
 import java.util.EnumSet;
 import java.util.Set;
 
-/** How a target visibly reacts to a social action. Cosmetic: no reaction changes an outcome. */
 public enum SocialReaction {
-    /** Head shake and a "no"; only villagers and wandering traders shake their heads. */
     SHAKE_HEAD,
-    /** Angry particles; a piglin snarls. */
     ANGRY,
-    /** Happy particles and a "yes"; a piglin admires; a mob only shows the particles. */
     PLEASED,
-    /** Runs from the player; only villagers do. */
     FLEE,
-    /** Sweats; a piglin backs off. */
     COWER,
-    /** The wandering trader's llamas spit at the player. */
     LLAMAS_SPIT;
 
-    /** What this outcome of {@code action} on {@code target} calls for. */
     public static Set<SocialReaction> of(SocialAction action, SocialTarget target, SocialOutcome outcome) {
         return switch (target) {
             case PIGLIN -> piglin(action, outcome.succeeded());
@@ -27,7 +19,6 @@ public enum SocialReaction {
         };
     }
 
-    /** How villagers and piglins take a Performance: no reaction to a dull one. */
     public static Set<SocialReaction> ofPerformance(SocialOutcome outcome) {
         if (outcome.succeeded()) {
             return EnumSet.of(PLEASED);
@@ -43,7 +34,6 @@ public enum SocialReaction {
         };
     }
 
-    /** A scared mob sweats and one that rushes the player bristles; a calmed one settles, an unmoved one bristles. */
     private static Set<SocialReaction> mob(SocialAction action, SocialOutcome outcome) {
         boolean succeeded = outcome.succeeded();
         return switch (action) {

@@ -2,7 +2,6 @@ package studio.modroll.checks.api;
 
 import java.util.Optional;
 
-/** The six fixed D&D-style abilities. */
 public enum Ability implements Stat {
     STRENGTH("str"),
     DEXTERITY("dex"),
@@ -17,7 +16,6 @@ public enum Ability implements Stat {
         this.id = id;
     }
 
-    /** The lowercase id used in datapack JSON, commands, and NBT. */
     public String id() {
         return id;
     }

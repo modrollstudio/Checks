@@ -6,12 +6,6 @@ import java.util.Set;
 import net.minecraft.resources.ResourceLocation;
 import studio.modroll.checks.Checks;
 
-/**
- * What a player can try from the social menu: the skill it rolls, the target's passive skill that sets the
- * DC when one does, and who it works on. Plead and Lie talk down a golem alarm, and are only offered by
- * villagers on guard, in place of Persuade and Deceive. A mob is offered only the actions that work on
- * mobs, Intimidate and Calm; everyone else only the others.
- */
 public enum SocialAction {
     PERSUADE("persuade", "persuasion", Optional.empty(), Set.of(SocialTarget.VILLAGER, SocialTarget.WANDERING_TRADER)),
     DECEIVE(
@@ -38,7 +32,6 @@ public enum SocialAction {
         this.targets = targets;
     }
 
-    /** The key under {@code social} in {@code scores.json} and in the lang file. */
     public String id() {
         return id;
     }
@@ -47,7 +40,6 @@ public enum SocialAction {
         return skill;
     }
 
-    /** The target's passive skill used as the DC; empty when the DC comes from the config. */
     public Optional<ResourceLocation> passiveDc() {
         return passiveDc;
     }
@@ -56,17 +48,14 @@ public enum SocialAction {
         return targets.contains(target);
     }
 
-    /** Intimidate or Calm on a mob: offered only on mobs. */
     public boolean onMobs() {
         return targets.stream().allMatch(SocialTarget::mob);
     }
 
-    /** Plead or Lie: offered only while villagers are on guard. */
     public boolean deEscalates() {
         return this == PLEAD || this == LIE;
     }
 
-    /** Pickpocket or Intimidate: what villagers on guard won't let happen, and wary ones see coming. */
     public boolean villagersGuardAgainst() {
         return this == PICKPOCKET || this == INTIMIDATE;
     }

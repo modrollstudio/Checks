@@ -5,9 +5,9 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import studio.modroll.checks.gametest.RestScenarios;
 
-/** Fabric registration shim: delegates to the shared {@link RestScenarios} bodies. */
 public class RestGameTests implements FabricGameTest {
 
+    // A batch of its own: its rest lasts a few ticks, and other rest tests tick every rest on the server.
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE, batch = "rest_short")
     public void aShortRestSpendsHitDiceUntilFullHealth(GameTestHelper helper) {
         RestScenarios.aShortRestSpendsHitDiceUntilFullHealth(helper);

@@ -35,11 +35,6 @@ import studio.modroll.checks.sheet.client.WrappedTooltip;
 import studio.modroll.checks.ui.Area;
 import studio.modroll.checks.ui.Frames;
 
-/**
- * Character creation, one page per step with Back and Next: species, background and class (while
- * presets are on), then scores, skills and a summary to confirm. The screen only edits a
- * {@link CreationDraft}; the server rolls the dice and has the final say on the submission.
- */
 public final class CharacterCreationScreen extends Screen {
 
     private static final Component TITLE = Component.translatable(KEY + "title");
@@ -53,7 +48,6 @@ public final class CharacterCreationScreen extends Screen {
     private static final int MAX_SHEET_WIDTH = 500;
     private static final int MAX_BODY_HEIGHT = 260;
     private static final int MARGIN = 12;
-    /** The strip with the title and step names, then the body, then the footer buttons. */
     private static final int CHROME_HEIGHT = Frames.STRIP_HEIGHT + GAP + GAP + BUTTON_HEIGHT;
 
     private static final int TITLE_SPACING = 16;
@@ -87,7 +81,6 @@ public final class CharacterCreationScreen extends Screen {
         views.put(CreationStep.CONFIRM, new SummaryStepView(this));
     }
 
-    /** Refreshes an open creation screen, replaces the stat screen, or waits until no other screen is open. */
     public static void open(CreationOffer offer) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.screen instanceof CharacterCreationScreen screen) {
@@ -121,10 +114,6 @@ public final class CharacterCreationScreen extends Screen {
         }
     }
 
-    /**
-     * One size for every page, so nothing moves on Back or Next: as large as the window allows up to a
-     * maximum, centered, with a slim margin above and below on short windows.
-     */
     @Override
     protected void init() {
         panelWidth = Math.min(MAX_SHEET_WIDTH, width - 2 * MARGIN);
@@ -167,7 +156,6 @@ public final class CharacterCreationScreen extends Screen {
         });
     }
 
-    /** Skip, or on the last page Start Over, which reopens the screen with a fresh draft of the same offer. */
     private Button.Builder firstFooterButton() {
         if (draft.onLastStep()) {
             return Button.builder(
@@ -186,7 +174,6 @@ public final class CharacterCreationScreen extends Screen {
         refresh();
     }
 
-    /** Skip and Escape both ask once before leaving; declining returns to the unchanged draft. */
     private void confirmSkip() {
         Component message =
                 Component.translatable(KEY + "skip.confirm.message", StatSheetScreen.KEY.getTranslatedKeyMessage());
@@ -217,10 +204,6 @@ public final class CharacterCreationScreen extends Screen {
         WrappedTooltip.render(graphics, font, tooltip, TOOLTIP_WIDTH, mouseX, mouseY);
     }
 
-    /**
-     * On the header strip, the title at the left and the step names at the right, an even gap apart, the
-     * current one highlighted; the title gives way when a window is too narrow for both.
-     */
     private void renderHeader(GuiGraphics graphics) {
         List<Component> names = draft.steps().stream()
                 .map(step -> (Component) Component.translatable(KEY + "step." + step.id()))
@@ -275,12 +258,10 @@ public final class CharacterCreationScreen extends Screen {
         return addRenderableWidget(widget);
     }
 
-    /** Rebuilds the page after the draft changed. */
     public void refresh() {
         rebuildWidgets();
     }
 
-    /** Shows {@code lines} as a tooltip this frame when the mouse is over the area. */
     void hover(int left, int top, int right, int bottom, Supplier<List<Component>> lines) {
         if (over(left, top, right, bottom)) {
             tooltip = lines.get();

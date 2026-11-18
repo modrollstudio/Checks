@@ -30,11 +30,6 @@ import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.social.HostilityPayload;
 import studio.modroll.checks.social.Insight;
 
-/**
- * GameTest bodies for passive Insight. Players are new survival players with every score 10 and no
- * proficiency, so their passive Insight is 10. Insight's tick runs here, under each test's settings; the
- * server's own runs under the live config, whose DC of 12 a passive 10 never meets.
- */
 public final class InsightScenarios {
 
     private static final int PASSIVE_INSIGHT = 10;
@@ -44,10 +39,6 @@ public final class InsightScenarios {
 
     private InsightScenarios() {}
 
-    /**
-     * A zombie after the player is marked only while passive Insight meets the DC, and one after nobody never
-     * is. The client hears only of a change, and of the end, once the sense is off.
-     */
     public static void aMobAfterThePlayerIsMarkedOnlyWhenPassiveInsightMeetsTheDc(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "insight-sense", IN_FRONT);
         Mob hunter = calm(helper, EntityType.ZOMBIE, TARGET_SPOT);
@@ -83,10 +74,6 @@ public final class InsightScenarios {
         helper.succeed();
     }
 
-    /**
-     * A creeper that lights its fuse within range is marked at once and warns the player with a sound, once
-     * per fuse, while passive Insight meets the DC; never with the warning off or below the DC.
-     */
     public static void aFusingCreeperWarnsOncePerFuse(GameTestHelper helper) {
         List<Packet<?>> packets = new ArrayList<>();
         ServerPlayer player = watchedSurvivor(helper, "insight-creeper", packets);
@@ -135,7 +122,6 @@ public final class InsightScenarios {
         return new ScoresConfig.InsightSense(enabled, dc, RANGE);
     }
 
-    /** Runs {@code body} with these senses, unprofiled, adding what Insight sends the player to {@code sent}. */
     private static void sensing(
             ServerPlayer player,
             List<HostilityPayload> sent,

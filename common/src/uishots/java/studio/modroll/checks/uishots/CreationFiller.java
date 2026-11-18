@@ -8,7 +8,6 @@ import studio.modroll.checks.creation.CreationMethod;
 import studio.modroll.checks.creation.CreationStep;
 import studio.modroll.checks.preset.PresetKind;
 
-/** Fills in the current creation page the way a player might, so its screenshot shows a complete page. */
 final class CreationFiller {
 
     private CreationFiller() {}
@@ -30,7 +29,6 @@ final class CreationFiller {
                 .ifPresent(preset -> draft.choose(kind, Optional.of(preset.id())));
     }
 
-    /** The standard array along the class's suggested order, then the background bonus where it fits first. */
     private static void placeScores(CreationDraft draft) {
         draft.select(CreationMethod.STANDARD_ARRAY);
         draft.useSuggested();

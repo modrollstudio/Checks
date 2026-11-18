@@ -7,10 +7,7 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 import studio.modroll.checks.Checks;
 import studio.modroll.checks.gametest.GolemAlarmScenarios;
 
-/**
- * NeoForge registration shim: delegates to the shared {@link GolemAlarmScenarios} bodies, each in a batch
- * of its own so no alarm reaches another test's golems.
- */
+/** Each in a batch of its own, so no alarm reaches another test's golems. */
 @GameTestHolder(Checks.MOD_ID)
 @PrefixGameTestTemplate(false)
 public class GolemAlarmGameTests {

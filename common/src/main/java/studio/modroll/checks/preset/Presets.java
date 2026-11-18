@@ -1,6 +1,5 @@
 package studio.modroll.checks.preset;
 
-/** The loaded species, backgrounds and classes. */
 public final class Presets {
 
     public static final PresetStore<Species> SPECIES = new PresetStore<>();

@@ -5,7 +5,7 @@ import net.minecraft.world.entity.ai.goal.GoalSelector;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-/** Vanilla keeps a mob's goals protected; NeoForge opens them with its access transformer, Fabric does not. */
+/** NeoForge opens a mob's goals with its access transformer; Fabric does not. */
 @Mixin(Mob.class)
 public interface MobAccessor {
 

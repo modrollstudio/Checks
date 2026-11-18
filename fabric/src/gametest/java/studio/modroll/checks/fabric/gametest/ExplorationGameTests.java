@@ -5,7 +5,6 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import studio.modroll.checks.gametest.ExplorationScenarios;
 
-/** Fabric registration shim: delegates to the shared {@link ExplorationScenarios} bodies. */
 public class ExplorationGameTests implements FabricGameTest {
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)

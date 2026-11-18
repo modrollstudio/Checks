@@ -11,10 +11,7 @@ import studio.modroll.checks.text.FallbackText;
 import studio.modroll.critfall.api.dice.DieRoll;
 import studio.modroll.critfall.api.dice.RollResult;
 
-/**
- * The chat lines for creation rolls, e.g. {@code Steve rolled STR: 1, 1, 2, ~~1~~ = 4} with the dropped
- * die struck through. They are broadcast to every player, so every part carries its English fallback.
- */
+/** Broadcast to every player, so every part carries its English fallback. */
 public final class RollAnnouncement {
 
     private RollAnnouncement() {}
@@ -40,7 +37,6 @@ public final class RollAnnouncement {
         return FallbackText.of("chat.checks.creation.rolled", playerName, label, dice(result.dice()), result.total());
     }
 
-    /** Hardcore rolls belong to an ability; free rolls are only numbered until the player assigns them. */
     private static Component label(CreationMethod method, int index) {
         if (method == CreationMethod.HARDCORE) {
             return SheetText.abilityAbbreviation(Ability.values()[index]);

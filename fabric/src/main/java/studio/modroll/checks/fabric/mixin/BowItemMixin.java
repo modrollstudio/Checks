@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import studio.modroll.checks.body.BodyHooks;
 
-/** Fabric API has no bow release event; NeoForge's ArrowLooseEvent changes the same draw time. */
+/** Fabric API has no bow release event. */
 @Mixin(BowItem.class)
 abstract class BowItemMixin {
 

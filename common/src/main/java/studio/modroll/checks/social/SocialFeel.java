@@ -29,14 +29,6 @@ import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.score.ScoresRuntime;
 import studio.modroll.checks.text.FallbackText;
 
-/**
- * Cosmetics that make social actions feel alive: mood voices, speech bubbles and the pickpocket animation.
- * None of them changes an outcome, and any line picked is picked with Minecraft's own randomness. Voices
- * are sound events no registry knows ({@code checks:<target>.<mood>}), so a resource pack can swap them
- * while clients without Checks can still join. Only clients with Checks hear a voice, in place of the
- * reaction's vanilla sound, which everyone else still hears; speech bubbles and the flying item reach
- * players with Checks around the target.
- */
 public final class SocialFeel {
 
     private static final int STARE_TICKS = 20;
@@ -52,14 +44,12 @@ public final class SocialFeel {
 
     private static final List<Pending> PENDING = new ArrayList<>();
 
-    /** Until a loader sets one, every client counts as one without Checks and hears vanilla's sounds. */
     private static Predicate<ServerPlayer> checksClient = player -> false;
 
     private SocialFeel() {}
 
     private record Pending(long dueTick, Runnable action) {}
 
-    /** Each loader sets how to tell whether a player's client has Checks. */
     public static void setChecksClient(Predicate<ServerPlayer> hasChecks) {
         checksClient = hasChecks;
     }
@@ -72,13 +62,11 @@ public final class SocialFeel {
         return Checks.id(target.id() + "." + mood.id());
     }
 
-    /** The target voices its mood and says a line about the outcome, each when switched on. */
     static void react(
             ServerPlayer player, LivingEntity target, SocialTarget kind, SocialAction action, SocialOutcome outcome) {
         voiceAndSay(player, target, kind, SocialMood.of(action, outcome), SpeechPools.of(kind, action, outcome));
     }
 
-    /** The speaker voices {@code mood} and says a line from {@code pool}, each when switched on; mobs keep quiet. */
     static void voiceAndSay(
             ServerPlayer player,
             LivingEntity speaker,
@@ -97,7 +85,6 @@ public final class SocialFeel {
         }
     }
 
-    /** A villager that saw the player's crime says a line from the target's pool for that failure. */
     static void witnessed(ServerPlayer player, Villager witness, SocialAction action) {
         ScoresConfig.FeelSettings feel = settings();
         if (feel.speechBubbles().enabled()) {
@@ -106,10 +93,6 @@ public final class SocialFeel {
         }
     }
 
-    /**
-     * The thief's arm swings and the item flies to them with a pop; a target that barely missed it stares
-     * at the thief, then looks around.
-     */
     static void stolen(ServerPlayer thief, LivingEntity target, ItemStack item, boolean barely) {
         ScoresConfig.FeelSettings feel = settings();
         if (!feel.pickpocketAnimation()) {
@@ -123,7 +106,6 @@ public final class SocialFeel {
         }
     }
 
-    /** The thief's arm swings, the item drops, and the target snatches it back. */
     static void caught(ServerPlayer thief, LivingEntity target, ItemStack item) {
         ScoresConfig.FeelSettings feel = settings();
         if (!feel.pickpocketAnimation()) {
@@ -134,7 +116,6 @@ public final class SocialFeel {
         later(thief.server, ItemArc.SNATCH_TICK, () -> snatch(target));
     }
 
-    /** Runs whatever is due; called once per server tick. */
     public static void tick(MinecraftServer server) {
         long now = server.getTickCount();
         List<Pending> due =
@@ -147,10 +128,6 @@ public final class SocialFeel {
         PENDING.clear();
     }
 
-    /**
-     * A reaction's vanilla sound, from the target. While voices are on, only players without Checks hear
-     * it; those with Checks hear the target's voice instead.
-     */
     static void reactionSound(LivingEntity target, SoundEvent sound) {
         if (!settings().voices()) {
             target.playSound(sound);
@@ -168,7 +145,6 @@ public final class SocialFeel {
         });
     }
 
-    /** As {@link LivingEntity#playSound(SoundEvent)}, but only to the players in earshot that {@code hears}. */
     private static void playFor(LivingEntity target, Holder<SoundEvent> sound, Predicate<ServerPlayer> hears) {
         if (target.isSilent()) {
             return;
@@ -227,7 +203,6 @@ public final class SocialFeel {
         }
     }
 
-    /** Through the villager's brain, which turns its head to whatever it is told to look at. */
     private static void lookAround(Villager villager, ServerPlayer thief) {
         villager.getBrain()
                 .setMemoryWithExpiry(MemoryModuleType.LOOK_TARGET, new EntityTracker(thief, true), STARE_TICKS);

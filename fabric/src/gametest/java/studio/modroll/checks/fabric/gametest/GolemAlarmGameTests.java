@@ -5,10 +5,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import studio.modroll.checks.gametest.GolemAlarmScenarios;
 
-/**
- * Fabric registration shim: delegates to the shared {@link GolemAlarmScenarios} bodies, each in a batch of
- * its own so no alarm reaches another test's golems.
- */
+/** Each in a batch of its own, so no alarm reaches another test's golems. */
 public class GolemAlarmGameTests implements FabricGameTest {
 
     private static final String TEMPLATE = "checks:wide";

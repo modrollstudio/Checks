@@ -2,15 +2,10 @@ package studio.modroll.checks.social;
 
 import net.minecraft.world.phys.Vec3;
 
-/**
- * The path of a pickpocketed item. A stolen one arcs from the target's hand to the thief. A caught one
- * arcs halfway, drops to the ground, lies there for a moment and is snatched back into the target's hand.
- */
 public final class ItemArc {
 
     public static final int STOLEN_TICKS = 10;
     public static final int CAUGHT_TICKS = 24;
-    /** When a caught item leaves the ground again, in the target's hand. */
     public static final int SNATCH_TICK = 14;
 
     private static final int DROP_TICKS = 8;
@@ -26,10 +21,6 @@ public final class ItemArc {
         return caught ? CAUGHT_TICKS : STOLEN_TICKS;
     }
 
-    /**
-     * Where the item is {@code tick} ticks in, from the target's hand {@code from} toward the thief's
-     * {@code to}; a caught item lands at {@code groundY}. Past the end it stays where it finished.
-     */
     public static Vec3 position(Vec3 from, Vec3 to, double groundY, boolean caught, double tick) {
         if (!caught) {
             return hop(from, to, STOLEN_HEIGHT, tick / STOLEN_TICKS);

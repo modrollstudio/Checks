@@ -8,11 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import studio.modroll.checks.exploration.Taming;
 
-/**
- * No event lets a mod decide a taming attempt: NeoForge's AnimalTameEvent fires only once vanilla's own
- * chance came up, and can only cancel it. A wolf tames on a draw of 0, so a made Animal Handling check
- * draws 0.
- */
+/** No event lets a mod decide a taming attempt. A wolf tames on a draw of 0. */
 @Mixin(Wolf.class)
 abstract class WolfMixin {
 

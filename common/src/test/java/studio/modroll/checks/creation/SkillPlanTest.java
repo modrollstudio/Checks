@@ -42,7 +42,6 @@ class SkillPlanTest {
 
     @Test
     void classPicksComeFromTheClassList() {
-        // Sage + Fighter overlap only on History, so one pick may leave the list.
         SkillPlan plan = plan(Optional.of(SAGE), Optional.of(FIGHTER));
         assertEquals(2, plan.required());
         assertEquals(1, plan.offListAllowance());
@@ -56,7 +55,6 @@ class SkillPlanTest {
 
     @Test
     void eachOverlappingSkillFreesOnePickForAnySkill() {
-        // Soldier gives Athletics and Intimidation, both on the Fighter list: both picks may be anything.
         SkillPlan plan = plan(Optional.of(SOLDIER), Optional.of(FIGHTER));
         assertEquals(Set.of(ATHLETICS, INTIMIDATION), plan.overlap());
         assertEquals(2, plan.overlapPicks());

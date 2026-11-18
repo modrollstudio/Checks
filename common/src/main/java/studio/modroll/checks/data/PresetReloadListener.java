@@ -19,9 +19,8 @@ import studio.modroll.checks.preset.Presets;
 import studio.modroll.checks.preset.Species;
 
 /**
- * Loads one kind of preset. A file with {@code "removed": true} removes the entry a lower pack defined
- * at the same path. Backgrounds and classes resolve skills against the current {@link SkillStore}, so
- * they must run after the skill listener.
+ * Backgrounds and classes resolve skills against the current {@link SkillStore}, so they must run after the skill
+ * listener.
  */
 public final class PresetReloadListener<T extends Preset> extends DatapackListener<T> {
 

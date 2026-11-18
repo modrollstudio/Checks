@@ -5,7 +5,6 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import studio.modroll.checks.gametest.BonusSourceScenarios;
 
-/** Fabric registration shim: delegates to the shared {@link BonusSourceScenarios} bodies. */
 public class BonusSourceGameTests implements FabricGameTest {
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)

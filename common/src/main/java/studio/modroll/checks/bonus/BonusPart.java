@@ -6,7 +6,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import studio.modroll.critfall.api.dice.RollMode;
 
-/** What one bonus source adds to a check: a flat bonus and a roll mode, {@code NORMAL} for none. */
 public record BonusPart(ResourceLocation source, int bonus, RollMode mode) {
 
     private static final StreamCodec<ByteBuf, RollMode> MODE =

@@ -8,10 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import studio.modroll.checks.body.PlayerBodies;
 
-/**
- * Fabric API has no player-save event; NeoForge fires PlayerEvent.SaveToFile from this same method, which
- * vanilla calls on every autosave, logout and shutdown.
- */
+/** Fabric API has no player save event. */
 @Mixin(PlayerList.class)
 abstract class PlayerListMixin {
 

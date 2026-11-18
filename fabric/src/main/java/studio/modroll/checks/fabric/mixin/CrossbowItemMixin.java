@@ -8,10 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import studio.modroll.checks.body.BodyHooks;
 
-/**
- * No event lets a mod change how long a crossbow takes to load. Every use of the load time (the
- * charge, its sounds, the use duration) reads it here, so DEX shortens all of them alike.
- */
+/** No event lets a mod change how long a crossbow takes to load. */
 @Mixin(CrossbowItem.class)
 abstract class CrossbowItemMixin {
 

@@ -5,7 +5,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import studio.modroll.checks.Checks;
 
-/** Client to server: the player's choices, which the server validates before anything is saved. */
 public record CreationSubmitPayload(CreationSubmission submission) implements CustomPacketPayload {
 
     public static final CustomPacketPayload.Type<CreationSubmitPayload> TYPE =

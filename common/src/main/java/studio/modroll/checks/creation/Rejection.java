@@ -3,7 +3,6 @@ package studio.modroll.checks.creation;
 import net.minecraft.network.chat.Component;
 import studio.modroll.checks.sheet.SheetText;
 
-/** Why the server refused a character submission; each has a lang line under {@code checks.creation.rejected}. */
 public enum Rejection {
     CREATION_DISABLED("creation_disabled"),
     ALREADY_CREATED("already_created"),
@@ -41,7 +40,6 @@ public enum Rejection {
         return id;
     }
 
-    /** Some messages name a number or the bonus splits, which depend on the chosen presets. */
     public Component message(CreationOffer offer, PresetChoices choices) {
         String key = "checks.creation.rejected." + id;
         return switch (this) {

@@ -7,15 +7,10 @@ import studio.modroll.checks.text.FallbackText;
 import studio.modroll.critfall.api.combat.SaveResult;
 import studio.modroll.critfall.api.dice.RollDetail;
 
-/**
- * Roll lines: a check against a DC, and its d20 part, the face or under advantage or disadvantage the mode
- * and both faces.
- */
 public final class RollText {
 
     private RollText() {}
 
-    /** {@code Athletics vs DC 12: d20 15 (+2) = 17, success}. */
     public static Component check(Stat stat, SaveResult result) {
         return FallbackText.of(
                 result.saved() ? "checks.trigger.success" : "checks.trigger.failure",

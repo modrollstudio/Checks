@@ -6,7 +6,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import studio.modroll.checks.Checks;
 
-/** Server to client: how strongly the player's darkvision lights up darkness, 0 for none. */
 public record DarkvisionPayload(float strength) implements CustomPacketPayload {
 
     public static final CustomPacketPayload.Type<DarkvisionPayload> TYPE =

@@ -282,7 +282,6 @@ class SheetTooltipsTest {
         return new StatSheet.ArmorLine(base, worn, dexModifier, category, dexBonus, 0, 2);
     }
 
-    /** Points worn with the parts Critfall gave them, over its base 10. */
     private static Optional<StatSheet.ArmorPoints> worn(
             double armor, int armorPart, double toughness, int toughnessPart) {
         return Optional.of(new StatSheet.ArmorPoints(10, armor, armorPart, toughness, toughnessPart));
@@ -313,13 +312,14 @@ class SheetTooltipsTest {
                 Optional.empty(),
                 Optional.of(new SizeOption(Size.SMALL, 0.6)),
                 Optional.of(new StatSheet.HitDiceLine(8, 2, 5, 1.0, true)),
+                Optional.of(new StatSheet.AttacksLine(2, Optional.of(11))),
                 List.of());
 
         SheetSection section = SheetTooltips.body(body).orElseThrow();
 
         assertEquals("Body", section.title().getString());
         assertEquals(
-                List.of("Hit Points 26", "Hit Dice 2/5 d8", "Size Small"),
+                List.of("Hit Points 26", "Hit Dice 2/5 d8", "Attacks 2", "Size Small"),
                 section.rows().stream()
                         .map(row -> row.label().getString() + " " + row.value().getString())
                         .toList());
@@ -348,6 +348,26 @@ class SheetTooltipsTest {
                         .size());
     }
 
+    @Test
+    void attacksTooltipSaysWhatExtraAttackAddsAndWhenMoreComes() {
+        assertEquals(
+                List.of(
+                        "How many attacks one Attack action makes on your turn in a turn based fight, such as"
+                                + " Initiative's. Real time combat is unchanged.",
+                        "Extra Attack from your class: +1",
+                        "One more at level 11."),
+                strings(SheetTooltips.attacks(new StatSheet.AttacksLine(2, Optional.of(11)))));
+        assertEquals(
+                1,
+                SheetTooltips.attacks(new StatSheet.AttacksLine(1, Optional.empty()))
+                        .size());
+        assertEquals(
+                "One more at level 5.",
+                SheetTooltips.attacks(new StatSheet.AttacksLine(1, Optional.of(5)))
+                        .getLast()
+                        .getString());
+    }
+
     private static String longRestLine(StatSheet.HitDiceLine dice) {
         return SheetTooltips.hitDice(dice).getLast().getString();
     }
@@ -356,13 +376,20 @@ class SheetTooltipsTest {
     void levelGainsNameWhatEachLevelGave() {
         assertEquals(
                 List.of("24 max health", "a Hit Die (d8)", "proficiency bonus +2", "Expertise in 2 skills"),
-                strings(SheetTooltips.levelGain(new LevelGain(1, 24, Optional.of(2), 0, 2), Optional.of(8))));
+                strings(SheetTooltips.levelGain(
+                        new LevelGain(1, 24, Optional.of(2), 0, 2, Optional.empty()), Optional.of(8))));
         assertEquals(
                 List.of("+1 max health", "an ability score improvement"),
-                strings(SheetTooltips.levelGain(new LevelGain(4, 1, Optional.empty(), 1, 0), Optional.empty())));
+                strings(SheetTooltips.levelGain(
+                        new LevelGain(4, 1, Optional.empty(), 1, 0, Optional.empty()), Optional.empty())));
         assertEquals(
                 List.of("2 ability score improvements"),
-                strings(SheetTooltips.levelGain(new LevelGain(6, 0, Optional.empty(), 2, 0), Optional.empty())));
+                strings(SheetTooltips.levelGain(
+                        new LevelGain(6, 0, Optional.empty(), 2, 0, Optional.empty()), Optional.empty())));
+        assertEquals(
+                List.of("proficiency bonus +3", "Extra Attack (2 attacks)"),
+                strings(SheetTooltips.levelGain(
+                        new LevelGain(5, 0, Optional.of(3), 0, 0, Optional.of(2)), Optional.empty())));
     }
 
     @Test

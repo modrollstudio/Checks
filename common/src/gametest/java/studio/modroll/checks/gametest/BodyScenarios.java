@@ -76,7 +76,6 @@ import studio.modroll.critfall.api.AttackContext;
 import studio.modroll.critfall.api.RollService;
 import studio.modroll.critfall.api.combat.AttackResult;
 
-/** GameTest bodies for the body: health, armor class, size and the attribute extras, and their switches. */
 public final class BodyScenarios {
 
     private static final double EPSILON = 1e-6;
@@ -143,7 +142,6 @@ public final class BodyScenarios {
 
     private BodyScenarios() {}
 
-    /** CON 16 (+3) adds 6 HP; dropping back to CON 10 lowers the max and caps current health at it. */
     public static void conSetsMaxHealthAndKeepsHealthWithinIt(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("body-hp"));
         try {
@@ -166,12 +164,6 @@ public final class BodyScenarios {
         helper.succeed();
     }
 
-    /**
-     * Each level after the first adds a d10's 6 plus the CON modifier, times 0.5, with no class (the custom hit die,
-     * here a d10): +6 HP at level 3 with CON 10, and with CON 14 +8 at level 3 on top of CON's own +4. Max health is
-     * rounded down to whole hearts: level 2's +3 gives 22, or 23 with whole hearts off, and a CON of 1 (-5) with the
-     * minimum of 1 per level gives -9, so 10. With per level health off, levels add nothing.
-     */
     public static void levelsAddHitDieHealthWhileOn(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("body-lv"));
         ScoresConfig.BodySettings perLevel =
@@ -217,12 +209,6 @@ public final class BodyScenarios {
         helper.succeed();
     }
 
-    /**
-     * The class's hit die counts for every level after the first, whenever it was gained: a Fighter at level 5 with
-     * CON 10 has 4 levels of a d10's 6, times the shipped 0.2, so +4 HP; with a Custom class the shipped d8 gives
-     * 4 × 5 × 0.2 = +4 too. A Barbarian's d12 gives 4 × 7 × 0.2 = 5.6 and a Wizard's d6 4 × 4 × 0.2 = 3.2, each
-     * rounded down to whole hearts: +4 and +2.
-     */
     public static void classHitDieCountsForEveryLevel(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("body-lv-class"));
         try {
@@ -263,10 +249,6 @@ public final class BodyScenarios {
                 PresetGrants.NONE);
     }
 
-    /**
-     * The modifiers are not saved with the player, but Checks keeps the health: a relog comes back at
-     * 26 of 26 HP and half size, not capped at 20.
-     */
     public static void relogKeepsHealthAboveTheVanillaMax(GameTestHelper helper) {
         GameProfile profile = newProfile("body-relog");
         logout(helper, toughHalfling(helper, login(helper, profile)));
@@ -282,7 +264,6 @@ public final class BodyScenarios {
         helper.succeed();
     }
 
-    /** With every switch off, a relogged player gets no Checks modifier and vanilla max health and size. */
     public static void switchesOffLeaveNoModifiersAfterRelog(GameTestHelper helper) {
         GameProfile profile = newProfile("body-off-relog");
         logout(helper, toughHalfling(helper, login(helper, profile)));
@@ -302,10 +283,6 @@ public final class BodyScenarios {
         helper.succeed();
     }
 
-    /**
-     * Removing Checks, simulated by loading the player's saved data with no Checks code running: the save
-     * holds no Checks modifier, so the player has vanilla max health and scale.
-     */
     public static void removedChecksLeavesVanillaAttributes(GameTestHelper helper) {
         GameProfile profile = newProfile("body-removed");
         ServerPlayer player = toughHalfling(helper, login(helper, profile));
@@ -328,7 +305,6 @@ public final class BodyScenarios {
         helper.succeed();
     }
 
-    /** CON 16 and STR 16 as a halfling, at a full 26 HP. */
     private static ServerPlayer toughHalfling(GameTestHelper helper, ServerPlayer player) {
         body(() -> {
             set(helper, player, "con", 16);
@@ -341,7 +317,6 @@ public final class BodyScenarios {
         return player;
     }
 
-    /** Vanilla caps a respawned player's health before the modifier is back; a death respawn ends at full. */
     public static void respawnStartsAtFullModifiedHealth(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("body-respawn"));
         ServerPlayer respawned = player;
@@ -360,12 +335,6 @@ public final class BodyScenarios {
         helper.succeed();
     }
 
-    /**
-     * DEX 18 (+4): all of it without body armor or in leather, +2 in chainmail, none in iron. Only the body
-     * armor decides: a helmet, leggings or boots never limit DEX, whatever their weight. Over an iron helmet, iron
-     * leggings and chainmail boots (8 armor), both capped chestplates still add 3 in all, since body armor never
-     * lowers AC: Critfall's 13 plus the capped DEX would be below its 12 without them plus all of DEX.
-     */
     public static void armorClassFollowsTheBodyArmor(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("body-ac"));
         Mob attacker = spawnCalm(helper, EntityType.ZOMBIE);
@@ -404,13 +373,6 @@ public final class BodyScenarios {
         helper.succeed();
     }
 
-    /**
-     * The playtest character, DEX 20 (+5), under Critfall's default quarter of the armor: AC 15 unarmored, still
-     * 15 with a chainmail helmet, whose two points round away, still 15 once a chainmail chestplate caps DEX at +2,
-     * since it never lowers AC, 16 with iron leggings and 17 with chainmail boots, each counted as without the
-     * chestplate. Then any helmet, leggings or boots, of every shipped material, over any body armor: adding the
-     * piece never lowers the AC an attack rolls against.
-     */
     public static void helmetsLeggingsAndBootsNeverLowerArmorClass(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("body-pieces"));
         Mob attacker = spawnCalm(helper, EntityType.ZOMBIE);
@@ -451,11 +413,6 @@ public final class BodyScenarios {
         helper.succeed();
     }
 
-    /**
-     * Body armor never lowers AC. The playtest character, DEX 20 (+5), has AC 15 unarmored. A chainmail chestplate
-     * caps DEX at +2 for Critfall's 11 + 2 = 13, so AC stays at the 15 without it, and the sheet's tooltip says why.
-     * In full chainmail (12 armor) it is 16: 13 + 2 with the chestplate, but 11 + 5 without it.
-     */
     public static void bodyArmorNeverLowersArmorClass(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("body-floor"));
         Mob attacker = spawnCalm(helper, EntityType.ZOMBIE);
@@ -495,7 +452,6 @@ public final class BodyScenarios {
         helper.succeed();
     }
 
-    /** The provided DEX reaches Critfall: the roll's AC is Critfall's own plus the bonus. */
     public static void armorClassReachesCritfallRolls(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("body-roll"));
         Mob attacker = spawnCalm(helper, EntityType.ZOMBIE);
@@ -515,7 +471,6 @@ public final class BodyScenarios {
         helper.succeed();
     }
 
-    /** Mobs follow the attack rule: no answer without a profile, DEX 14 (+2) with one. */
     public static void onlyProfiledMobsGetArmorClass(GameTestHelper helper) {
         Mob zombie = spawnCalm(helper, EntityType.ZOMBIE);
         Mob attacker = spawnCalm(helper, EntityType.SKELETON);
@@ -534,7 +489,6 @@ public final class BodyScenarios {
         helper.succeed();
     }
 
-    /** Species set the size: a halfling is half size, a human Medium by default and 0.6 when Small. */
     public static void speciesAndChoiceSetTheSize(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("body-size"));
         try {
@@ -553,7 +507,6 @@ public final class BodyScenarios {
         helper.succeed();
     }
 
-    /** Creation accepts a Small human and refuses a Small elf; the accepted size applies. */
     public static void creationValidatesTheSizeChoice(GameTestHelper helper) {
         ServerPlayer elf = login(helper, newProfile("body-elf"));
         ServerPlayer human = login(helper, newProfile("body-human"));
@@ -576,7 +529,6 @@ public final class BodyScenarios {
         helper.succeed();
     }
 
-    /** Size off, or presets off, puts a halfling back at normal size. */
     public static void sizeSwitchesOff(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("body-size-off"));
         try {
@@ -604,7 +556,6 @@ public final class BodyScenarios {
         helper.succeed();
     }
 
-    /** STR 16 (+3): knockback +0.3 and mining speed +15%; each off on its own. */
     public static void strengthExtras(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("body-str"));
         try {
@@ -631,7 +582,6 @@ public final class BodyScenarios {
         helper.succeed();
     }
 
-    /** DEX 16 (+3): a bow drawn 10 ticks shoots like 13, a crossbow loads in 19 ticks instead of 25. */
     public static void dexterityExtras(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("body-dex"));
         Mob zombie = spawnCalm(helper, EntityType.ZOMBIE);
@@ -664,7 +614,6 @@ public final class BodyScenarios {
         helper.succeed();
     }
 
-    /** CON 16 (+3): breath +0.6 oxygen bonus and 15% less exhaustion; each off on its own. */
     public static void constitutionExtras(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("body-con"));
         try {
@@ -690,7 +639,6 @@ public final class BodyScenarios {
         helper.succeed();
     }
 
-    /** Health and armor class off give the vanilla max and no Critfall AC answer. */
     public static void healthAndArmorClassSwitchOff(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("body-off"));
         Mob attacker = spawnCalm(helper, EntityType.ZOMBIE);
@@ -718,7 +666,6 @@ public final class BodyScenarios {
         helper.succeed();
     }
 
-    /** The stat sheet carries the body section's values: max health, AC with its DEX part, and size. */
     public static void sheetShowsTheBody(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("body-sheet"));
         try {
@@ -798,7 +745,6 @@ public final class BodyScenarios {
         run(helper, "checks set " + player.getScoreboardName() + " " + ability + " " + score);
     }
 
-    /** Stores a confirmed character of the species straight away, the way creation would. */
     private static Optional<Rejection> submit(ServerPlayer player, ResourceLocation species, Size size) {
         PresetChoices choices =
                 new PresetChoices(Optional.of(species), Optional.empty(), Optional.empty(), Optional.of(size));
@@ -813,7 +759,6 @@ public final class BodyScenarios {
                         speciesPicks(player, choices, PICKS)));
     }
 
-    /** Wears {@code item} (air takes the piece off) with its armor points, as the entity's next tick would apply them. */
     private static void equip(LivingEntity entity, EquipmentSlot slot, Item item) {
         entity.getItemBySlot(slot).forEachModifier(slot, (attribute, modifier) -> {
             AttributeInstance instance = entity.getAttribute(attribute);
@@ -832,7 +777,6 @@ public final class BodyScenarios {
         });
     }
 
-    /** What an attack rolls against: Critfall's AC from the armor worn, plus Checks' DEX part. */
     private static int armorClass(LivingEntity defender, LivingEntity attacker) {
         return RollService.effectiveEntity(defender).armorClass()
                 + provider().acModifier(defender, attacker).orElse(0);
@@ -843,7 +787,6 @@ public final class BodyScenarios {
         expectEquals(helper, expected, armorClass(defender, attacker), "AC " + what);
     }
 
-    /** The DEX part alone, before anything that keeps body armor from lowering AC. */
     private static void expectDexPart(GameTestHelper helper, int expected, LivingEntity entity, String what) {
         expectEquals(
                 helper, expected, BodyValues.armorClass(entity).orElseThrow().dexBonus(), "DEX part, " + what);
@@ -900,10 +843,6 @@ public final class BodyScenarios {
         return CrossbowItem.getChargeDuration(new ItemStack(Items.CROSSBOW), shooter);
     }
 
-    /**
-     * Releases a bow drawn for {@link #DRAW_TICKS} and returns the arrow's speed; the arrow is removed. The
-     * player shoots from inside the test area, whose chunks are loaded, so the arrow can be found.
-     */
     private static double arrowSpeed(GameTestHelper helper, ServerPlayer player) {
         player.moveTo(helper.absoluteVec(SHOOTING_SPOT));
         ItemStack bow = new ItemStack(Items.BOW);

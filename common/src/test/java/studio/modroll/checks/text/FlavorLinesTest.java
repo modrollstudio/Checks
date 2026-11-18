@@ -21,17 +21,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import studio.modroll.checks.ModLang;
 
-/**
- * Every flavor, speech and death line reads naturally with names put in. A mob is named "the Iron Golem"
- * unless it has a custom name, so a mob's name never starts a sentence, where the "the" would be
- * lowercase.
- */
 class FlavorLinesTest {
 
     private static final Path EN_US = Path.of("src/main/resources/assets/checks/lang/en_us.json");
     private static final Path TAGS = Path.of("src/main/resources/data/checks/tags");
     private static final Pattern POOL_LINE = Pattern.compile(".*\\.\\d+");
-    /** Lang key prefix → the argument in its lines that is a mob's name. */
     private static final Map<String, String> MOB_NAME_ARGUMENT = Map.of(
             "checks.social.persuade.", "%1$s",
             "checks.social.deceive.", "%1$s",

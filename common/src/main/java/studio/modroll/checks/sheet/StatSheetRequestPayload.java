@@ -5,7 +5,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import studio.modroll.checks.Checks;
 
-/** Client to server: carries nothing, so a player can only ever ask for their own sheet. */
+/** Carries nothing, so a player can only ever ask for their own sheet. */
 public record StatSheetRequestPayload() implements CustomPacketPayload {
 
     public static final StatSheetRequestPayload INSTANCE = new StatSheetRequestPayload();

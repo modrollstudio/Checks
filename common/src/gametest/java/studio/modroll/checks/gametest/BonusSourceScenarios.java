@@ -42,7 +42,6 @@ import studio.modroll.critfall.api.RollService;
 import studio.modroll.critfall.api.combat.SaveResult;
 import studio.modroll.critfall.api.dice.RollMode;
 
-/** GameTest bodies for datapack bonus sources on real entities, with every die scripted. */
 public final class BonusSourceScenarios {
 
     private static final int EFFECT_TICKS = 200;
@@ -68,7 +67,6 @@ public final class BonusSourceScenarios {
 
     private BonusSourceScenarios() {}
 
-    /** A +2 perception item raises passive perception by 2. */
     public static void flatBonusRaisesPassiveScore(GameTestHelper helper) {
         Mob mob = spawnCalm(helper, EntityType.ZOMBIE);
         mob.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.SPYGLASS));
@@ -76,7 +74,6 @@ public final class BonusSourceScenarios {
         helper.succeed();
     }
 
-    /** An advantage source raises passive perception by 5, the 5e way. */
     public static void advantageRaisesPassiveScoreByFive(GameTestHelper helper) {
         Mob mob = spawnCalm(helper, EntityType.ZOMBIE);
         mob.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, EFFECT_TICKS));
@@ -84,7 +81,6 @@ public final class BonusSourceScenarios {
         helper.succeed();
     }
 
-    /** Advantage (night vision) and disadvantage (blindness on WIS, so perception) leave it unchanged. */
     public static void advantageAndDisadvantageLeavePassiveScore(GameTestHelper helper) {
         Mob mob = spawnCalm(helper, EntityType.ZOMBIE);
         mob.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, EFFECT_TICKS));
@@ -93,7 +89,6 @@ public final class BonusSourceScenarios {
         helper.succeed();
     }
 
-    /** {@code /checks roll} names the advantage a bonus source grants and prints both d20s, with or without a DC. */
     public static void rollLinesShowAdvantageAndBothD20s(GameTestHelper helper) {
         Mob mob = spawnCalm(helper, EntityType.ZOMBIE);
         mob.setItemSlot(EquipmentSlot.FEET, new ItemStack(Items.LEATHER_BOOTS));
@@ -107,7 +102,6 @@ public final class BonusSourceScenarios {
         helper.succeed();
     }
 
-    /** {@code /checks get} reports the stat screen's skill and save modifiers and passive scores. */
     public static void checksGetMatchesTheStatSheet(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("BonusGet"));
         String target = player.getStringUUID();
@@ -147,7 +141,6 @@ public final class BonusSourceScenarios {
         helper.succeed();
     }
 
-    /** Bonus sources on STR, DEX and every check and save leave Critfall's attack and damage modifiers alone. */
     public static void critfallAttackAndDamageIgnoreBonusSources(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("BonusFighter"));
         Mob target = spawnCalm(helper, EntityType.ZOMBIE);
@@ -185,7 +178,6 @@ public final class BonusSourceScenarios {
                 .orElseThrow();
     }
 
-    /** A sword in the main hand adds +2 to athletics, and nothing once it is in the off hand. */
     public static void mainhandItemAddsAFlatBonus(GameTestHelper helper) {
         Mob mob = spawnCalm(helper, EntityType.ZOMBIE);
         Skill athletics = standardSkill("athletics");
@@ -204,7 +196,6 @@ public final class BonusSourceScenarios {
         helper.succeed();
     }
 
-    /** Boots worn in the armor slot give advantage on stealth only. */
     public static void armorSlotGrantsAdvantage(GameTestHelper helper) {
         Mob mob = spawnCalm(helper, EntityType.ZOMBIE);
         mob.setItemSlot(EquipmentSlot.FEET, new ItemStack(Items.LEATHER_BOOTS));
@@ -221,7 +212,6 @@ public final class BonusSourceScenarios {
         helper.succeed();
     }
 
-    /** Invisibility adds +3 to DEX saves, but not to DEX checks. */
     public static void mobEffectBoostsSaves(GameTestHelper helper) {
         Mob mob = spawnCalm(helper, EntityType.ZOMBIE);
         int saveModifier = ChecksApi.saveModifier(mob, Ability.DEXTERITY);
@@ -239,7 +229,6 @@ public final class BonusSourceScenarios {
         helper.succeed();
     }
 
-    /** Boots of stealth (advantage) and slowness (disadvantage on DEX, so on stealth too) roll one die. */
     public static void advantageAndDisadvantageSourcesCancel(GameTestHelper helper) {
         Mob mob = spawnCalm(helper, EntityType.ZOMBIE);
         mob.setItemSlot(EquipmentSlot.FEET, new ItemStack(Items.LEATHER_BOOTS));
@@ -253,7 +242,6 @@ public final class BonusSourceScenarios {
         helper.succeed();
     }
 
-    /** With bonus sources switched off, the sword adds nothing. */
     public static void disabledBonusSourcesAddNothing(GameTestHelper helper) {
         Mob mob = spawnCalm(helper, EntityType.ZOMBIE);
         Skill athletics = standardSkill("athletics");
@@ -269,7 +257,6 @@ public final class BonusSourceScenarios {
         helper.succeed();
     }
 
-    /** The stat sheet's athletics includes the sword, and lists it for the tooltip breakdown. */
     public static void statSheetShowsBonusSources(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("BonusSheet"));
         Skill athletics = standardSkill("athletics");

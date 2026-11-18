@@ -52,7 +52,6 @@ import studio.modroll.checks.score.ScoresRuntime;
 import studio.modroll.checks.sheet.StatSheet;
 import studio.modroll.checks.sheet.StatSheets;
 
-/** GameTest bodies for species, backgrounds and class presets, against the presets Checks ships. */
 public final class PresetScenarios {
 
     private static final ResourceLocation ELF = Checks.id("elf");
@@ -67,7 +66,6 @@ public final class PresetScenarios {
     private static final ResourceLocation PERCEPTION = Checks.id("perception");
     private static final ResourceLocation ARCANA = Checks.id("arcana");
     private static final ResourceLocation HISTORY = Checks.id("history");
-    /** The standard array in the Fighter's suggested order: STR 15, DEX 13, CON 14, INT 10, WIS 12, CHA 8. */
     private static final List<Integer> FIGHTER_ARRAY = List.of(15, 13, 14, 10, 12, 8);
 
     private static final List<Integer> STR_TWO_CON_ONE = List.of(2, 0, 1, 0, 0, 0);
@@ -77,10 +75,6 @@ public final class PresetScenarios {
 
     private PresetScenarios() {}
 
-    /**
-     * Both loaders load every shipped species, background and class, each with a registered icon of its
-     * own, and offer them at creation.
-     */
     public static void shippedPresetsLoad(GameTestHelper helper) {
         expectEquals(helper, 9, Presets.SPECIES.all().size(), "shipped species");
         expectEquals(helper, 8, Presets.BACKGROUNDS.all().size(), "shipped backgrounds");
@@ -108,7 +102,6 @@ public final class PresetScenarios {
         }
     }
 
-    /** A pack file adds a background and replaces a shipped one; a bad file is refused; hiding drops the shipped. */
     public static void packAddsAndReplacesEntries(GameTestHelper helper) {
         Map<ResourceLocation, Background> patched = new HashMap<>(Presets.BACKGROUNDS.all());
         patched.put(
@@ -162,7 +155,6 @@ public final class PresetScenarios {
         helper.succeed();
     }
 
-    /** Bonuses off the background's abilities, skills off the class list and wrong counts are refused; nothing is saved or given. */
     public static void serverRejectsInvalidPresetSubmissions(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-pr-bad"));
         try {
@@ -205,7 +197,6 @@ public final class PresetScenarios {
         helper.succeed();
     }
 
-    /** Soldier and Fighter share Athletics and Intimidation, so both Fighter picks may be any other skill. */
     public static void overlapLetsThePlayerPickAnySkill(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-pr-overlap"));
         try {
@@ -245,7 +236,6 @@ public final class PresetScenarios {
         helper.succeed();
     }
 
-    /** Background bonuses land on top of the placed scores, class saves become proficient, and the sheet names all three. */
     public static void backgroundBonusesAndClassSavesApply(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-pr-bonus"));
         try {
@@ -279,7 +269,6 @@ public final class PresetScenarios {
         helper.succeed();
     }
 
-    /** The kit arrives on confirm and never again: not on relog, not on a second submission. */
     public static void startingKitIsGivenOnce(GameTestHelper helper) {
         GameProfile profile = newProfile("checks-pr-kit");
         ServerPlayer first = login(helper, profile);
@@ -302,7 +291,6 @@ public final class PresetScenarios {
         helper.succeed();
     }
 
-    /** The chosen presets and what they grant reach the world save. */
     public static void presetsPersistInTheWorldSave(GameTestHelper helper) {
         GameProfile profile = newProfile("checks-pr-save");
         ServerPlayer player = login(helper, profile);
@@ -328,7 +316,6 @@ public final class PresetScenarios {
         helper.succeed();
     }
 
-    /** {@code /checks reset} clears the presets with the rest of the character. */
     public static void resetClearsPresets(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-pr-reset"));
         try {
@@ -352,7 +339,6 @@ public final class PresetScenarios {
         helper.succeed();
     }
 
-    /** With presets off, creation and every character work as without presets. */
     public static void presetsToggleOffRestoresTheOldBehaviour(GameTestHelper helper) {
         ServerPlayer created = login(helper, newProfile("checks-pr-off1"));
         ServerPlayer newcomer = login(helper, newProfile("checks-pr-off2"));
@@ -434,7 +420,6 @@ public final class PresetScenarios {
         expect(helper, actual.equals(Optional.of(expected)), "must be refused as " + expected + ", was " + actual);
     }
 
-    /** The shipped Soldier kit: a stone sword, a shield and three bread. */
     private static void expectKit(GameTestHelper helper, ServerPlayer player, String when) {
         for (Map.Entry<Item, Integer> stack :
                 Map.of(Items.STONE_SWORD, 1, Items.SHIELD, 1, Items.BREAD, 3).entrySet()) {

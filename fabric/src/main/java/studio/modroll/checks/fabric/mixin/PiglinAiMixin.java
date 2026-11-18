@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import studio.modroll.checks.social.Socials;
 
-/** Neither loader has a hook for whether piglins see gold on an entity; a Deception disguise counts as gold. */
+/** Neither loader has a hook for whether piglins see gold on an entity. */
 @Mixin(PiglinAi.class)
 abstract class PiglinAiMixin {
 

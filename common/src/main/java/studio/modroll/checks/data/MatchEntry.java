@@ -3,15 +3,10 @@ package studio.modroll.checks.data;
 import java.util.function.Predicate;
 import net.minecraft.resources.ResourceLocation;
 
-/**
- * One entry of a profile's {@code matches} list: an exact id, a {@code #tag} or a {@code namespace:*}.
- * Tag membership comes in as a predicate so this stays testable without a loaded registry.
- */
 public sealed interface MatchEntry {
 
     boolean matches(ResourceLocation id, Predicate<ResourceLocation> tagTest);
 
-    /** Breaks priority ties: exact id = 3, tag = 2, namespace wildcard = 1. */
     int specificity();
 
     static MatchEntry parse(String text) {

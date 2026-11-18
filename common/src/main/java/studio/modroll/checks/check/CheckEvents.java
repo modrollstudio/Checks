@@ -8,11 +8,6 @@ import studio.modroll.checks.api.AfterCheckEvent;
 import studio.modroll.checks.api.BeforeCheckEvent;
 import studio.modroll.checks.score.ScoresRuntime;
 
-/**
- * The listeners registered through {@link studio.modroll.checks.api.ChecksApi}. A listener that throws is
- * logged and skipped, so one bad script cannot break checks for the server. While events are disabled no
- * listener is called.
- */
 public final class CheckEvents {
 
     private static final List<Consumer<BeforeCheckEvent>> BEFORE = new CopyOnWriteArrayList<>();
@@ -36,7 +31,6 @@ public final class CheckEvents {
         dispatch(AFTER, event);
     }
 
-    /** For tests. */
     public static void clearListeners() {
         BEFORE.clear();
         AFTER.clear();

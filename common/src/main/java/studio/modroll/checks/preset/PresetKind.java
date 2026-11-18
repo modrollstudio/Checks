@@ -2,7 +2,6 @@ package studio.modroll.checks.preset;
 
 import net.minecraft.resources.ResourceLocation;
 
-/** The three kinds of character preset, each loaded from {@code data/<ns>/checks/<id>/*.json}. */
 public enum PresetKind {
     SPECIES("species", "armor_stand"),
     BACKGROUND("background", "book"),
@@ -16,12 +15,10 @@ public enum PresetKind {
         this.defaultIcon = ResourceLocation.withDefaultNamespace(defaultIcon);
     }
 
-    /** The lowercase id used in datapack paths, NBT and lang keys. */
     public String id() {
         return id;
     }
 
-    /** The item shown for a preset of this kind whose file names no icon. */
     public ResourceLocation defaultIcon() {
         return defaultIcon;
     }

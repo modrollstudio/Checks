@@ -7,7 +7,6 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 import studio.modroll.checks.Checks;
 import studio.modroll.checks.gametest.LevelScenarios;
 
-/** NeoForge registration shim: delegates to the shared {@link LevelScenarios} bodies. */
 @GameTestHolder(Checks.MOD_ID)
 @PrefixGameTestTemplate(false)
 public class LevelGameTests {
@@ -87,5 +86,15 @@ public class LevelGameTests {
     @GameTest(template = TEMPLATE)
     public void levelUpPanelListsWhatEachLevelGave(GameTestHelper helper) {
         LevelScenarios.levelUpPanelListsWhatEachLevelGave(helper);
+    }
+
+    @GameTest(template = TEMPLATE)
+    public void extraAttackFollowsClassAndLevel(GameTestHelper helper) {
+        LevelScenarios.extraAttackFollowsClassAndLevel(helper);
+    }
+
+    @GameTest(template = TEMPLATE)
+    public void extraAttackOffLeavesOneAttack(GameTestHelper helper) {
+        LevelScenarios.extraAttackOffLeavesOneAttack(helper);
     }
 }

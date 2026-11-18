@@ -11,10 +11,6 @@ import net.minecraft.resources.ResourceLocation;
 import studio.modroll.checks.ability.Abilities;
 import studio.modroll.checks.api.Skill;
 
-/**
- * Everything a player may choose from, built by the server. The client draws its screen from it and
- * the server validates the submission against the same offer, so both apply identical rules.
- */
 public record CreationOffer(
         List<CreationMethod> methods,
         List<Integer> standardArray,
@@ -65,13 +61,11 @@ public record CreationOffer(
         speciesSkillChoices = Map.copyOf(speciesSkillChoices);
     }
 
-    /** The skill picks a species gives; none for Custom or a species without any. */
     public SkillChoice speciesSkillChoice(Optional<ResourceLocation> species) {
         return species.map(id -> speciesSkillChoices.getOrDefault(id, SkillChoice.NONE))
                 .orElse(SkillChoice.NONE);
     }
 
-    /** Once dice are rolled the character must be built from them. */
     public Optional<CreationMethod> lockedMethod() {
         return rolls.map(CharacterRolls::method);
     }
@@ -80,12 +74,10 @@ public record CreationOffer(
         return methods.contains(method) && lockedMethod().map(method::equals).orElse(true);
     }
 
-    /** Empty until the player has rolled for {@code method}. */
     public Optional<List<Integer>> rolledTotals(CreationMethod method) {
         return rolls.filter(r -> r.method() == method).map(CharacterRolls::totals);
     }
 
-    /** Empty until the player has rolled for {@code method}. */
     public Optional<List<RolledScore>> rolledScores(CreationMethod method) {
         return rolls.filter(r -> r.method() == method).map(CharacterRolls::scores);
     }

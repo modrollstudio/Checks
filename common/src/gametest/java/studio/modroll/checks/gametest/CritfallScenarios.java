@@ -45,7 +45,6 @@ import studio.modroll.critfall.api.RollService;
 import studio.modroll.critfall.api.combat.AttackOutcome;
 import studio.modroll.critfall.api.combat.AttackResult;
 
-/** GameTest bodies for the Critfall modifier provider: who it covers, what it supplies, and its toggle. */
 public final class CritfallScenarios {
 
     private static final int HITTING_D20 = 15;
@@ -58,7 +57,6 @@ public final class CritfallScenarios {
 
     private CritfallScenarios() {}
 
-    /** STR 16 (+3), DEX 18 (+4), proficiency +2: melee +5 to hit and +3 damage, ranged +6 and +4. */
     public static void playerAttackAndDamageUseAbilityAndProficiency(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-cf-player"));
         try {
@@ -93,7 +91,6 @@ public final class CritfallScenarios {
         helper.succeed();
     }
 
-    /** A mob with no Checks profile gets no answers, so Critfall rolls exactly as without Checks. */
     public static void unprofiledMobKeepsCritfallBonus(GameTestHelper helper) {
         Mob zombie = spawnCalm(helper, EntityType.ZOMBIE);
         Mob target = spawnCalm(helper, EntityType.ZOMBIE);
@@ -105,7 +102,6 @@ public final class CritfallScenarios {
         helper.succeed();
     }
 
-    /** STR 16 (+3), DEX 14 (+2), proficiency +3, DEX save proficient. */
     public static void profiledMobGetsChecksValues(GameTestHelper helper) {
         Mob zombie = spawnCalm(helper, EntityType.ZOMBIE);
         Mob target = spawnCalm(helper, EntityType.SKELETON);
@@ -122,7 +118,6 @@ public final class CritfallScenarios {
         helper.succeed();
     }
 
-    /** With {@code unprofiled_mobs} on, an unprofiled mob gets its derived Checks values too. */
     public static void unprofiledMobsOptionCoversEveryMob(GameTestHelper helper) {
         Mob zombie = spawnCalm(helper, EntityType.ZOMBIE);
         Mob target = spawnCalm(helper, EntityType.SKELETON);
@@ -161,7 +156,6 @@ public final class CritfallScenarios {
         helper.succeed();
     }
 
-    /** DEX 16 (+3) with DEX save proficiency, WIS 14 (+2), proficiency +2. */
     public static void spellSaveUsesMappedAbility(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-cf-save"));
         try {
@@ -192,7 +186,6 @@ public final class CritfallScenarios {
         helper.succeed();
     }
 
-    /** Disabled, Checks leaves Critfall's slot empty, so every attack rolls exactly as with no provider at all. */
     public static void disabledMatchesNoChecks(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-cf-off"));
         try {
@@ -219,7 +212,6 @@ public final class CritfallScenarios {
         helper.succeed();
     }
 
-    /** Turning the provider off frees Critfall's slot; turning it back on (as {@code /reload} does) refills it. */
     public static void toggleFreesAndRefillsTheSlot(GameTestHelper helper) {
         expect(helper, holdsChecks(), "Checks must hold Critfall's slot at startup");
         withCritfallSettings(disabled(), () -> {
@@ -230,7 +222,6 @@ public final class CritfallScenarios {
         helper.succeed();
     }
 
-    /** Neither turning Checks off nor back on touches a provider another mod registered. */
     public static void toggleKeepsAnotherModsProvider(GameTestHelper helper) {
         ModifierProvider other = new ModifierProvider() {};
         withOtherModifierProvider(other, () -> {
@@ -245,10 +236,6 @@ public final class CritfallScenarios {
         helper.succeed();
     }
 
-    /**
-     * Critfall still counts weapon material, the Strength effect and Sharpness in its own damage, and
-     * Checks adds the profiled zombie's STR modifier (+3) on top of each.
-     */
     public static void damageFactorsStackWithAbilityModifier(GameTestHelper helper) {
         Mob wooden = armedZombie(helper, new ItemStack(Items.WOODEN_SWORD));
         Mob stone = armedZombie(helper, new ItemStack(Items.STONE_SWORD));
@@ -275,7 +262,6 @@ public final class CritfallScenarios {
         });
     }
 
-    /** The armed zombie's hit damage, checked to be Critfall's own plus the STR modifier. */
     private static int damageOnTopOfCritfall(GameTestHelper helper, Mob attacker, LivingEntity target, String what) {
         int withChecks = heldWeaponHit(helper, attacker, target).damage();
         int withoutChecks = withoutModifierProvider(
@@ -336,7 +322,6 @@ public final class CritfallScenarios {
         return hit(helper, attacker, target, held);
     }
 
-    /** A plain hit: non-d20 dice roll their max, so the damage is deterministic. */
     private static AttackResult hit(
             GameTestHelper helper, LivingEntity attacker, LivingEntity target, AttackContext context) {
         AttackResult result = withD20s(() -> RollService.attackRoll(attacker, target, context), HITTING_D20);

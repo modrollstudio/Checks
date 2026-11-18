@@ -22,15 +22,6 @@ import studio.modroll.checks.score.ScoresRuntime;
 import studio.modroll.checks.text.FallbackText;
 import studio.modroll.critfall.api.combat.SaveResult;
 
-/**
- * Performance: a player playing a note block or blowing a goat horn rolls Performance through
- * {@link ChecksApi}, at most once per cooldown, while a villager or piglin is in range to hear it; with no
- * audience, nothing is rolled. A note block played by redstone has no player behind it and rolls nothing.
- * Villagers on guard against the player are no audience. A made check is told as gossip to every listening
- * villager and charms piglins as the Deceive disguise does; a natural 1 spreads gossip the other way.
- * Every listener shows how it took it, and the nearest villager and the nearest piglin say so. The
- * cooldown lives in memory only, so a restart ends it.
- */
 public final class Performances {
 
     private static final ResourceLocation PERFORMANCE = Checks.id("performance");
@@ -47,7 +38,6 @@ public final class Performances {
         }
     }
 
-    /** Called for every game event on the server; only a player's note block or goat horn counts. */
     public static void onGameEvent(Holder<GameEvent> event, GameEvent.Context context) {
         if (context.sourceEntity() instanceof ServerPlayer player
                 && (event.is(GameEvent.NOTE_BLOCK_PLAY) || event.is(GameEvent.INSTRUMENT_PLAY))) {
@@ -96,7 +86,6 @@ public final class Performances {
                 around(player, Piglin.class, range, piglin -> true));
     }
 
-    /** Nearest first. */
     private static <T extends LivingEntity> List<T> around(
             ServerPlayer player, Class<T> type, double range, Predicate<T> filter) {
         return player.level().getEntitiesOfClass(type, player.getBoundingBox().inflate(range), filter).stream()
@@ -104,7 +93,6 @@ public final class Performances {
                 .toList();
     }
 
-    /** A barely made check counts as a made one. */
     private static SocialOutcome heard(SocialOutcome outcome) {
         return outcome == SocialOutcome.BARELY ? SocialOutcome.SUCCESS : outcome;
     }
@@ -136,7 +124,6 @@ public final class Performances {
         speakFirst(player, audience.piglins(), outcome);
     }
 
-    /** The nearest grown-up listener speaks for the rest. */
     private static void speakFirst(ServerPlayer player, List<? extends LivingEntity> listeners, SocialOutcome outcome) {
         for (LivingEntity listener : listeners) {
             Optional<SocialTarget> kind = SocialTarget.of(listener);

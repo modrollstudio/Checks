@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import studio.modroll.checks.save.VanillaSaves;
 
-/** Neither loader tells an effect's cause; {@code /effect give}, from chat or a function, adds effects here. */
+/** Neither loader tells an effect's cause. */
 @Mixin(EffectCommands.class)
 abstract class EffectCommandsMixin {
 

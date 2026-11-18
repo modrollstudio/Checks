@@ -7,10 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import net.minecraft.resources.ResourceLocation;
 
-/**
- * The loaded profiles as an immutable snapshot behind a volatile field, since {@code /reload} swaps it
- * while the server thread reads. Resolution is cached per entity type and the cache cleared on swap.
- */
+/** An immutable snapshot behind a volatile field, since {@code /reload} swaps it while the server thread reads. */
 public final class EntityScoreProfileStore {
 
     private static volatile Map<ResourceLocation, EntityScoreProfile> profiles = Map.of();
@@ -37,9 +34,8 @@ public final class EntityScoreProfileStore {
     }
 
     /**
-     * Highest priority wins; among equal priority the most specific matching entry wins (exact id >
-     * tag > namespace); a remaining tie goes to the lexicographically smaller file id so resolution
-     * is deterministic across reloads.
+     * Highest priority, then the most specific match (exact id > tag > namespace), then the smaller file id, so
+     * resolution is deterministic across reloads.
      */
     static Optional<EntityScoreProfile> resolve(
             Collection<EntityScoreProfile> candidates, ResourceLocation id, Predicate<ResourceLocation> tagTest) {

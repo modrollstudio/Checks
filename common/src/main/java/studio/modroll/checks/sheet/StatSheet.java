@@ -16,13 +16,6 @@ import studio.modroll.checks.bonus.BonusPart;
 import studio.modroll.checks.creation.PresetChoices;
 import studio.modroll.checks.level.LevelGain;
 
-/**
- * One player's server-resolved values for the stat screen; the client only displays them.
- * {@code creationAvailable} shows the button that reopens character creation; {@code identity} is the
- * confirmed character's species, background and class while presets are on; {@code level} is present
- * while levelling is on; {@code modSections} shows the sections other mods add; {@code body} is what the
- * player's scores do to their health, armor class, size and the attribute extras.
- */
 public record StatSheet(
         int proficiencyBonus,
         List<AbilityLine> abilities,
@@ -34,7 +27,6 @@ public record StatSheet(
         boolean modSections,
         Body body) {
 
-    /** {@code saveModifier} includes the flat save bonuses in {@code bonuses}. */
     public record AbilityLine(
             Ability ability,
             int score,
@@ -43,7 +35,6 @@ public record StatSheet(
             Proficiency saveProficiency,
             AbilityBonuses bonuses) {}
 
-    /** The bonus sources on this ability's checks and on its saving throw. */
     public record AbilityBonuses(List<BonusPart> checks, List<BonusPart> saves) {
 
         public static final AbilityBonuses NONE = new AbilityBonuses(List.of(), List.of());
@@ -54,7 +45,6 @@ public record StatSheet(
         }
     }
 
-    /** {@code modifier} includes the flat bonuses in {@code situational}, the skill's bonus sources. */
     public record SkillLine(
             ResourceLocation id,
             Ability ability,
@@ -70,13 +60,8 @@ public record StatSheet(
 
     public record PassiveLine(ResourceLocation skill, int score) {}
 
-    /** The species' traits are listed so the client can name them in a tooltip. */
     public record Identity(PresetChoices choices, List<ResourceLocation> traits) {}
 
-    /**
-     * {@code levelXp} is the total XP the current level needed and {@code nextLevelXp} the total the next
-     * one needs, empty at the top level; {@code gains} is what each level up to this one gave.
-     */
     public record LevelLine(
             int level,
             int xp,
@@ -90,12 +75,10 @@ public record StatSheet(
             gains = List.copyOf(gains);
         }
 
-        /** Whether an improvement or Expertise waits to be chosen. */
         public boolean choicesPending() {
             return improvements.pending() > 0 || expertise.pending() > 0;
         }
 
-        /** How far the XP is from this level's threshold to the next, {@code 0..1}; full at the top level. */
         public float progress() {
             return nextLevelXp
                     .filter(next -> next > levelXp)
@@ -104,7 +87,6 @@ public record StatSheet(
         }
     }
 
-    /** How many ability score improvements wait to be chosen, and the rules a choice must follow. */
     public record Improvements(int pending, List<List<Integer>> options, int maxScore) {
 
         public Improvements {
@@ -112,7 +94,6 @@ public record StatSheet(
         }
     }
 
-    /** How many skills wait to be chosen for Expertise, and the skills the player could pick now. */
     public record ExpertiseChoice(int pending, List<ResourceLocation> options) {
 
         public static final ExpertiseChoice NONE = new ExpertiseChoice(0, List.of());
@@ -122,43 +103,29 @@ public record StatSheet(
         }
     }
 
-    /** Each part is empty, and each extra left out, while its switch is off. */
     public record Body(
             Optional<HealthLine> health,
             Optional<ArmorLine> armor,
             Optional<SizeOption> size,
             Optional<HitDiceLine> hitDice,
+            Optional<AttacksLine> attacks,
             List<ExtraLine> extras) {
 
-        public static final Body NONE =
-                new Body(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), List.of());
+        public static final Body NONE = new Body(
+                Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), List.of());
 
         public Body {
             extras = List.copyOf(extras);
         }
     }
 
-    /**
-     * {@code maxHealth} is the player's whole max health; the rest is what CON and the levels after the first, with
-     * the class's {@code hitDie}, add to it, and what rounding down to whole hearts takes off ({@code rounding}, zero
-     * or less).
-     */
     public record HealthLine(
             float maxHealth, int conModifier, double conHealth, int hitDie, double levelHealth, double rounding) {}
 
-    /**
-     * The Hit Dice pool: {@code left} of {@code total} dice with {@code sides}. A long rest gives back
-     * {@code regainFraction} of them and heals fully when {@code healsFully}; both are 0 and false while long rests are
-     * off.
-     */
     public record HitDiceLine(int sides, int left, int total, double regainFraction, boolean healsFully) {}
 
-    /**
-     * {@link #armorClass} is what attacks roll against: Critfall's {@code baseArmorClass} plus {@code dexBonus},
-     * the part of {@code dexModifier} the body armor's {@code category} allows, plus {@code floorBonus}, which keeps
-     * that cap from leaving AC below what it is without the body armor. {@code worn} is how Critfall
-     * derived its AC from the armor and toughness; empty when something else, such as an entity profile, set it.
-     */
+    public record AttacksLine(int attacks, Optional<Integer> nextLevel) {}
+
     public record ArmorLine(
             int baseArmorClass,
             Optional<ArmorPoints> worn,
@@ -173,11 +140,6 @@ public record StatSheet(
         }
     }
 
-    /**
-     * Critfall's own breakdown of an AC it derived: its {@code base} plus what the player's {@code armor} and
-     * {@code toughness} attributes (every worn piece's points, summed) add, as {@code armorPart} and
-     * {@code toughnessPart}. Critfall works the parts out, so the sheet never copies its formula.
-     */
     public record ArmorPoints(int base, double armor, int armorPart, double toughness, int toughnessPart) {}
 
     public record ExtraLine(Extra extra, double amount) {}
@@ -308,6 +270,13 @@ public record StatSheet(
             HitDiceLine::healsFully,
             HitDiceLine::new);
 
+    private static final StreamCodec<ByteBuf, AttacksLine> ATTACKS_LINE = StreamCodec.composite(
+            ByteBufCodecs.VAR_INT,
+            AttacksLine::attacks,
+            ByteBufCodecs.optional(ByteBufCodecs.VAR_INT),
+            AttacksLine::nextLevel,
+            AttacksLine::new);
+
     private static final StreamCodec<ByteBuf, ArmorPoints> ARMOR_POINTS = StreamCodec.composite(
             ByteBufCodecs.VAR_INT,
             ArmorPoints::base,
@@ -361,6 +330,8 @@ public record StatSheet(
             Body::size,
             ByteBufCodecs.optional(HIT_DICE_LINE),
             Body::hitDice,
+            ByteBufCodecs.optional(ATTACKS_LINE),
+            Body::attacks,
             EXTRA_LINE.apply(ByteBufCodecs.list()),
             Body::extras,
             Body::new);

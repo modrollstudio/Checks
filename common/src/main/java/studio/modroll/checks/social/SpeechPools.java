@@ -2,12 +2,6 @@ package studio.modroll.checks.social;
 
 import java.util.Optional;
 
-/**
- * Which pool of speech bubble lines a social outcome draws from: {@code checks.speech.<target>.<outcome>}
- * in the lang file. A caught pickpocket has its own pool; one that goes unnoticed says nothing. Plead and
- * Lie have their own, {@code checks.speech.<target>.<plead|lie>.<outcome>}, as has a Performance,
- * {@code checks.speech.<target>.performance.<outcome>}. Mobs never speak.
- */
 public final class SpeechPools {
 
     private static final String PREFIX = "checks.speech.";
@@ -33,7 +27,6 @@ public final class SpeechPools {
         };
     }
 
-    /** A barely made Performance counts as a success. */
     public static String performance(SocialTarget target, SocialOutcome outcome) {
         SocialOutcome heard = outcome == SocialOutcome.BARELY ? SocialOutcome.SUCCESS : outcome;
         return key(target, PERFORMANCE + heard.id());

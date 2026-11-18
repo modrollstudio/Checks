@@ -8,7 +8,6 @@ class BubbleScaleTest {
 
     private static final float EPSILON = 1e-6f;
 
-    /** On screen a bubble's size goes as its scale over its distance. */
     private static float screenSize(double distance) {
         return (float) (BubbleScale.at(distance) / distance);
     }

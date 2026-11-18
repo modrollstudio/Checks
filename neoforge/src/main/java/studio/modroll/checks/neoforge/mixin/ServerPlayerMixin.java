@@ -9,10 +9,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import studio.modroll.checks.death.DeathStories;
 
-/**
- * Neither loader has an event that changes a player's death message. Vanilla builds it once here and sends
- * that one message to the death screen and to chat.
- */
+/** Neither loader has an event that changes a player's death message. */
 @Mixin(ServerPlayer.class)
 abstract class ServerPlayerMixin {
 

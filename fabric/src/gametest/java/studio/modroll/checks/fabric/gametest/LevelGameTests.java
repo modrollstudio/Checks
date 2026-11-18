@@ -5,7 +5,6 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import studio.modroll.checks.gametest.LevelScenarios;
 
-/** Fabric registration shim: delegates to the shared {@link LevelScenarios} bodies. */
 public class LevelGameTests implements FabricGameTest {
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
@@ -81,5 +80,15 @@ public class LevelGameTests implements FabricGameTest {
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
     public void levelUpPanelListsWhatEachLevelGave(GameTestHelper helper) {
         LevelScenarios.levelUpPanelListsWhatEachLevelGave(helper);
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void extraAttackFollowsClassAndLevel(GameTestHelper helper) {
+        LevelScenarios.extraAttackFollowsClassAndLevel(helper);
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void extraAttackOffLeavesOneAttack(GameTestHelper helper) {
+        LevelScenarios.extraAttackOffLeavesOneAttack(helper);
     }
 }

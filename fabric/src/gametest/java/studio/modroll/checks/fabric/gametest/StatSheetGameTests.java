@@ -5,7 +5,6 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import studio.modroll.checks.gametest.StatSheetScenarios;
 
-/** Fabric registration shim: delegates to the shared {@link StatSheetScenarios} bodies. */
 public class StatSheetGameTests implements FabricGameTest {
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)

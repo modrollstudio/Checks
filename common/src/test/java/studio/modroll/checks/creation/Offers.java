@@ -17,10 +17,6 @@ import studio.modroll.checks.preset.PresetKind;
 import studio.modroll.checks.preset.Species;
 import studio.modroll.critfall.api.dice.DieRoll;
 
-/**
- * Offers built from the default creation settings: three skills with presets off, or six skills with
- * a small set of test presets.
- */
 final class Offers {
 
     static final ResourceLocation ATHLETICS = ResourceLocation.parse("checks:athletics");
@@ -45,7 +41,6 @@ final class Offers {
     static final PresetOffer NO_PRESETS = new PresetOffer(
             false, List.of(), List.of(), List.of(), PRESET_DEFAULTS.bonusOptions(), PRESET_DEFAULTS.bonusMaxScore());
 
-    /** Soldier and Fighter overlap on Athletics and Intimidation; Sage and Fighter on History. */
     static final PresetOffer PRESETS = new PresetOffer(
             true,
             List.of(
@@ -111,7 +106,6 @@ final class Offers {
         return offer(Optional.empty());
     }
 
-    /** Each total is backed by a single die showing it, which is all the rules look at. */
     static CreationOffer rolled(CreationMethod method, List<Integer> totals) {
         List<RolledScore> scores = totals.stream()
                 .map(total -> new RolledScore(total, List.of(new DieRoll(20, total, true))))
@@ -138,7 +132,6 @@ final class Offers {
                 Map.of());
     }
 
-    /** The presets offer, with Elf choosing one of Perception and Stealth and Human two of any skill. */
     static CreationOffer withSpeciesSkillChoices() {
         CreationOffer presets = withPresets();
         return new CreationOffer(
@@ -152,7 +145,6 @@ final class Offers {
                 Map.of(ELF, new SkillChoice(1, Set.of(PERCEPTION, STEALTH)), HUMAN, new SkillChoice(2, Set.of())));
     }
 
-    /** A submission with every preset Custom and no bonuses. */
     static CreationSubmission custom(CreationMethod method, List<Integer> scores, List<ResourceLocation> skills) {
         return new CreationSubmission(method, scores, NO_BONUSES, skills, PresetChoices.CUSTOM, List.of());
     }

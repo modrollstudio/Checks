@@ -29,16 +29,10 @@ import studio.modroll.critfall.api.combat.SaveResult;
 import studio.modroll.critfall.api.dice.RollDetail;
 import studio.modroll.critfall.api.dice.RollMode;
 
-/**
- * GameTest bodies for the check events. Every die is scripted with {@code withDice}, which fails the test
- * if a roll draws more dice than scripted, so a canceled roll is shown to draw none. Expected totals use
- * the entity's live modifier, so they hold for whatever scores the mob derives.
- */
 public final class EventScenarios {
 
     private EventScenarios() {}
 
-    /** A listener moves the DC, adds a bonus and grants advantage; the roll uses all three. */
     public static void beforeEventChangesDcBonusAndMode(GameTestHelper helper) {
         Mob mob = spawnCalm(helper, EntityType.ZOMBIE);
         int modifier = ChecksApi.modifier(mob, Ability.DEXTERITY);
@@ -57,7 +51,6 @@ public final class EventScenarios {
         helper.succeed();
     }
 
-    /** An open roll asked for normally reports the advantage a listener granted, so its d20s read right. */
     public static void openRollReportsTheModeRolled(GameTestHelper helper) {
         Mob mob = spawnCalm(helper, EntityType.ZOMBIE);
         OpenRoll roll = withListeners(
@@ -72,7 +65,6 @@ public final class EventScenarios {
         helper.succeed();
     }
 
-    /** A disadvantaged save given advantage by a listener rolls one die, the 5e way. */
     public static void advantageAndDisadvantageCancel(GameTestHelper helper) {
         Mob mob = spawnCalm(helper, EntityType.ZOMBIE);
         SaveResult result = withListeners(
@@ -87,10 +79,6 @@ public final class EventScenarios {
         helper.succeed();
     }
 
-    /**
-     * Every canceled roll is flagged canceled: a check fails, a contest goes to the opponent and an open
-     * roll totals 0; none draws a die or fires an after event.
-     */
     public static void cancelSkipsTheRoll(GameTestHelper helper) {
         Mob mob = spawnCalm(helper, EntityType.ZOMBIE);
         Mob other = spawnCalm(helper, EntityType.SKELETON);
@@ -126,7 +114,6 @@ public final class EventScenarios {
         helper.succeed();
     }
 
-    /** The after event carries the kind, the dice, the total, the DC and the outcome. */
     public static void afterEventSeesTheResult(GameTestHelper helper) {
         Mob mob = spawnCalm(helper, EntityType.ZOMBIE);
         int modifier = ChecksApi.saveModifier(mob, Ability.DEXTERITY);
@@ -153,7 +140,6 @@ public final class EventScenarios {
         helper.succeed();
     }
 
-    /** A contest fires one after event per side; exactly the winner succeeds. */
     public static void contestFiresOneEventPerSide(GameTestHelper helper) {
         Mob mob = spawnCalm(helper, EntityType.ZOMBIE);
         Mob other = spawnCalm(helper, EntityType.SKELETON);
@@ -181,7 +167,6 @@ public final class EventScenarios {
         helper.succeed();
     }
 
-    /** With events switched off, listeners are not called and the roll is untouched. */
     public static void disabledEventsCallNoListener(GameTestHelper helper) {
         Mob mob = spawnCalm(helper, EntityType.ZOMBIE);
         List<String> calls = new ArrayList<>();

@@ -8,7 +8,6 @@ import studio.modroll.checks.Checks;
 import studio.modroll.checks.gametest.CheckScenarios;
 import studio.modroll.checks.gametest.PlayerRollScenarios;
 
-/** NeoForge registration shim: delegates to the shared {@link CheckScenarios} bodies. */
 @GameTestHolder(Checks.MOD_ID)
 @PrefixGameTestTemplate(false)
 public class CheckGameTests {

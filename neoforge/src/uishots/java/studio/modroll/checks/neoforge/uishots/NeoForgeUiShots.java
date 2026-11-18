@@ -7,7 +7,6 @@ import net.neoforged.neoforge.common.NeoForge;
 import studio.modroll.checks.Checks;
 import studio.modroll.checks.uishots.UiShots;
 
-/** Drives the dev-only screenshot run; every dev run loads this class, but only runUiShots names a folder. */
 @Mod(value = Checks.MOD_ID, dist = Dist.CLIENT)
 public final class NeoForgeUiShots {
 

@@ -29,12 +29,10 @@ import studio.modroll.checks.data.EntityScoreProfileStore;
 import studio.modroll.checks.score.ScoreService;
 import studio.modroll.checks.score.ScoresRuntime;
 
-/** GameTest bodies for ability scores on live entities. */
 public final class ScoreScenarios {
 
     private ScoreScenarios() {}
 
-    /** A datapack value beats derivation for that ability only; the rest stay derived. */
     public static void profiledEntityBeatsDerivedScores(GameTestHelper helper) {
         Mob zombie = spawnCalm(helper, EntityType.ZOMBIE);
         int derivedStr = unprofiledScore(zombie, Ability.STRENGTH);
@@ -54,7 +52,6 @@ public final class ScoreScenarios {
         helper.succeed();
     }
 
-    /** A tag-matched profile applies to every member; an entity outside the tag stays derived. */
     public static void tagProfileAppliesOnlyToTaggedEntities(GameTestHelper helper) {
         Mob skeleton = spawnCalm(helper, EntityType.SKELETON);
         Mob zombie = spawnCalm(helper, EntityType.ZOMBIE);
@@ -70,7 +67,6 @@ public final class ScoreScenarios {
         helper.succeed();
     }
 
-    /** Unprofiled mobs get in-range scores that follow their attributes (golem stronger than chicken). */
     public static void unprofiledMobsGetVariedDerivedScores(GameTestHelper helper) {
         Mob chicken = spawnCalm(helper, EntityType.CHICKEN);
         Mob golem = spawnCalm(helper, EntityType.IRON_GOLEM);
@@ -89,7 +85,6 @@ public final class ScoreScenarios {
         helper.succeed();
     }
 
-    /** Player order: config default, then a datapack profile, then {@code /checks set} wins. */
     public static void playerScoreResolutionOrder(GameTestHelper helper) {
         ServerPlayer player = login(helper, newProfile("checks-order"));
         try {
@@ -111,10 +106,6 @@ public final class ScoreScenarios {
         helper.succeed();
     }
 
-    /**
-     * A set score survives logout and a fresh login, and reaches the world save on disk. NeoForge
-     * writes SavedData on an IO worker, so the disk read is polled.
-     */
     public static void playerScoreSurvivesRelogAndSave(GameTestHelper helper) {
         GameProfile profile = newProfile("checks-relog");
         ServerPlayer firstSession = login(helper, profile);
@@ -138,7 +129,6 @@ public final class ScoreScenarios {
         helper.succeed();
     }
 
-    /** A real {@code /reload} re-runs this loader's profile listener and swaps the store. */
     public static void reloadReplacesProfiles(GameTestHelper helper) {
         Map<ResourceLocation, EntityScoreProfile> sentinel =
                 profiles("{\"matches\": [\"minecraft:zombie\"], \"abilities\": {\"str\": 30}}");

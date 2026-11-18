@@ -6,10 +6,7 @@ import net.minecraft.client.gui.components.ChatComponent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-/**
- * Roll lines move up out of the chat's way, which needs the chat's visible lines; vanilla keeps them
- * private and no loader event reports them.
- */
+/** Vanilla keeps the chat's visible lines private, and no loader event reports them. */
 @Mixin(ChatComponent.class)
 public interface ChatComponentAccessor {
 

@@ -11,20 +11,6 @@ import studio.modroll.checks.api.Skill;
 import studio.modroll.checks.preset.Background;
 import studio.modroll.checks.preset.ClassPreset;
 
-/**
- * The skill rules for one background and class. The background's skills are fixed. The class adds its
- * number of picks from its list; each background skill on that list would be a wasted pick, so it frees
- * one pick for any other skill instead (the 5e overlap rule). A Custom background gives the configured
- * number of free picks from every skill instead of fixed skills; a Custom class adds no picks and no list.
- * The species' trait skill choices are picked apart, from their own list, and never repeat another skill.
- * Pure, so client and server share it.
- *
- * @param classPicks the class's picks, or 0 for a Custom class
- * @param freePicks the Custom background's picks of any skill, or 0 for a real background
- * @param overlap the background skills that are also on the class list
- * @param speciesOptions the skills the species' choices may pick, the background's left out
- * @param speciesRequired how many the species' choices pick
- */
 public record SkillPlan(
         Set<ResourceLocation> offered,
         Set<ResourceLocation> fixed,
@@ -70,12 +56,10 @@ public record SkillPlan(
                 offered, fixed, options, classPicks, freePicks, overlap, required, speciesOptions, speciesRequired);
     }
 
-    /** The class picks freed by overlapping background skills, one each, never more than the class gives. */
     public int overlapPicks() {
         return Math.min(overlap.size(), classPicks);
     }
 
-    /** How many picks may be skills outside the class list. */
     public int offListAllowance() {
         return freePicks + overlapPicks();
     }
@@ -84,7 +68,6 @@ public record SkillPlan(
         return classOptions.contains(skill);
     }
 
-    /** Whether picking {@code skill} next keeps {@code picks} within the rules. */
     public boolean canPick(ResourceLocation skill, Collection<ResourceLocation> picks) {
         boolean free = !picks.contains(skill) && offered.contains(skill) && !fixed.contains(skill);
         boolean allowed = onClassList(skill) || offListPicks(picks) < offListAllowance();
@@ -111,7 +94,6 @@ public record SkillPlan(
         return picks.size() == required ? Optional.empty() : Optional.of(Rejection.SKILL_COUNT);
     }
 
-    /** Whether picking {@code skill} next with the species' choices keeps both pick lists within the rules. */
     public boolean canPickForSpecies(
             ResourceLocation skill, Collection<ResourceLocation> speciesPicks, Collection<ResourceLocation> picks) {
         return speciesOptions.contains(skill)
@@ -120,7 +102,6 @@ public record SkillPlan(
                 && speciesPicks.size() < speciesRequired;
     }
 
-    /** The species' picks, checked after the class and background picks they must not repeat. */
     public Optional<Rejection> validateSpecies(List<ResourceLocation> speciesPicks, List<ResourceLocation> picks) {
         boolean repeats = new HashSet<>(speciesPicks).size() != speciesPicks.size()
                 || speciesPicks.stream().anyMatch(picks::contains);

@@ -19,10 +19,6 @@ import studio.modroll.checks.sheet.StatSheet;
 import studio.modroll.checks.ui.Area;
 import studio.modroll.checks.ui.Frames;
 
-/**
- * The Level up! panel: what each level up to the current one gave, newest first, scrolling when it is long, then a
- * button for each choice waiting (an ability score improvement, Expertise) and Back.
- */
 final class LevelUpScreen extends Screen {
 
     private static final Component TITLE = Component.translatable("screen.checks.level_up");
@@ -40,7 +36,6 @@ final class LevelUpScreen extends Screen {
     private static final int BUTTON_GAP = 2 * (Frames.CAP_REACH + GAP);
     private static final ItemStack ICON = new ItemStack(Items.EXPERIENCE_BOTTLE);
 
-    /** One level's heading and its wrapped gains. */
     private record Entry(Component heading, List<FormattedCharSequence> lines) {
 
         int height() {

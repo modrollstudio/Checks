@@ -16,11 +16,8 @@ import studio.modroll.checks.save.VanillaSaves;
 import studio.modroll.checks.trait.TraitHooks;
 
 /**
- * Fabric API has no event that changes incoming damage, knockback strength or an effect's duration;
- * NeoForge fires LivingIncomingDamageEvent and LivingKnockBackEvent at these spots, and neither loader
- * has an event for the effect duration. Every goal and brain targeting check asks {@code canAttack}, which
- * also makes a mob drop a target it may no longer attack; NeoForge's target event covers only new targets.
- * Fabric API has no visibility event either; NeoForge fires LivingVisibilityEvent where this one returns.
+ * Fabric API has no events for incoming damage, knockback strength, effect duration or visibility. Every targeting
+ * check asks {@code canAttack}, which also makes a mob drop a target it may no longer attack.
  */
 @Mixin(LivingEntity.class)
 abstract class LivingEntityMixin {

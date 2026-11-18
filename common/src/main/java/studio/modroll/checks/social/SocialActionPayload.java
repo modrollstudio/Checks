@@ -6,7 +6,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import studio.modroll.checks.Checks;
 
-/** Client to server: try {@code action} on the entity; the server checks everything again. */
 public record SocialActionPayload(int entityId, SocialAction action) implements CustomPacketPayload {
 
     public static final CustomPacketPayload.Type<SocialActionPayload> TYPE =

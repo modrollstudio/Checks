@@ -6,12 +6,6 @@ import net.minecraft.world.entity.npc.Villager;
 import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.score.ScoresRuntime;
 
-/**
- * Villagers who see a crime on a villager, a caught pickpocket or a failed threat: every villager within
- * the gossip radius of the target that can see the player or the target. Each refuses the player for a
- * share of the target's refusal and runs from them, angry at a thief or scared of a bully, and says a line
- * from the target's pool for that failure.
- */
 final class Witnesses {
 
     private Witnesses() {}

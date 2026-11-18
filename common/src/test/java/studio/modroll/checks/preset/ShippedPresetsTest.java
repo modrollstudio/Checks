@@ -29,7 +29,6 @@ import studio.modroll.checks.body.Size;
 import studio.modroll.checks.body.SizeOption;
 import studio.modroll.checks.skill.ShippedSkills;
 
-/** The species, backgrounds and classes Checks ships, parsed straight from the source tree. */
 class ShippedPresetsTest {
 
     private static final Path DATA = Path.of("src/main/resources/data/checks/checks");
@@ -57,7 +56,6 @@ class ShippedPresetsTest {
         assertEquals(List.of(), warnings);
     }
 
-    /** SRD 5.2: Gnome and Halfling are Small, Human and Tiefling choose Small or Medium, the rest are Medium. */
     @Test
     void speciesHaveTheirSrdSizes() {
         Map<String, List<Size>> expected = Map.of(
@@ -117,7 +115,6 @@ class ShippedPresetsTest {
         }
     }
 
-    /** Whether each icon is a registered item is checked in-game; here, that every preset picks its own. */
     @Test
     void everyShippedPresetNamesAVanillaIcon() {
         List<Preset> presets = new ArrayList<>();

@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import studio.modroll.checks.body.BodyHooks;
 import studio.modroll.checks.exploration.Hunger;
 
-/** NeoForge has no food exhaustion event; every exhaustion a player gains passes through here. */
+/** NeoForge has no food exhaustion event. */
 @Mixin(Player.class)
 abstract class PlayerMixin {
 

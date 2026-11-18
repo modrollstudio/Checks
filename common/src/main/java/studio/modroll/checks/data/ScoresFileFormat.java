@@ -6,10 +6,6 @@ import com.google.gson.JsonPrimitive;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * Writes {@code scores.json} in the shape of the shipped default file, so a migrated file still reads well by hand:
- * two-space indents, and an object of plain values on one line ({@code "skills": { "enabled": true }}).
- */
 public final class ScoresFileFormat {
 
     private static final String INDENT = "  ";
@@ -24,7 +20,7 @@ public final class ScoresFileFormat {
 
     private static void value(JsonElement element, StringBuilder out, String indent) {
         if (!element.isJsonObject()) {
-            out.append(element); // primitives, arrays and null as Gson writes them
+            out.append(element);
         } else if (flat(element.getAsJsonObject())) {
             inline(element.getAsJsonObject(), out);
         } else {
@@ -58,7 +54,6 @@ public final class ScoresFileFormat {
                 .collect(Collectors.joining(", ", "{ ", " }")));
     }
 
-    /** No nested objects or arrays. */
     private static boolean flat(JsonObject object) {
         return object.entrySet().stream()
                 .allMatch(entry ->

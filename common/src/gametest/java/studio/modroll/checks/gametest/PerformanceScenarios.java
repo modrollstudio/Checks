@@ -41,12 +41,6 @@ import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.social.SocialAction;
 import studio.modroll.checks.social.SocialEffect;
 
-/**
- * GameTest bodies for Performance, played the way a player plays: hitting a note block or blowing a goat
- * horn, which reach Checks through the loader's game event hook. Players are new survival players with
- * every score 10, so a d20 of 18 makes the DC of 12 and a 5 does not. The audience is the villager and
- * piglin within a few blocks, so no neighbouring test's mobs hear it.
- */
 public final class PerformanceScenarios {
 
     private static final int NAT_ONE = 1;
@@ -63,10 +57,6 @@ public final class PerformanceScenarios {
 
     private PerformanceScenarios() {}
 
-    /**
-     * A note block played well charms the piglin and tells the villager good things about the player; a
-     * natural 20 tells it more, a failure nothing, and a natural 1 bad things.
-     */
     public static void aNoteBlockPerformanceFollowsTheDie(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "perf-note", IN_FRONT);
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -95,7 +85,6 @@ public final class PerformanceScenarios {
         helper.succeed();
     }
 
-    /** A goat horn rolls as a note block does; then the cooldown holds off the next one. */
     public static void aGoatHornPerformsAndCoolsDown(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "perf-horn", IN_FRONT);
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -112,7 +101,6 @@ public final class PerformanceScenarios {
         helper.succeed();
     }
 
-    /** A note block played by redstone has no player behind it: nothing is rolled. */
     public static void redstoneNotesRollNothing(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "perf-redstone", IN_FRONT);
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -136,10 +124,6 @@ public final class PerformanceScenarios {
         helper.succeed();
     }
 
-    /**
-     * With no one to hear it, or Performance off, nothing is rolled; switching it off also lifts the piglin
-     * charm it gave.
-     */
     public static void noAudienceOrSwitchedOffRollsNothing(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "perf-off", IN_FRONT);
         helper.setBlock(NOTE_BLOCK, Blocks.NOTE_BLOCK);
@@ -164,10 +148,6 @@ public final class PerformanceScenarios {
         helper.succeed();
     }
 
-    /**
-     * Villagers on guard during a golem alarm are no audience: with only them around nothing is rolled, and a
-     * piglin's hearing it tells them nothing. In the {@code wide} structure, in a batch of its own.
-     */
     public static void villagersOnGuardIgnoreAPerformance(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "perf-guard", IN_FRONT);
         Villager villager = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -248,7 +228,6 @@ public final class PerformanceScenarios {
         perform(settings(action -> true, false, 0), performance, body);
     }
 
-    /** Performance with no cooldown, with the golem alarm and on guard on and no witnesses. */
     private static void guardedPerforming(Runnable body) {
         ScoresConfig.SocialSettings base = settings(action -> true, false, 0);
         ScoresConfig.SocialSettings alarmed = new ScoresConfig.SocialSettings(

@@ -7,7 +7,6 @@ import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import studio.modroll.checks.Checks;
 
-/** The loaded presets of one kind, swapped atomically on every reload like the skill store. */
 public final class PresetStore<T extends Preset> {
 
     private volatile Map<ResourceLocation, T> presets = Map.of();
@@ -28,7 +27,6 @@ public final class PresetStore<T extends Preset> {
         return Optional.ofNullable(presets.get(id));
     }
 
-    /** Sorted by id; the presets Checks ships (its own namespace) only when {@code includeShipped}. */
     public List<T> offered(boolean includeShipped) {
         return presets.values().stream()
                 .filter(preset -> includeShipped || !preset.id().getNamespace().equals(Checks.MOD_ID))

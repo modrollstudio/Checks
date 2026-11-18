@@ -24,15 +24,8 @@ import studio.modroll.checks.text.Names;
 import studio.modroll.checks.ui.Area;
 import studio.modroll.checks.ui.Frames;
 
-/**
- * The social menu for the entity under the crosshair, on a panel under a banner with the entity's spawn
- * egg: one button per action with its skill and modifier. An action that can't be tried right now is
- * greyed out with the reason below it. Choosing one sends it to the server, which checks it again, rolls
- * and reports the result in the action bar.
- */
 public final class SocialScreen extends Screen {
 
-    // G is free in vanilla; players can rebind it.
     public static final KeyMapping KEY = new KeyMapping(
             "key.checks.social", InputConstants.Type.KEYSYM, InputConstants.KEY_G, "key.categories.checks");
 
@@ -40,7 +33,6 @@ public final class SocialScreen extends Screen {
     private static final int BUTTON_HEIGHT = 20;
     private static final int GAP = 4;
     private static final int LINE = 10;
-    /** The panel's frame and padding, plus room for the buttons' bracket caps. */
     private static final int INSET = Frames.FRAME + Frames.PADDING + Frames.CAP_REACH;
 
     private static final ItemStack NO_EGG = new ItemStack(Items.NAME_TAG);
@@ -59,7 +51,6 @@ public final class SocialScreen extends Screen {
         this.menu = menu;
     }
 
-    /** The entity under the crosshair, which vanilla only picks within interaction reach. */
     public static OptionalInt target() {
         Minecraft minecraft = Minecraft.getInstance();
         Entity entity = minecraft.crosshairPickEntity;
@@ -113,10 +104,6 @@ public final class SocialScreen extends Screen {
         }
     }
 
-    /**
-     * {@code Persuade: Persuasion +3}, plus {@code with advantage} or {@code with disadvantage} when it
-     * would roll that way.
-     */
     private static Component label(SocialMenu.Option option) {
         Component text = Component.translatable(
                 "screen.checks.social.option",
@@ -135,7 +122,6 @@ public final class SocialScreen extends Screen {
         onClose();
     }
 
-    /** The entity's spawn egg, or a name tag for one without an egg. */
     private ItemStack egg() {
         Entity entity = minecraft.level == null ? null : minecraft.level.getEntity(menu.entityId());
         SpawnEggItem egg = entity == null ? null : SpawnEggItem.byId(entity.getType());

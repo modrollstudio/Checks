@@ -7,10 +7,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import studio.modroll.checks.rest.Rests;
 
-/**
- * Vanilla wakes everyone here only when a night is slept through, while they are still asleep. NeoForge's
- * SleepFinishedTimeEvent fires only with the daylight cycle on.
- */
+/** NeoForge's SleepFinishedTimeEvent fires only with the daylight cycle on. */
 @Mixin(ServerLevel.class)
 abstract class ServerLevelMixin {
 

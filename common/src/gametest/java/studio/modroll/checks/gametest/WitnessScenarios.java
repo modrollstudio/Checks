@@ -42,20 +42,11 @@ import studio.modroll.checks.social.SocialEffect;
 import studio.modroll.checks.social.Socials;
 import studio.modroll.checks.social.SpeechBubblePayload;
 
-/**
- * GameTest bodies for witnesses: villagers in gossip range who see a caught pickpocket or a failed threat
- * on another villager. Gossip reaches {@link #WITNESS_RADIUS} blocks here, so nothing in a neighbouring
- * test becomes a witness. Players are new survival players with every score 10 against unprofiled
- * villagers, so a d20 of 2 fails every check.
- */
 public final class WitnessScenarios {
 
     private static final int FAIL = 2;
-    /** Covers the whole test structure, and no further. */
     private static final double WITNESS_RADIUS = 6;
-    /** Reaches the neighbour next to the target, not the villager at FAR_SPOT. */
     private static final double SHORT_RADIUS = 2;
-    /** Inside the structure and in range, walled in with stone so it sees neither the player nor the target. */
     private static final BlockPos HIDDEN_SPOT = new BlockPos(5, 2, 6);
 
     private static final int TARGET_REFUSE_TICKS = 20;
@@ -66,10 +57,6 @@ public final class WitnessScenarios {
 
     private WitnessScenarios() {}
 
-    /**
-     * A neighbour who sees a caught pickpocket refuses the player with a refusal line, runs, shows angry
-     * particles and says a caught line; a villager walled in out of sight does none of it.
-     */
     public static void caughtPickpocketHasWitnesses(GameTestHelper helper) {
         List<Packet<?>> packets = new ArrayList<>();
         ServerPlayer player = watchedSurvivor(helper, "wit-pick", packets);
@@ -104,7 +91,6 @@ public final class WitnessScenarios {
         helper.succeed();
     }
 
-    /** A neighbour who sees a failed threat refuses the player, runs, sweats and says a failure line. */
     public static void failedThreatHasWitnesses(GameTestHelper helper) {
         List<Packet<?>> packets = new ArrayList<>();
         ServerPlayer player = watchedSurvivor(helper, "wit-threat", packets);
@@ -128,7 +114,6 @@ public final class WitnessScenarios {
         helper.succeed();
     }
 
-    /** With gossip reaching only next door, a villager in plain sight further off is no witness. */
     public static void witnessesMustBeInGossipRange(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "wit-range", IN_FRONT);
         Villager victim = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -148,7 +133,6 @@ public final class WitnessScenarios {
         helper.succeed();
     }
 
-    /** A witness refuses for half the target's refusal by default, so it trades again first. */
     public static void witnessRefusalIsHalfTheTargets(GameTestHelper helper) {
         ServerPlayer player = survivor(helper, "wit-half", IN_FRONT);
         Villager victim = villager(helper, VillagerProfession.FARMER, TARGET_SPOT);
@@ -178,10 +162,6 @@ public final class WitnessScenarios {
         });
     }
 
-    /**
-     * With witnesses off nobody but the target reacts, and refusals witnesses gave while on are lifted;
-     * the target's own refusal stays.
-     */
     public static void witnessesSwitchOff(GameTestHelper helper) {
         ServerPlayer seen = survivor(helper, "wit-off-seen", IN_FRONT);
         ServerPlayer unseen = survivor(helper, "wit-off-unseen", IN_FRONT);
@@ -213,7 +193,6 @@ public final class WitnessScenarios {
         helper.succeed();
     }
 
-    /** A villager at HIDDEN_SPOT in a stone box: walls, floor and roof. */
     private static Villager walledIn(GameTestHelper helper) {
         for (int x = -1; x <= 1; x++) {
             for (int y = -1; y <= 2; y++) {
@@ -237,7 +216,6 @@ public final class WitnessScenarios {
                 }));
     }
 
-    /** Test settings with gossip and witnesses reaching {@code radius}, and the pickpocket's refusal set. */
     private static ScoresConfig.SocialSettings witnessSettings(double radius, boolean on, int targetRefuseTicks) {
         ScoresConfig.SocialSettings base = settings(action -> true, false, 0);
         ScoresConfig.PickpocketSettings pickpocket = base.pickpocket();
@@ -275,10 +253,6 @@ public final class WitnessScenarios {
                 base.performance());
     }
 
-    /**
-     * Records only what reaches {@code player}: a speech bubble goes to every player in earshot, and
-     * players from GameTests running alongside can be close enough to get a copy.
-     */
     private static BiPredicate<ServerPlayer, CustomPacketPayload> sentTo(
             ServerPlayer player, List<CustomPacketPayload> payloads) {
         return (to, payload) -> {

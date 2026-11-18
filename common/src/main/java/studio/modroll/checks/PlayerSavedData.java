@@ -12,7 +12,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.saveddata.SavedData;
 
-/** Checks' world-level {@link SavedData} files, each keeping its players under a {@code players} compound by UUID. */
 public final class PlayerSavedData {
 
     private static final String PLAYERS_KEY = "players";
@@ -36,11 +35,6 @@ public final class PlayerSavedData {
         return tag;
     }
 
-    /**
-     * Each player's entry, read by {@code entry} from the players compound and the entry's key. An entry
-     * under an invalid UUID, or one {@code entry} rejects with an {@link IllegalArgumentException}, is skipped
-     * with a warning.
-     */
     public static <V> Map<UUID, V> read(CompoundTag tag, String what, BiFunction<CompoundTag, String, V> entry) {
         CompoundTag entries = tag.getCompound(PLAYERS_KEY);
         Map<UUID, V> players = new HashMap<>();
