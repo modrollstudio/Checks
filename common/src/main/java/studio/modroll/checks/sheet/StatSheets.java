@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.stream.Stream;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -91,7 +92,8 @@ public final class StatSheets {
     }
 
     private static Optional<StatSheet.ArmorLine> armor(ServerPlayer player, ScoresConfig.ArmorClassSettings settings) {
-        if (!ChecksModifierProvider.active()) {
+        OptionalInt rolledAgainst = ChecksModifierProvider.armorClassCountingChecks(player);
+        if (rolledAgainst.isEmpty()) {
             return Optional.empty();
         }
         ArmorClassBreakdown breakdown = RollService.armorClassBreakdown(player);
@@ -104,6 +106,7 @@ public final class StatSheets {
                         armor.category(),
                         armor.dexBonus(),
                         armor.floorBonus(),
+                        rolledAgainst.getAsInt() - breakdown.total() - armor.bonus(),
                         settings.mediumMaxDex()));
     }
 
@@ -161,7 +164,8 @@ public final class StatSheets {
                         settings.improvements().options(),
                         settings.improvements().maxScore()),
                 expertise(player, level, classId, settings),
-                gains(player, level.level(), classId, settings)));
+                gains(player, level.level(), classId, settings),
+                ScoresRuntime.config().extensions().levelUpChoices()));
     }
 
     private static StatSheet.ExpertiseChoice expertise(

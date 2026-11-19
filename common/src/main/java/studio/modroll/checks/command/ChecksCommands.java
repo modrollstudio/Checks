@@ -379,8 +379,8 @@ public final class ChecksCommands {
 
     private static int resetCharacter(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         ServerPlayer player = EntityArgument.getPlayer(ctx, "player");
-        CharacterCreation.reset(ctx.getSource().getServer(), player.getUUID());
         Levelling.reset(ctx.getSource().getServer(), player.getUUID());
+        CharacterCreation.reset(player);
         ctx.getSource()
                 .sendSuccess(() -> FallbackText.of("commands.checks.reset.success", player.getDisplayName()), true);
         return Command.SINGLE_SUCCESS;

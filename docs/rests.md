@@ -56,7 +56,8 @@ the server's settings: `Sleep to heal fully and get your Hit Dice back.` with th
 
 `ChecksApi.addRestBlocker(predicate)` stops a player resting while it answers true: they can't start a
 short rest, and a rest under way breaks before it spends anything. `ChecksApi.hitDiceLeft(player)` reads the
-pool. See [api.md](api.md#rests).
+pool. `ChecksApi.onRest(listener)` is told when a short or long rest is done, so a mod can give back
+what a rest restores, such as spell slots. See [api.md](api.md#rests).
 
 ## Config
 
@@ -92,7 +93,10 @@ A bad value falls back to its default with a warning. Spent Hit Dice are saved w
 
 ## Toggles
 
-- `hit_dice.enabled: false` turns Hit Dice off: no pool on the sheet, no short rests, and campfires
-  are left to vanilla. Long rests still ready traits.
-- `short_rest.enabled: false` leaves campfires to vanilla; Hit Dice are only regained.
+- `hit_dice.enabled: false` turns Hit Dice off: no pool on the sheet, and a short rest at a campfire
+  heals nothing. It still lasts its time, can still break, and when it is done says `Short rest: done.`,
+  so whatever other mods give back on a short rest (`ChecksApi.onRest`), such as a Warlock's spell
+  slots, still comes back. Long rests still heal and ready traits.
+- `short_rest.enabled: false` leaves campfires to vanilla; Hit Dice are only regained. With Hit Dice
+  off too, there are no short rests at all.
 - `long_rest.enabled: false` makes sleeping give nothing back and ready nothing.

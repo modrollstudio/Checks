@@ -75,12 +75,12 @@ class ScoresConfigLoaderTest {
     void readsTheExtensionSwitches() {
         ScoresConfig config = parse("{\"events\": {\"enabled\": false}, \"bonus_sources\": {\"enabled\": false},"
                 + " \"triggers\": {\"enabled\": false}, \"check_command\": {\"enabled\": false},"
-                + " \"stat_screen_sections\": {\"enabled\": false}}");
+                + " \"stat_screen_sections\": {\"enabled\": false}, \"level_up_choices\": {\"enabled\": false}}");
 
         assertEquals(List.of(), warnings);
         assertEquals(
                 new ScoresConfig.ExtensionSettings(
-                        false, new ScoresConfig.BonusSourceSettings(false, 5), false, false, false),
+                        false, new ScoresConfig.BonusSourceSettings(false, 5), false, false, false, false),
                 config.extensions());
     }
 

@@ -27,6 +27,9 @@ turned off (`creation.presets.enabled: false`), the first three pages are skippe
 - `/checks reset <player>` (op) clears the character, rolls included, and the player's level and XP
   (see [levelling.md](levelling.md)). The screen opens again on that player's next join.
 
+Other mods hear when a character is made or reset through `ChecksApi.onCharacterChanged`, and read
+its class with `ChecksApi.characterClass` (see [api.md](api.md#characters)).
+
 ## Methods
 
 `creation.methods` in `config/checks/scores.json` lists the methods offered (default: all four).

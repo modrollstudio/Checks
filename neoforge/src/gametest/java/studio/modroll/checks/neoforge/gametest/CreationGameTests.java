@@ -14,6 +14,11 @@ public class CreationGameTests {
     private static final String TEMPLATE = "empty";
 
     @GameTest(template = TEMPLATE)
+    public void characterEventsFireWhenMadeAndReset(GameTestHelper helper) {
+        CreationScenarios.characterEventsFireWhenMadeAndReset(helper);
+    }
+
+    @GameTest(template = TEMPLATE)
     public void eachMethodProducesValidScores(GameTestHelper helper) {
         CreationScenarios.eachMethodProducesValidScores(helper);
     }

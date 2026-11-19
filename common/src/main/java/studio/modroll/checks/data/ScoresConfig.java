@@ -160,7 +160,8 @@ public record ScoresConfig(
             BonusSourceSettings bonusSources,
             boolean triggers,
             boolean checkCommand,
-            boolean sheetSections) {}
+            boolean sheetSections,
+            boolean levelUpChoices) {}
 
     public record BonusSourceSettings(boolean enabled, int passiveAdvantage) {}
 
@@ -465,7 +466,7 @@ public record ScoresConfig(
                                     Checks.id("monk"), List.of(5),
                                     Checks.id("paladin"), List.of(5),
                                     Checks.id("ranger"), List.of(5)))),
-            new ExtensionSettings(true, new BonusSourceSettings(true, 5), true, true, true),
+            new ExtensionSettings(true, new BonusSourceSettings(true, 5), true, true, true, true),
             new BodySettings(
                     new HealthSettings(true, 2.0, true, 0.2, true, 1, 8, true),
                     new ArmorClassSettings(true, 2),

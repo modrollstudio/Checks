@@ -82,6 +82,7 @@
   "triggers": { "enabled": true },
   "check_command": { "enabled": true },
   "stat_screen_sections": { "enabled": true },
+  "level_up_choices": { "enabled": true },
   "health": {
     "enabled": true,
     "per_con_point": 2,

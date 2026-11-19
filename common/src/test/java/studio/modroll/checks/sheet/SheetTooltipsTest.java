@@ -242,13 +242,21 @@ class SheetTooltipsTest {
                         "Toughness 8: +4",
                         "DEX +0 (heavy body armor, no DEX)"),
                 strings(SheetTooltips.armorClass(new StatSheet.ArmorLine(
-                        22, Optional.of(new StatSheet.ArmorPoints(12, 13, 6, 8, 4)), 4, ArmorCategory.HEAVY, 0, 0, 2))),
+                        22,
+                        Optional.of(new StatSheet.ArmorPoints(12, 13, 6, 8, 4)),
+                        4,
+                        ArmorCategory.HEAVY,
+                        0,
+                        0,
+                        0,
+                        2))),
                 "a pack's armor_ac_divisor of 2 and toughness_ac_divisor of 2 show as Critfall applied them");
     }
 
     @Test
     void bodyArmorThatWouldLowerArmorClassShowsWhatKeepsItUp() {
-        StatSheet.ArmorLine chainmail = new StatSheet.ArmorLine(11, worn(5, 1, 0, 0), 5, ArmorCategory.MEDIUM, 2, 2, 2);
+        StatSheet.ArmorLine chainmail =
+                new StatSheet.ArmorLine(11, worn(5, 1, 0, 0), 5, ArmorCategory.MEDIUM, 2, 2, 0, 2);
         assertEquals(
                 List.of(
                         "What an attack roll must reach to hit you.",
@@ -272,6 +280,24 @@ class SheetTooltipsTest {
     }
 
     @Test
+    void armorClassShowsWhatSpellsAndOtherModsAdd() {
+        StatSheet.ArmorLine shielded = new StatSheet.ArmorLine(10, worn(0, 0, 0, 0), 2, ArmorCategory.NONE, 2, 0, 5, 2);
+        assertEquals(
+                List.of(
+                        "What an attack roll must reach to hit you.",
+                        "Base: 10",
+                        "DEX +2 (no body armor)",
+                        "Spells and effects: +5"),
+                strings(SheetTooltips.armorClass(shielded)));
+        assertEquals(17, shielded.armorClass());
+        assertEquals(
+                "Spells and effects: -2",
+                strings(SheetTooltips.armorClass(
+                                new StatSheet.ArmorLine(10, worn(0, 0, 0, 0), 2, ArmorCategory.NONE, 2, 0, -2, 2)))
+                        .getLast());
+    }
+
+    @Test
     void armorClassIsCritfallsPlusTheDexPart() {
         assertEquals(
                 15, armorLine(13, worn(13, 3, 0, 0), 4, ArmorCategory.MEDIUM, 2).armorClass());
@@ -279,7 +305,7 @@ class SheetTooltipsTest {
 
     private static StatSheet.ArmorLine armorLine(
             int base, Optional<StatSheet.ArmorPoints> worn, int dexModifier, ArmorCategory category, int dexBonus) {
-        return new StatSheet.ArmorLine(base, worn, dexModifier, category, dexBonus, 0, 2);
+        return new StatSheet.ArmorLine(base, worn, dexModifier, category, dexBonus, 0, 0, 2);
     }
 
     private static Optional<StatSheet.ArmorPoints> worn(
@@ -401,7 +427,8 @@ class SheetTooltipsTest {
                 Optional.of(2300),
                 new StatSheet.Improvements(0, List.of(List.of(2)), 20),
                 new StatSheet.ExpertiseChoice(2, List.of()),
-                List.of());
+                List.of(),
+                true);
         assertEquals(List.of("1400 / 2300 XP", "Expertise to choose: 2 skills"), strings(SheetTooltips.level(line)));
         assertTrue(line.choicesPending());
     }
@@ -433,7 +460,8 @@ class SheetTooltipsTest {
                 nextLevelXp,
                 new StatSheet.Improvements(pending, List.of(List.of(2), List.of(1, 1)), 20),
                 StatSheet.ExpertiseChoice.NONE,
-                List.of());
+                List.of(),
+                true);
     }
 
     private static List<String> strings(List<Component> lines) {

@@ -15,7 +15,9 @@ import static studio.modroll.checks.gametest.ScenarioSupport.savedLevelStore;
 import static studio.modroll.checks.gametest.ScenarioSupport.spawnCalm;
 import static studio.modroll.checks.gametest.ScenarioSupport.unprofiled;
 import static studio.modroll.checks.gametest.ScenarioSupport.waitOutSpawnProtection;
+import static studio.modroll.checks.gametest.ScenarioSupport.withExtensions;
 import static studio.modroll.checks.gametest.ScenarioSupport.withLevelling;
+import static studio.modroll.checks.gametest.ScenarioSupport.withPresetSettings;
 import static studio.modroll.checks.gametest.ScenarioSupport.withProfiles;
 import static studio.modroll.checks.gametest.ScenarioSupport.withSender;
 
@@ -574,6 +576,75 @@ public final class LevelScenarios {
             }));
             Mob zombie = spawnCalm(helper, EntityType.ZOMBIE);
             expectEquals(helper, 1, ChecksApi.attacksPerAction(zombie), "a zombie's attacks");
+        } finally {
+            logout(helper, player);
+        }
+        helper.succeed();
+    }
+
+    public static void characterClassIsTheLevellingClass(GameTestHelper helper) {
+        ServerPlayer player = login(helper, newProfile("checks-lv-class"));
+        Optional<ResourceLocation> wizard = Optional.of(Checks.id("wizard"));
+        try {
+            levelled(() -> {
+                expectClass(helper, player, Optional.empty(), "before a character is made");
+                setClass(player, FIGHTER);
+                expectClass(helper, player, FIGHTER, "a Fighter");
+                setClass(player, Optional.empty());
+                expectClass(helper, player, Optional.empty(), "a Custom class");
+                setClass(player, wizard);
+                Levelling.setLevel(player, 3);
+                return null;
+            });
+            withLevelling(levellingEnabled(false), () -> {
+                expectClass(helper, player, wizard, "a Wizard with levelling off");
+                expectEquals(helper, 1, ChecksApi.level(player), "a Wizard's level with levelling off");
+                return null;
+            });
+            ScoresConfig.PresetSettings presets =
+                    ScoresConfig.DEFAULTS.creation().presets();
+            withPresetSettings(
+                    new ScoresConfig.PresetSettings(
+                            false, presets.includeShipped(), presets.bonusOptions(), presets.bonusMaxScore()),
+                    () -> {
+                        expectClass(helper, player, Optional.empty(), "a Wizard with presets off");
+                        return null;
+                    });
+        } finally {
+            logout(helper, player);
+        }
+        helper.succeed();
+    }
+
+    private static void expectClass(
+            GameTestHelper helper, ServerPlayer player, Optional<ResourceLocation> expected, String who) {
+        Optional<ResourceLocation> read = ChecksApi.characterClass(player);
+        expect(helper, read.equals(expected), who + " must read class " + expected + ", read " + read);
+    }
+
+    public static void levelUpChoicesFollowTheirSwitch(GameTestHelper helper) {
+        ServerPlayer player = login(helper, newProfile("checks-lv-choices"));
+        try {
+            levelled(() -> {
+                expect(helper, sheetLevel(player).modChoices(), "other mods' Level up! buttons are on by default");
+                return null;
+            });
+            ScoresConfig.ExtensionSettings live = ScoresConfig.DEFAULTS.extensions();
+            withExtensions(
+                    new ScoresConfig.ExtensionSettings(
+                            live.events(),
+                            live.bonusSources(),
+                            live.triggers(),
+                            live.checkCommand(),
+                            live.sheetSections(),
+                            false),
+                    () -> {
+                        expect(
+                                helper,
+                                !sheetLevel(player).modChoices(),
+                                "level_up_choices.enabled: false must hide other mods' Level up! buttons");
+                        return null;
+                    });
         } finally {
             logout(helper, player);
         }

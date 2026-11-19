@@ -113,7 +113,7 @@ class BeforeCheckEventTest {
                 defaults.creation(),
                 defaults.levelling(),
                 new ScoresConfig.ExtensionSettings(
-                        false, ScoresConfig.DEFAULTS.extensions().bonusSources(), true, true, true),
+                        false, ScoresConfig.DEFAULTS.extensions().bonusSources(), true, true, true, true),
                 defaults.body(),
                 defaults.saves(),
                 defaults.traits(),

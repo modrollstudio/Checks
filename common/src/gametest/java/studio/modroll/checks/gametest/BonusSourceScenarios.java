@@ -249,7 +249,7 @@ public final class BonusSourceScenarios {
         mob.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_SWORD));
         SaveResult result = withExtensions(
                 new ScoresConfig.ExtensionSettings(
-                        true, new ScoresConfig.BonusSourceSettings(false, 5), true, true, true),
+                        true, new ScoresConfig.BonusSourceSettings(false, 5), true, true, true, true),
                 () -> withBonusSources(
                         bonusSources(SWORD),
                         () -> withDice(() -> ChecksApi.check(mob, athletics, 10).result(), 9)));

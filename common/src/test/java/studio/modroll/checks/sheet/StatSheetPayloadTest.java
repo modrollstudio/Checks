@@ -73,7 +73,8 @@ class StatSheetPayloadTest {
                         new StatSheet.ExpertiseChoice(2, List.of(ResourceLocation.parse("checks:stealth"))),
                         List.of(
                                 new LevelGain(1, 23, Optional.of(2), 0, 2, Optional.empty()),
-                                new LevelGain(5, 1.5, Optional.of(3), 0, 0, Optional.of(2))))),
+                                new LevelGain(5, 1.5, Optional.of(3), 0, 0, Optional.of(2))),
+                        false)),
                 true,
                 new StatSheet.Body(
                         Optional.of(new StatSheet.HealthLine(27.5f, 3, 6.0, 6, 1.5, -1.0)),
@@ -84,6 +85,7 @@ class StatSheetPayloadTest {
                                 ArmorCategory.MEDIUM,
                                 2,
                                 1,
+                                5,
                                 2)),
                         Optional.of(new SizeOption(Size.SMALL, 0.6)),
                         Optional.of(new StatSheet.HitDiceLine(6, 3, 5, 0.5, true)),

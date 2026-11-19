@@ -117,6 +117,7 @@ public final class ScoresConfigLoader {
               "triggers": { "enabled": true },
               "check_command": { "enabled": true },
               "stat_screen_sections": { "enabled": true },
+              "level_up_choices": { "enabled": true },
               "health": {
                 "enabled": true,
                 "per_con_point": 2,
@@ -578,7 +579,8 @@ public final class ScoresConfigLoader {
                 parseBonusSources(json.object("bonus_sources"), defaults.bonusSources()),
                 enabled(json, "triggers", defaults.triggers()),
                 enabled(json, "check_command", defaults.checkCommand()),
-                enabled(json, "stat_screen_sections", defaults.sheetSections()));
+                enabled(json, "stat_screen_sections", defaults.sheetSections()),
+                enabled(json, "level_up_choices", defaults.levelUpChoices()));
     }
 
     private static ScoresConfig.BonusSourceSettings parseBonusSources(

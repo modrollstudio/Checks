@@ -22,6 +22,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -32,6 +35,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import studio.modroll.checks.api.Ability;
+import studio.modroll.checks.api.CharacterChange;
 import studio.modroll.checks.api.ChecksApi;
 import studio.modroll.checks.api.Proficiency;
 import studio.modroll.checks.creation.CharacterBuild;
@@ -44,6 +48,7 @@ import studio.modroll.checks.creation.CreationSubmission;
 import studio.modroll.checks.creation.PlayerCharacter;
 import studio.modroll.checks.creation.PresetChoices;
 import studio.modroll.checks.creation.Rejection;
+import studio.modroll.checks.creation.SkillPlan;
 import studio.modroll.checks.data.EntityScoreProfile;
 import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.score.ScoresRuntime;
@@ -65,7 +70,80 @@ public final class CreationScenarios {
 
     private static final List<Integer> HARDCORE_TOTALS = List.of(18, 3, 9, 15, 6, 12);
 
+    private static final ResourceLocation WIZARD = ResourceLocation.parse("checks:wizard");
+    private static final Map<UUID, List<String>> CHARACTER_EVENTS = new ConcurrentHashMap<>();
+
+    private static boolean characterListenerRegistered;
+
     private CreationScenarios() {}
+
+    public static void characterEventsFireWhenMadeAndReset(GameTestHelper helper) {
+        registerCharacterListener();
+        ServerPlayer player = login(helper, newProfile("checks-cr-events"));
+        CHARACTER_EVENTS.remove(player.getUUID());
+        try {
+            PresetChoices wizard =
+                    new PresetChoices(Optional.empty(), Optional.empty(), Optional.of(WIZARD), Optional.empty());
+            Optional<Rejection> made = submitClass(player, wizard);
+            expect(helper, made.isEmpty(), "the Wizard must be made, was refused as " + made);
+            expectCharacterEvents(helper, player, List.of("CREATED checks:wizard"), "after making a Wizard");
+
+            expect(helper, submitClass(player, wizard).isPresent(), "a second character must be refused");
+            expectCharacterEvents(helper, player, List.of("CREATED checks:wizard"), "after a refused character");
+
+            run(helper, "checks level " + player.getScoreboardName() + " set 3");
+            run(helper, "checks reset " + player.getScoreboardName());
+            expectCharacterEvents(
+                    helper, player, List.of("CREATED checks:wizard", "RESET none level 1"), "after /checks reset");
+        } finally {
+            logout(helper, player);
+        }
+        helper.succeed();
+    }
+
+    private static Optional<Rejection> submitClass(ServerPlayer player, PresetChoices choices) {
+        SkillPlan plan = SkillPlan.of(CharacterCreation.offerFor(player), choices);
+        List<ResourceLocation> picks = new ArrayList<>(
+                plan.classOptions().stream().sorted().limit(plan.classPicks()).toList());
+        plan.offered().stream()
+                .filter(skill -> !picks.contains(skill) && !plan.fixed().contains(skill))
+                .sorted()
+                .limit(plan.required() - picks.size())
+                .forEach(picks::add);
+        return CharacterCreation.submit(
+                player,
+                new CreationSubmission(
+                        CreationMethod.STANDARD_ARRAY,
+                        ARRAY_ASSIGNED,
+                        List.of(0, 0, 0, 0, 0, 0),
+                        picks,
+                        choices,
+                        List.of()));
+    }
+
+    private static void expectCharacterEvents(
+            GameTestHelper helper, ServerPlayer player, List<String> expected, String when) {
+        List<String> heard = CHARACTER_EVENTS.getOrDefault(player.getUUID(), List.of());
+        expect(helper, heard.equals(expected), "character events " + when + " must be " + expected + ", were " + heard);
+    }
+
+    private static synchronized void registerCharacterListener() {
+        if (characterListenerRegistered) {
+            return;
+        }
+        ChecksApi.onCharacterChanged(event -> {
+            ServerPlayer player = event.player();
+            String heard = event.change() + " "
+                    + ChecksApi.characterClass(player)
+                            .map(ResourceLocation::toString)
+                            .orElse("none")
+                    + (event.change() == CharacterChange.RESET ? " level " + ChecksApi.level(player) : "");
+            CHARACTER_EVENTS
+                    .computeIfAbsent(player.getUUID(), id -> new CopyOnWriteArrayList<>())
+                    .add(heard);
+        });
+        characterListenerRegistered = true;
+    }
 
     public static void eachMethodProducesValidScores(GameTestHelper helper) {
         for (CreationMethod method : CreationMethod.values()) {

@@ -172,7 +172,7 @@ public final class EventScenarios {
         List<String> calls = new ArrayList<>();
         SaveResult result = withExtensions(
                 new ScoresConfig.ExtensionSettings(
-                        false, ScoresConfig.DEFAULTS.extensions().bonusSources(), true, true, true),
+                        false, ScoresConfig.DEFAULTS.extensions().bonusSources(), true, true, true, true),
                 () -> withListeners(
                         event -> {
                             calls.add("before");

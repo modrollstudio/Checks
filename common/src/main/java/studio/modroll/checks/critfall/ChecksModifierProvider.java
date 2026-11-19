@@ -18,6 +18,7 @@ import studio.modroll.critfall.api.RollService;
 public final class ChecksModifierProvider implements ModifierProvider {
 
     private static final ChecksModifierProvider INSTANCE = new ChecksModifierProvider();
+    private static final ThreadLocal<Boolean> ASKED_FOR_ARMOR_CLASS = ThreadLocal.withInitial(() -> false);
 
     private ChecksModifierProvider() {}
 
@@ -65,6 +66,7 @@ public final class ChecksModifierProvider implements ModifierProvider {
     /** Critfall's own AC already counts the armor itself. */
     @Override
     public OptionalInt acModifier(LivingEntity defender, LivingEntity attacker) {
+        ASKED_FOR_ARMOR_CLASS.set(true);
         if (!covers(defender)) {
             return OptionalInt.empty();
         }
@@ -73,10 +75,12 @@ public final class ChecksModifierProvider implements ModifierProvider {
                 .orElse(OptionalInt.empty());
     }
 
-    public static boolean active() {
-        return RollService.modifierProvider()
-                .filter(provider -> provider == INSTANCE)
-                .isPresent();
+    // Critfall asks only the provider in its slot, and only while its own modifier_providers.enabled is on, which
+    // its API doesn't expose.
+    public static OptionalInt armorClassCountingChecks(LivingEntity defender) {
+        ASKED_FOR_ARMOR_CLASS.set(false);
+        int armorClass = RollService.armorClass(defender, null);
+        return ASKED_FOR_ARMOR_CLASS.get() ? OptionalInt.of(armorClass) : OptionalInt.empty();
     }
 
     static Optional<Ability> weaponAbility(AttackDelivery delivery) {

@@ -59,6 +59,16 @@ public class BodyGameTests {
     }
 
     @GameTest(template = TEMPLATE)
+    public void sheetCountsArmorClassFromOtherMods(GameTestHelper helper) {
+        BodyScenarios.sheetCountsArmorClassFromOtherMods(helper);
+    }
+
+    @GameTest(template = TEMPLATE)
+    public void sheetLeavesOutArmorClassCritfallIgnores(GameTestHelper helper) {
+        BodyScenarios.sheetLeavesOutArmorClassCritfallIgnores(helper);
+    }
+
+    @GameTest(template = TEMPLATE)
     public void armorClassReachesCritfallRolls(GameTestHelper helper) {
         BodyScenarios.armorClassReachesCritfallRolls(helper);
     }
