@@ -6,16 +6,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import studio.modroll.checks.Checks;
 import studio.modroll.checks.ClientPayloads;
 import studio.modroll.checks.ability.Abilities;
 import studio.modroll.checks.api.Ability;
+import studio.modroll.checks.api.CharacterChange;
+import studio.modroll.checks.api.CharacterEvent;
 import studio.modroll.checks.api.Skill;
 import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.data.SkillStore;
@@ -28,7 +31,13 @@ import studio.modroll.critfall.api.dice.RollResult;
 
 public final class CharacterCreation {
 
+    private static final List<Consumer<CharacterEvent>> LISTENERS = new CopyOnWriteArrayList<>();
+
     private CharacterCreation() {}
+
+    public static void addListener(Consumer<CharacterEvent> listener) {
+        LISTENERS.add(listener);
+    }
 
     public static boolean available(ServerPlayer player) {
         return settings().enabled() && !character(player).created();
@@ -78,8 +87,9 @@ public final class CharacterCreation {
         return rejection;
     }
 
-    public static void reset(MinecraftServer server, UUID player) {
-        CharacterStore.get(server).reset(player);
+    public static void reset(ServerPlayer player) {
+        store(player).reset(player.getUUID());
+        changed(player, CharacterChange.RESET);
     }
 
     public static CreationOffer offerFor(ServerPlayer player) {
@@ -147,6 +157,18 @@ public final class CharacterCreation {
                 .background(submission.choices().background())
                 .ifPresent(background -> StartingKit.give(player, background.kit()));
         player.sendSystemMessage(Component.translatable("checks.creation.confirmed"));
+        changed(player, CharacterChange.CREATED);
+    }
+
+    private static void changed(ServerPlayer player, CharacterChange change) {
+        CharacterEvent event = new CharacterEvent(player, change);
+        for (Consumer<CharacterEvent> listener : LISTENERS) {
+            try {
+                listener.accept(event);
+            } catch (RuntimeException e) {
+                Checks.LOG.error("A character listener threw; skipping it for this change", e);
+            }
+        }
     }
 
     private static void reject(ServerPlayer player, Rejection reason, CreationOffer offer, PresetChoices choices) {

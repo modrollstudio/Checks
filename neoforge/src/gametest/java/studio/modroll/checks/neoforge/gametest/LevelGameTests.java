@@ -94,6 +94,16 @@ public class LevelGameTests {
     }
 
     @GameTest(template = TEMPLATE)
+    public void characterClassIsTheLevellingClass(GameTestHelper helper) {
+        LevelScenarios.characterClassIsTheLevellingClass(helper);
+    }
+
+    @GameTest(template = TEMPLATE)
+    public void levelUpChoicesFollowTheirSwitch(GameTestHelper helper) {
+        LevelScenarios.levelUpChoicesFollowTheirSwitch(helper);
+    }
+
+    @GameTest(template = TEMPLATE)
     public void extraAttackOffLeavesOneAttack(GameTestHelper helper) {
         LevelScenarios.extraAttackOffLeavesOneAttack(helper);
     }

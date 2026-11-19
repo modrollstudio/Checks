@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
@@ -24,7 +25,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import studio.modroll.checks.Checks;
 import studio.modroll.checks.api.Ability;
+import studio.modroll.checks.api.RestEvent;
+import studio.modroll.checks.api.RestKind;
 import studio.modroll.checks.body.BodyRules;
 import studio.modroll.checks.body.BodyValues;
 import studio.modroll.checks.data.ScoresConfig;
@@ -44,12 +48,17 @@ public final class Rests {
 
     private static final Map<UUID, Session> SESSIONS = new ConcurrentHashMap<>();
     private static final List<Predicate<ServerPlayer>> BLOCKERS = new CopyOnWriteArrayList<>();
+    private static final List<Consumer<RestEvent>> LISTENERS = new CopyOnWriteArrayList<>();
     private static final String KEY = "checks.rest.";
 
     private Rests() {}
 
     public static void addBlocker(Predicate<ServerPlayer> blocker) {
         BLOCKERS.add(blocker);
+    }
+
+    public static void addListener(Consumer<RestEvent> listener) {
+        LISTENERS.add(listener);
     }
 
     public static int hitDiceLeft(ServerPlayer player) {
@@ -120,6 +129,15 @@ public final class Rests {
     }
 
     private static void finish(ServerPlayer player) {
+        if (settings().hitDice().enabled()) {
+            spendHitDice(player);
+        } else {
+            tell(player, FallbackText.of(KEY + "short.done"));
+        }
+        finished(player, RestKind.SHORT);
+    }
+
+    private static void spendHitDice(ServerPlayer player) {
         float before = player.getHealth();
         int spent = 0;
         while (hitDiceLeft(player) > 0 && player.getHealth() < player.getMaxHealth()) {
@@ -160,15 +178,26 @@ public final class Rests {
         if (settings.rechargesTraits() && ScoresRuntime.config().traits().enabled()) {
             TraitUses.get(player.server).recharge(player.getUUID());
         }
-        if (!settings().hitDice().enabled()) {
-            return;
+        if (settings().hitDice().enabled()) {
+            LevelStore store = LevelStore.get(player.server);
+            PlayerLevel level = store.level(player.getUUID());
+            int pool = Levelling.activeLevel(player).level();
+            int regained = BodyRules.hitDiceRegained(pool, settings.regainFraction(), settings.minRegain());
+            store.set(player.getUUID(), level.withHitDiceSpent(level.hitDiceSpent() - regained));
+            tell(player, FallbackText.of(KEY + "long.done", hitDiceLeft(player), pool));
         }
-        LevelStore store = LevelStore.get(player.server);
-        PlayerLevel level = store.level(player.getUUID());
-        int pool = Levelling.activeLevel(player).level();
-        int regained = BodyRules.hitDiceRegained(pool, settings.regainFraction(), settings.minRegain());
-        store.set(player.getUUID(), level.withHitDiceSpent(level.hitDiceSpent() - regained));
-        tell(player, FallbackText.of(KEY + "long.done", hitDiceLeft(player), pool));
+        finished(player, RestKind.LONG);
+    }
+
+    private static void finished(ServerPlayer player, RestKind kind) {
+        RestEvent event = new RestEvent(player, kind);
+        for (Consumer<RestEvent> listener : LISTENERS) {
+            try {
+                listener.accept(event);
+            } catch (RuntimeException e) {
+                Checks.LOG.error("A rest listener threw; skipping it for this rest", e);
+            }
+        }
     }
 
     public static void clear() {
@@ -222,7 +251,7 @@ public final class Rests {
     }
 
     private static boolean shortRestsOn() {
-        return settings().shortRest().enabled() && settings().hitDice().enabled();
+        return settings().shortRest().enabled();
     }
 
     private static ScoresConfig.RestSettings settings() {

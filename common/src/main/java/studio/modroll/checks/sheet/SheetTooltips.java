@@ -156,6 +156,9 @@ public final class SheetTooltips {
         if (armor.floorBonus() != 0) {
             lines.add(Component.translatable(KEY + "armor_class.floor", SheetText.signed(armor.floorBonus())));
         }
+        if (armor.effects() != 0) {
+            lines.add(Component.translatable(KEY + "armor_class.effects", SheetText.signed(armor.effects())));
+        }
         return lines;
     }
 

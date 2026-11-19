@@ -151,7 +151,9 @@ The stat screen shows a **Body** section, under the passive scores, with hit poi
 size, each explaining where it comes from on hover, e.g. `CON +3: +6 max health` or `DEX +2 (medium body armor, max +2)`, and
 the Hit Dice left (see [rests.md](rests.md)) and the attacks one Attack action makes (see
 [levelling.md](levelling.md#extra-attack)). The AC row
-appears while Checks supplies Critfall's modifiers. Each ability box lists its extras, e.g.
+appears while Checks supplies Critfall's modifiers and Critfall counts them (its own
+`modifier_providers.enabled` is on). It shows the AC attacks roll against, so what other mods add to
+it, such as a spell, counts too and has its own tooltip line. Each ability box lists its extras, e.g.
 `Mining speed +15%`. See [stat-screen.md](stat-screen.md).
 
 ## Config

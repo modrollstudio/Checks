@@ -12,7 +12,9 @@ import static studio.modroll.checks.gametest.ScenarioSupport.run;
 import static studio.modroll.checks.gametest.ScenarioSupport.spawnCalm;
 import static studio.modroll.checks.gametest.ScenarioSupport.speciesPicks;
 import static studio.modroll.checks.gametest.ScenarioSupport.unprofiled;
+import static studio.modroll.checks.gametest.ScenarioSupport.withArmorClassSource;
 import static studio.modroll.checks.gametest.ScenarioSupport.withBody;
+import static studio.modroll.checks.gametest.ScenarioSupport.withCritfallModifierProviders;
 import static studio.modroll.checks.gametest.ScenarioSupport.withD20s;
 import static studio.modroll.checks.gametest.ScenarioSupport.withPresetSettings;
 import static studio.modroll.checks.gametest.ScenarioSupport.withProfiles;
@@ -25,6 +27,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Supplier;
 import net.minecraft.core.Holder;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -53,6 +56,7 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.Vec3;
 import studio.modroll.checks.Checks;
 import studio.modroll.checks.api.Ability;
+import studio.modroll.checks.api.ChecksApi;
 import studio.modroll.checks.body.BodyValues;
 import studio.modroll.checks.body.Extra;
 import studio.modroll.checks.body.PlayerBodies;
@@ -72,6 +76,7 @@ import studio.modroll.checks.score.ScoresRuntime;
 import studio.modroll.checks.sheet.SheetTooltips;
 import studio.modroll.checks.sheet.StatSheet;
 import studio.modroll.checks.sheet.StatSheets;
+import studio.modroll.critfall.api.ArmorClassSource;
 import studio.modroll.critfall.api.AttackContext;
 import studio.modroll.critfall.api.RollService;
 import studio.modroll.critfall.api.combat.AttackResult;
@@ -450,6 +455,101 @@ public final class BodyScenarios {
             logout(helper, player);
         }
         helper.succeed();
+    }
+
+    public static void sheetCountsArmorClassFromOtherMods(GameTestHelper helper) {
+        ServerPlayer player = login(helper, newProfile("body-sources"));
+        Mob attacker = spawnCalm(helper, EntityType.ZOMBIE);
+        UUID id = player.getUUID();
+        ArmorClassSource mageArmor = (defender, by, soFar) -> defender.getUUID().equals(id)
+                ? Math.max(0, 13 + ChecksApi.abilityModifier(defender, Ability.DEXTERITY) - soFar)
+                : 0;
+        ArmorClassSource shield = (defender, by, soFar) -> defender.getUUID().equals(id) ? 5 : 0;
+        try {
+            body(() -> unprofiled(() -> {
+                set(helper, player, "dex", 14);
+                expectSheetArmorClass(helper, player, 12, 0, "unarmored with DEX 14");
+                withArmorClassSource(mageArmor, () -> {
+                    expectSheetArmorClass(helper, player, 15, 3, "under Mage Armor, 13 + DEX");
+                    withArmorClassSource(shield, () -> {
+                        StatSheet.Body body =
+                                expectSheetArmorClass(helper, player, 20, 8, "with Mage Armor and Shield");
+                        expectTooltipLine(helper, body, "screen.checks.tooltip.armor_class.effects", "+8");
+                        AttackContext claws =
+                                AttackContext.melee(attacker.damageSources().mobAttack(attacker), ItemStack.EMPTY);
+                        AttackResult result =
+                                withD20s(() -> RollService.attackRoll(attacker, player, claws), HITTING_D20);
+                        expectEquals(helper, 20, result.armorClass(), "the AC an attack rolls against");
+                        return null;
+                    });
+                    return null;
+                });
+                expectSheetArmorClass(helper, player, 12, 0, "once the spells end");
+                return null;
+            }));
+        } finally {
+            logout(helper, player);
+        }
+        helper.succeed();
+    }
+
+    public static void sheetLeavesOutArmorClassCritfallIgnores(GameTestHelper helper) {
+        ServerPlayer player = login(helper, newProfile("body-ac-off"));
+        UUID id = player.getUUID();
+        ArmorClassSource slow = (defender, by, soFar) -> defender.getUUID().equals(id) ? -2 : 0;
+        try {
+            body(() -> unprofiled(() -> {
+                set(helper, player, "dex", 14);
+                withArmorClassSource(slow, () -> {
+                    expectSheetArmorClass(helper, player, 10, -2, "slowed, with DEX 14");
+                    withCritfallModifierProviders(false, () -> {
+                        expectEquals(
+                                helper,
+                                RollService.armorClassBreakdown(player).total(),
+                                RollService.armorClass(player, null),
+                                "Critfall's AC with its modifier providers off");
+                        expect(
+                                helper,
+                                StatSheets.forPlayer(player)
+                                        .orElseThrow()
+                                        .body()
+                                        .armor()
+                                        .isEmpty(),
+                                "the sheet must leave out the AC row while Critfall ignores Checks");
+                        return null;
+                    });
+                    expectSheetArmorClass(helper, player, 10, -2, "with Critfall's modifier providers back on");
+                    return null;
+                });
+                return null;
+            }));
+        } finally {
+            logout(helper, player);
+        }
+        helper.succeed();
+    }
+
+    private static StatSheet.Body expectSheetArmorClass(
+            GameTestHelper helper, ServerPlayer player, int armorClass, int effects, String when) {
+        StatSheet.Body body = StatSheets.forPlayer(player).orElseThrow().body();
+        StatSheet.ArmorLine armor = body.armor().orElseThrow();
+        expectEquals(helper, armorClass, armor.armorClass(), "sheet AC " + when);
+        expectEquals(helper, effects, armor.effects(), "sheet part from spells and effects " + when);
+        expectEquals(helper, armorClass, RollService.armorClass(player, null), "Critfall's AC " + when);
+        return body;
+    }
+
+    private static void expectTooltipLine(GameTestHelper helper, StatSheet.Body body, String key, Object... args) {
+        List<Component> tooltip = SheetTooltips.body(body).orElseThrow().rows().stream()
+                .flatMap(row -> row.tooltip().stream())
+                .toList();
+        expect(
+                helper,
+                tooltip.stream()
+                        .anyMatch(line -> line.getContents() instanceof TranslatableContents contents
+                                && contents.getKey().equals(key)
+                                && List.of(contents.getArgs()).equals(List.of(args))),
+                "the tooltip must show " + key + " " + List.of(args) + ", was " + tooltip);
     }
 
     public static void armorClassReachesCritfallRolls(GameTestHelper helper) {

@@ -142,7 +142,7 @@ pickpocketing before a golem gets them. See [death-messages.md](death-messages.m
 
 ## Extensions
 
-`events`, `bonus_sources`, `triggers`, `check_command` and `stat_screen_sections` each hold one
+`events`, `bonus_sources`, `triggers`, `check_command`, `stat_screen_sections` and `level_up_choices` each hold one
 `enabled` switch, all `true` by default, for what other mods and packs build on Checks. `bonus_sources` also holds
 `passive_advantage` (default `5`, not negative): what advantage adds to a passive score and
 disadvantage takes away (see [bonus-sources.md](bonus-sources.md#passive-scores)).

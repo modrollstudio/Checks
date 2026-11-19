@@ -53,6 +53,16 @@ public class BodyGameTests implements FabricGameTest {
     }
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void sheetCountsArmorClassFromOtherMods(GameTestHelper helper) {
+        BodyScenarios.sheetCountsArmorClassFromOtherMods(helper);
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void sheetLeavesOutArmorClassCritfallIgnores(GameTestHelper helper) {
+        BodyScenarios.sheetLeavesOutArmorClassCritfallIgnores(helper);
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
     public void armorClassReachesCritfallRolls(GameTestHelper helper) {
         BodyScenarios.armorClassReachesCritfallRolls(helper);
     }

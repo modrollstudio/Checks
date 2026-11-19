@@ -9,7 +9,7 @@ import studio.modroll.checks.text.FallbackText;
 /** Bump {@link #CURRENT} whenever a payload's fields change. */
 public final class NetworkVersion {
 
-    public static final int CURRENT = 5;
+    public static final int CURRENT = 6;
 
     private NetworkVersion() {}
 

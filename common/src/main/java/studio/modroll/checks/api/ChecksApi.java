@@ -9,6 +9,7 @@ import net.minecraft.world.entity.LivingEntity;
 import studio.modroll.checks.bonus.BonusSources;
 import studio.modroll.checks.check.CheckEvents;
 import studio.modroll.checks.check.CheckRolls;
+import studio.modroll.checks.creation.CharacterCreation;
 import studio.modroll.checks.data.SkillStore;
 import studio.modroll.checks.level.LevelRules;
 import studio.modroll.checks.level.Levelling;
@@ -56,6 +57,14 @@ public final class ChecksApi {
         return BonusSources.passiveScore(entity, skill);
     }
 
+    public static Optional<ResourceLocation> characterClass(ServerPlayer player) {
+        return Levelling.classId(player);
+    }
+
+    public static void onCharacterChanged(Consumer<CharacterEvent> listener) {
+        CharacterCreation.addListener(listener);
+    }
+
     public static int level(ServerPlayer player) {
         return Levelling.activeLevel(player).level();
     }
@@ -74,6 +83,10 @@ public final class ChecksApi {
 
     public static void addRestBlocker(Predicate<ServerPlayer> blocker) {
         Rests.addBlocker(blocker);
+    }
+
+    public static void onRest(Consumer<RestEvent> listener) {
+        Rests.addListener(listener);
     }
 
     public static int hitDiceLeft(ServerPlayer player) {
