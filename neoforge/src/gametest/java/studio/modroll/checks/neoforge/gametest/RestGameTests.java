@@ -29,6 +29,11 @@ public class RestGameTests {
         RestScenarios.aHitDieHealsAtLeastOne(helper);
     }
 
+    @GameTest(template = TEMPLATE, batch = "rest_hit_dice_off")
+    public void aShortRestWithHitDiceOffHealsNothing(GameTestHelper helper) {
+        RestScenarios.aShortRestWithHitDiceOffHealsNothing(helper);
+    }
+
     @GameTest(template = TEMPLATE, batch = "rest_breaks")
     public void aShortRestBreaks(GameTestHelper helper) {
         RestScenarios.aShortRestBreaks(helper);
@@ -42,5 +47,10 @@ public class RestGameTests {
     @GameTest(template = TEMPLATE)
     public void restsSwitchOff(GameTestHelper helper) {
         RestScenarios.restsSwitchOff(helper);
+    }
+
+    @GameTest(template = TEMPLATE)
+    public void aRestListenerThatThrowsIsSkipped(GameTestHelper helper) {
+        RestScenarios.aRestListenerThatThrowsIsSkipped(helper);
     }
 }

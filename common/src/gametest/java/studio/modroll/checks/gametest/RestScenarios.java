@@ -14,9 +14,11 @@ import static studio.modroll.checks.gametest.ScenarioSupport.withRest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -39,6 +41,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import studio.modroll.checks.Checks;
 import studio.modroll.checks.api.ChecksApi;
+import studio.modroll.checks.api.RestKind;
 import studio.modroll.checks.body.PlayerBodies;
 import studio.modroll.checks.data.ScoresConfig;
 import studio.modroll.checks.level.LevelStore;
@@ -60,8 +63,11 @@ public final class RestScenarios {
     private static final ResourceLocation RELENTLESS = Checks.id("relentless_endurance");
 
     private static final Set<UUID> IN_A_FIGHT = ConcurrentHashMap.newKeySet();
+    private static final Set<UUID> LISTENER_THROWS = ConcurrentHashMap.newKeySet();
+    private static final Map<UUID, List<RestKind>> RESTS = new ConcurrentHashMap<>();
 
     private static boolean blockerRegistered;
+    private static boolean listenersRegistered;
 
     private RestScenarios() {}
 
@@ -69,6 +75,7 @@ public final class RestScenarios {
         List<Packet<?>> sent = new ArrayList<>();
         ServerPlayer player = rester(helper, "rest-short", sent);
         rested(() -> {
+            expectRests(helper, player, List.of(), "while the short rest is under way");
             expect(helper, useFire(helper, player).consumesAction(), "using the fire must start a rest");
             expect(helper, Rests.resting(player), "the player must be resting");
             expectEquals(helper, LEVEL, Rests.hitDiceLeft(player), "Hit Dice before the rest is done");
@@ -96,6 +103,7 @@ public final class RestScenarios {
                                     "two 6s must heal to full, health was " + player.getHealth());
                             expectEquals(helper, LEVEL - 2, ChecksApi.hitDiceLeft(player), "Hit Dice after the rest");
                             expectRestLine(helper, sent, "checks.rest.short.spent", 2, 11);
+                            expectRests(helper, player, List.of(RestKind.SHORT), "after a short rest");
                             StatSheet.HitDiceLine dice = StatSheets.forPlayer(player)
                                     .orElseThrow()
                                     .body()
@@ -111,6 +119,11 @@ public final class RestScenarios {
                             Rests.tick(player.server);
                             expectEquals(helper, LEVEL - 2, Rests.hitDiceLeft(player), "Hit Dice at full health");
                             expectRestLine(helper, sent, "checks.rest.short.full_health");
+                            expectRests(
+                                    helper,
+                                    player,
+                                    List.of(RestKind.SHORT, RestKind.SHORT),
+                                    "after a short rest at full health");
                             return null;
                         }));
             } finally {
@@ -178,6 +191,36 @@ public final class RestScenarios {
         helper.succeed();
     }
 
+    public static void aShortRestWithHitDiceOffHealsNothing(GameTestHelper helper) {
+        List<Packet<?>> sent = new ArrayList<>();
+        ServerPlayer player = rester(helper, "rest-no-hd", sent);
+        try {
+            withRest(
+                    new ScoresConfig.RestSettings(
+                            new ScoresConfig.HitDiceSettings(false, 1.0, 1),
+                            shortRestOf(0).shortRest(),
+                            DEFAULTS.longRest()),
+                    () -> unprofiled(() -> {
+                        player.setHealth(10f);
+                        expect(helper, useFire(helper, player).consumesAction(), "the fire with Hit Dice off");
+                        expect(helper, Rests.resting(player), "the player must be resting with Hit Dice off");
+                        sent.clear();
+                        Rests.tick(player.server);
+                        expect(helper, !Rests.resting(player), "the rest must be over");
+                        expect(
+                                helper,
+                                player.getHealth() == 10f,
+                                "a rest without Hit Dice must heal nothing, health was " + player.getHealth());
+                        expectRestLine(helper, sent, "checks.rest.short.done");
+                        expectRests(helper, player, List.of(RestKind.SHORT), "after a rest without Hit Dice");
+                        return null;
+                    }));
+        } finally {
+            cleanUp(helper, player);
+        }
+        helper.succeed();
+    }
+
     public static void aShortRestBreaks(GameTestHelper helper) {
         ServerPlayer player = rester(helper, "rest-breaks");
         try {
@@ -232,6 +275,7 @@ public final class RestScenarios {
                 player.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(Items.STICK));
                 expect(helper, !useFire(helper, player).consumesAction(), "a full hand must not start a rest");
                 expect(helper, !Rests.resting(player), "no rest with a full hand");
+                expectRests(helper, player, List.of(), "after rests that broke");
                 return null;
             });
         } finally {
@@ -294,6 +338,8 @@ public final class RestScenarios {
                         helper,
                         dice.equals(new StatSheet.HitDiceLine(8, LEVEL, LEVEL, 1.0, true)),
                         "the sheet must show the long rest's settings, showed " + dice);
+                expectRests(helper, sleeper, List.of(RestKind.LONG, RestKind.LONG), "after two long rests");
+                expectRests(helper, awake, List.of(), "for a player who stayed awake");
                 expectEquals(helper, 0, Rests.hitDiceLeft(awake), "Hit Dice of a player who stayed awake");
                 expect(helper, awake.getHealth() == 4f, "a player who stayed awake must not heal");
                 expect(
@@ -319,7 +365,6 @@ public final class RestScenarios {
                     new ScoresConfig.RestSettings(
                             new ScoresConfig.HitDiceSettings(false, 1.0, 1), DEFAULTS.shortRest(), DEFAULTS.longRest()),
                     () -> unprofiled(() -> {
-                        expect(helper, !useFire(helper, player).consumesAction(), "the fire with Hit Dice off");
                         expect(
                                 helper,
                                 StatSheets.forPlayer(player)
@@ -329,6 +374,13 @@ public final class RestScenarios {
                                         .isEmpty(),
                                 "the sheet must show no Hit Dice while they are off");
                         expectEquals(helper, 0, ChecksApi.hitDiceLeft(player), "Hit Dice while off");
+                        player.setHealth(4f);
+                        Rests.longRest(player);
+                        expect(
+                                helper,
+                                player.getHealth() == player.getMaxHealth(),
+                                "a long rest heals with Hit Dice off");
+                        expectRests(helper, player, List.of(RestKind.LONG), "after a long rest with Hit Dice off");
                         return null;
                     }));
             withRest(
@@ -343,12 +395,38 @@ public final class RestScenarios {
                         Rests.longRest(player);
                         expectEquals(helper, 0, Rests.hitDiceLeft(player), "Hit Dice after sleeping, long rests off");
                         expect(helper, player.getHealth() == 4f, "sleeping must not heal with long rests off");
+                        expectRests(helper, player, List.of(RestKind.LONG), "after sleeping with long rests off");
                         return null;
                     }));
         } finally {
             cleanUp(helper, player);
         }
         helper.succeed();
+    }
+
+    public static void aRestListenerThatThrowsIsSkipped(GameTestHelper helper) {
+        ServerPlayer player = rester(helper, "rest-listener-throws");
+        LISTENER_THROWS.add(player.getUUID());
+        try {
+            rested(() -> {
+                spendAll(player);
+                player.setHealth(4f);
+                Rests.longRest(player);
+                expect(helper, player.getHealth() == player.getMaxHealth(), "the long rest must still heal");
+                expectEquals(helper, LEVEL, Rests.hitDiceLeft(player), "Hit Dice after the long rest");
+                expectRests(helper, player, List.of(RestKind.LONG), "for the listener after the one that threw");
+                return null;
+            });
+        } finally {
+            LISTENER_THROWS.remove(player.getUUID());
+            cleanUp(helper, player);
+        }
+        helper.succeed();
+    }
+
+    private static void expectRests(GameTestHelper helper, ServerPlayer player, List<RestKind> expected, String when) {
+        List<RestKind> heard = RESTS.getOrDefault(player.getUUID(), List.of());
+        expect(helper, heard.equals(expected), "rest events " + when + " must be " + expected + ", were " + heard);
     }
 
     private static void expectBroken(GameTestHelper helper, ServerPlayer player, String what, Runnable breaker) {
@@ -363,8 +441,10 @@ public final class RestScenarios {
     }
 
     private static ServerPlayer rester(GameTestHelper helper, String name, List<Packet<?>> sent) {
+        registerListeners();
         helper.setBlock(FIRE, Blocks.CAMPFIRE.defaultBlockState());
         ServerPlayer player = loginWatched(helper, newProfile(name), sent);
+        RESTS.remove(player.getUUID());
         player.setGameMode(GameType.SURVIVAL);
         waitOutSpawnProtection(player);
         player.moveTo(helper.absoluteVec(BY_THE_FIRE));
@@ -410,6 +490,20 @@ public final class RestScenarios {
     private static void cleanUp(GameTestHelper helper, ServerPlayer player) {
         logout(helper, player);
         helper.setBlock(FIRE, Blocks.AIR.defaultBlockState());
+    }
+
+    private static synchronized void registerListeners() {
+        if (listenersRegistered) {
+            return;
+        }
+        ChecksApi.onRest(event -> {
+            if (LISTENER_THROWS.contains(event.player().getUUID())) {
+                throw new IllegalStateException("a rest listener that throws, from the GameTests");
+            }
+        });
+        ChecksApi.onRest(event -> RESTS.computeIfAbsent(event.player().getUUID(), id -> new CopyOnWriteArrayList<>())
+                .add(event.kind()));
+        listenersRegistered = true;
     }
 
     private static synchronized void registerBlocker() {

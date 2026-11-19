@@ -79,9 +79,12 @@ import studio.modroll.checks.social.SocialFeel;
 import studio.modroll.checks.trait.TraitUses;
 import studio.modroll.checks.trigger.CheckTrigger;
 import studio.modroll.checks.trigger.CheckTriggers;
+import studio.modroll.critfall.RollRuntime;
+import studio.modroll.critfall.api.ArmorClassSource;
 import studio.modroll.critfall.api.ModifierProvider;
 import studio.modroll.critfall.api.RollService;
 import studio.modroll.critfall.api.dice.DiceRoller;
+import studio.modroll.critfall.combat.Rules;
 
 /**
  * The {@code with*} helpers patch global state for one synchronous body and restore it, so no test fixture ships in the
@@ -637,6 +640,37 @@ final class ScenarioSupport {
                 .getScoreboard()
                 .getOrCreatePlayerScore(ScoreHolder.forNameOnly(holder), objective)
                 .get();
+    }
+
+    static <T> T withArmorClassSource(ArmorClassSource source, Supplier<T> body) {
+        RollService.addArmorClassSource(source);
+        try {
+            return body.get();
+        } finally {
+            RollService.removeArmorClassSource(source);
+        }
+    }
+
+    // Critfall's API has no switch for its own rules.
+    static <T> T withCritfallModifierProviders(boolean enabled, Supplier<T> body) {
+        Rules before = RollRuntime.rules();
+        RollRuntime.setRules(new Rules(
+                before.attackRolls(),
+                before.damageDice(),
+                before.crits(),
+                before.fumbles(),
+                before.spells(),
+                before.fallbacks(),
+                before.feedback(),
+                before.balance(),
+                before.dryRun(),
+                new Rules.ModifierProviders(enabled),
+                before.advantageSources()));
+        try {
+            return body.get();
+        } finally {
+            RollRuntime.setRules(before);
+        }
     }
 
     static <T> T withoutModifierProvider(Supplier<T> body) {

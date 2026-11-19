@@ -23,6 +23,11 @@ public class RestGameTests implements FabricGameTest {
         RestScenarios.aHitDieHealsAtLeastOne(helper);
     }
 
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE, batch = "rest_hit_dice_off")
+    public void aShortRestWithHitDiceOffHealsNothing(GameTestHelper helper) {
+        RestScenarios.aShortRestWithHitDiceOffHealsNothing(helper);
+    }
+
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE, batch = "rest_breaks")
     public void aShortRestBreaks(GameTestHelper helper) {
         RestScenarios.aShortRestBreaks(helper);
@@ -36,5 +41,10 @@ public class RestGameTests implements FabricGameTest {
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
     public void restsSwitchOff(GameTestHelper helper) {
         RestScenarios.restsSwitchOff(helper);
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void aRestListenerThatThrowsIsSkipped(GameTestHelper helper) {
+        RestScenarios.aRestListenerThatThrowsIsSkipped(helper);
     }
 }

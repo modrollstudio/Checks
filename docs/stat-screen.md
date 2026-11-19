@@ -60,7 +60,11 @@ Hovering shows a short explanation in a tooltip:
   limits it, e.g. `DEX +2 (medium body armor, max +2)`. When the body armor's cap would lower AC, a
   last line adds back what keeps it at the AC without the body armor
   (`Never below your AC without body armor: +2`). An AC Critfall did not derive from the armor, such
-  as an entity profile's, shows as one line (`Set by Critfall: AC 15`).
+  as an entity profile's, shows as one line (`Set by Critfall: AC 15`). The number is the AC attacks
+  roll against, from Critfall, so it counts what other mods add to AC as well, such as a Shield or
+  Mage Armor spell: a last line shows their part (`Spells and effects: +5`). While Critfall's own
+  `modifier_providers.enabled` is `false`, Critfall counts neither Checks' DEX nor other mods' AC, and
+  the row is left out.
 - **Attacks:** how many attacks one Attack action makes on your turn in a turn based fight, such as
   Initiative's; real time combat is unchanged. Then what Extra Attack from your class adds
   (`Extra Attack from your class: +1`) and the level your class gets its next one at
@@ -79,7 +83,8 @@ follows the `skills.enabled` and `proficiency.enabled` toggles like every other 
 On the Overview tab, after the body, the sheet shows any sections other mods add: a title and rows of
 label and value, each row with its own tooltip. Their mods supply and sync the data; see
 [api.md](api.md#stat-screen-sections). `stat_screen_sections.enabled: false` on the server hides
-them.
+them. Other mods can also add buttons to the Level up! panel, such as **Spells (3)** (see
+[levelling.md](levelling.md#the-level-up-panel)); `level_up_choices.enabled: false` hides those.
 
 ## Names
 

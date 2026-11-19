@@ -13,7 +13,9 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import studio.modroll.checks.api.LevelUpChoice;
 import studio.modroll.checks.level.LevelGain;
+import studio.modroll.checks.sheet.LevelUpChoiceRegistry;
 import studio.modroll.checks.sheet.SheetTooltips;
 import studio.modroll.checks.sheet.StatSheet;
 import studio.modroll.checks.ui.Area;
@@ -55,7 +57,7 @@ final class LevelUpScreen extends Screen {
     private int scroll;
 
     LevelUpScreen(Screen parent, StatSheet sheet) {
-        super(sheet.level().orElseThrow().choicesPending() ? TITLE : LEVELS_TITLE);
+        super(LevelUpChoiceRegistry.pending(sheet.level().orElseThrow()) ? TITLE : LEVELS_TITLE);
         this.parent = parent;
         this.sheet = sheet;
         this.line = sheet.level().orElseThrow();
@@ -64,17 +66,33 @@ final class LevelUpScreen extends Screen {
     @Override
     protected void init() {
         footer.clear();
-        entries = entries();
+        List<Button.Builder> buttons = buttons();
+        int gaps = (buttons.size() - 1) * BUTTON_GAP;
+        int buttonWidth = Math.min(BUTTON_WIDTH, (width - 2 * INSET - gaps) / buttons.size());
+        int rowWidth = buttons.size() * buttonWidth + gaps;
+        int contentWidth = Math.max(CONTENT_WIDTH, rowWidth);
+
+        entries = entries(contentWidth);
         listHeight = entries.stream().mapToInt(Entry::height).sum();
         int listView = Math.min(listHeight, Math.min(MAX_LIST_HEIGHT, height - 2 * INSET - 3 * BUTTON_HEIGHT));
         int contentHeight = Frames.BANNER_HEIGHT + GAP + listView + GAP + BUTTON_HEIGHT;
-        int panelWidth = CONTENT_WIDTH + 2 * INSET;
+        int panelWidth = contentWidth + 2 * INSET;
         int panelHeight = contentHeight + 2 * INSET;
         panel = new Area((width - panelWidth) / 2, (height - panelHeight) / 2, panelWidth, panelHeight);
         content = panel.inset(INSET);
         list = new Area(content.left(), content.top() + Frames.BANNER_HEIGHT + GAP, content.width(), listView);
         scroll = Mth.clamp(scroll, 0, maxScroll());
 
+        int top = list.bottom() + GAP;
+        int left = (width - rowWidth) / 2;
+        for (Button.Builder builder : buttons) {
+            footer.add(addRenderableWidget(
+                    builder.bounds(left, top, buttonWidth, BUTTON_HEIGHT).build()));
+            left += buttonWidth + BUTTON_GAP;
+        }
+    }
+
+    private List<Button.Builder> buttons() {
         List<Button.Builder> buttons = new ArrayList<>();
         int improvements = line.improvements().pending();
         if (improvements > 0) {
@@ -88,18 +106,15 @@ final class LevelUpScreen extends Screen {
                     Component.translatable("screen.checks.level_up.expertise", expertise),
                     button -> minecraft.setScreen(new ExpertiseScreen(this, sheet))));
         }
-        buttons.add(Button.builder(CommonComponents.GUI_BACK, button -> onClose()));
-        int top = list.bottom() + GAP;
-        int rowWidth = buttons.size() * BUTTON_WIDTH + (buttons.size() - 1) * BUTTON_GAP;
-        int left = (width - rowWidth) / 2;
-        for (Button.Builder builder : buttons) {
-            footer.add(addRenderableWidget(
-                    builder.bounds(left, top, BUTTON_WIDTH, BUTTON_HEIGHT).build()));
-            left += BUTTON_WIDTH + BUTTON_GAP;
+        for (LevelUpChoice choice : LevelUpChoiceRegistry.choicesFor(line)) {
+            buttons.add(
+                    Button.builder(LevelUpChoiceRegistry.label(choice), button -> LevelUpChoiceRegistry.open(choice)));
         }
+        buttons.add(Button.builder(CommonComponents.GUI_BACK, button -> onClose()));
+        return buttons;
     }
 
-    private List<Entry> entries() {
+    private List<Entry> entries(int contentWidth) {
         Optional<Integer> hitDie = sheet.body().hitDice().map(StatSheet.HitDiceLine::sides);
         List<Entry> built = new ArrayList<>();
         for (LevelGain gain : line.gains().reversed()) {
@@ -109,7 +124,7 @@ final class LevelUpScreen extends Screen {
                     : ComponentUtils.formatList(parts, SEPARATOR);
             built.add(new Entry(
                     Component.translatable("screen.checks.level", gain.level()),
-                    font.split(text, CONTENT_WIDTH - Frames.BULLET_INDENT)));
+                    font.split(text, contentWidth - Frames.BULLET_INDENT)));
         }
         return built;
     }

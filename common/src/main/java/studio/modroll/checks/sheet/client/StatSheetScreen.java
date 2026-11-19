@@ -21,6 +21,7 @@ import studio.modroll.checks.api.Proficiency;
 import studio.modroll.checks.api.SheetSection;
 import studio.modroll.checks.creation.client.CharacterCreationScreen;
 import studio.modroll.checks.preset.PresetKind;
+import studio.modroll.checks.sheet.LevelUpChoiceRegistry;
 import studio.modroll.checks.sheet.SheetLayout;
 import studio.modroll.checks.sheet.SheetSectionRegistry;
 import studio.modroll.checks.sheet.SheetText;
@@ -180,7 +181,7 @@ public final class StatSheetScreen extends Screen {
         }
         sheet.level()
                 .ifPresent(line -> buttons.add(new FooterButton(
-                        line.choicesPending() ? LEVEL_UP : LEVELS,
+                        LevelUpChoiceRegistry.pending(line) ? LEVEL_UP : LEVELS,
                         button -> minecraft.setScreen(new LevelUpScreen(this, sheet)))));
         return buttons;
     }

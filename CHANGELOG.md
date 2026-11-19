@@ -1,6 +1,20 @@
 # Changelog
 
-## 0.2.2 — unreleased (alpha)
+## 0.2.3 — unreleased (alpha)
+
+Requires Critfall 0.2.20 or newer.
+
+- The character sheet's Armor Class is the AC attacks roll against, read from Critfall, so what other mods add to AC shows on it, such as a Shield or Mage Armor spell. Its tooltip has a line for their part, `Spells and effects: +5`. While Critfall's own `modifier_providers.enabled` is `false`, Critfall counts neither DEX nor other mods' AC, and the sheet leaves the row out.
+- With `rest.hit_dice.enabled: false`, a rest at a lit campfire is still a short rest: it heals nothing and ends with `Short rest: done.`, and other mods hear it, so what they give back on a short rest, such as a Warlock's spell slots, still comes back. Before, campfires were left to vanilla; `rest.short_rest.enabled: false` still does that.
+- Other mods can add a button to the Level up! panel, such as **Spells (3)**, that opens their own screen. While it has picks waiting, the sheet's button reads **Level up!**. `level_up_choices.enabled: false` hides these buttons.
+- For other mods: `ChecksApi.characterClass(player)` reads a player's class id, such as `checks:wizard`; it is empty for a Custom class or no character.
+- For other mods: `ChecksApi.onRest(listener)` is called when a short or long rest is done, with the player and the kind of rest, such as to give spell slots back.
+- For other mods: `ChecksApi.onCharacterChanged(listener)` is called when a character is made or reset, such as to give a new caster their first spells or clear a reset character's.
+- For other mods: `LevelUpChoices.register(id, choice)`, on the client, adds the Level up! panel button.
+- Checks now uses only Critfall's public API: the AC without body armor comes from `RollService.armorClassBreakdown(entity, slot)`.
+- A 0.2.3 client and a 0.2.2 server (or the other way round) refuse to connect when joining.
+
+## 0.2.2 — 2026-11-18 (alpha)
 
 Requires Critfall 0.2.18 or newer.
 

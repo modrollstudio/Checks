@@ -69,7 +69,8 @@ public record StatSheet(
             Optional<Integer> nextLevelXp,
             Improvements improvements,
             ExpertiseChoice expertise,
-            List<LevelGain> gains) {
+            List<LevelGain> gains,
+            boolean modChoices) {
 
         public LevelLine {
             gains = List.copyOf(gains);
@@ -133,10 +134,11 @@ public record StatSheet(
             ArmorCategory category,
             int dexBonus,
             int floorBonus,
+            int effects,
             int mediumMaxDex) {
 
         public int armorClass() {
-            return baseArmorClass + dexBonus + floorBonus;
+            return baseArmorClass + dexBonus + floorBonus + effects;
         }
     }
 
@@ -229,6 +231,7 @@ public record StatSheet(
         IMPROVEMENTS.encode(buffer, line.improvements());
         EXPERTISE.encode(buffer, line.expertise());
         GAINS.encode(buffer, line.gains());
+        ByteBufCodecs.BOOL.encode(buffer, line.modChoices());
     }
 
     private static LevelLine readLevel(ByteBuf buffer) {
@@ -239,7 +242,8 @@ public record StatSheet(
                 ByteBufCodecs.optional(ByteBufCodecs.VAR_INT).decode(buffer),
                 IMPROVEMENTS.decode(buffer),
                 EXPERTISE.decode(buffer),
-                GAINS.decode(buffer));
+                GAINS.decode(buffer),
+                ByteBufCodecs.BOOL.decode(buffer));
     }
 
     private static final StreamCodec<ByteBuf, HealthLine> HEALTH_LINE = StreamCodec.composite(
@@ -304,6 +308,7 @@ public record StatSheet(
         ArmorCategory.STREAM_CODEC.encode(buffer, armor.category());
         ByteBufCodecs.VAR_INT.encode(buffer, armor.dexBonus());
         ByteBufCodecs.VAR_INT.encode(buffer, armor.floorBonus());
+        ByteBufCodecs.VAR_INT.encode(buffer, armor.effects());
         ByteBufCodecs.VAR_INT.encode(buffer, armor.mediumMaxDex());
     }
 
@@ -313,6 +318,7 @@ public record StatSheet(
                 OPTIONAL_ARMOR_POINTS.decode(buffer),
                 ByteBufCodecs.VAR_INT.decode(buffer),
                 ArmorCategory.STREAM_CODEC.decode(buffer),
+                ByteBufCodecs.VAR_INT.decode(buffer),
                 ByteBufCodecs.VAR_INT.decode(buffer),
                 ByteBufCodecs.VAR_INT.decode(buffer),
                 ByteBufCodecs.VAR_INT.decode(buffer));

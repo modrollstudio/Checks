@@ -8,6 +8,11 @@ import studio.modroll.checks.gametest.CreationScenarios;
 public class CreationGameTests implements FabricGameTest {
 
     @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
+    public void characterEventsFireWhenMadeAndReset(GameTestHelper helper) {
+        CreationScenarios.characterEventsFireWhenMadeAndReset(helper);
+    }
+
+    @GameTest(template = FabricGameTest.EMPTY_STRUCTURE)
     public void eachMethodProducesValidScores(GameTestHelper helper) {
         CreationScenarios.eachMethodProducesValidScores(helper);
     }

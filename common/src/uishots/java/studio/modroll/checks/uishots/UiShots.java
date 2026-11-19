@@ -21,6 +21,9 @@ import net.minecraft.world.level.LevelSettings;
 import net.minecraft.world.level.WorldDataConfiguration;
 import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
+import studio.modroll.checks.Checks;
+import studio.modroll.checks.api.LevelUpChoice;
+import studio.modroll.checks.api.LevelUpChoices;
 import studio.modroll.checks.creation.CreationMethod;
 import studio.modroll.checks.creation.CreationStep;
 import studio.modroll.checks.creation.client.CharacterCreationScreen;
@@ -47,6 +50,7 @@ public final class UiShots {
     private static final int SKILLS_TAB = 1;
 
     private static final String LEVEL_UP = "screen.checks.level_up";
+    private static final String IMPROVEMENT = "screen.checks.level_up.improvement";
     private static final String IMPROVEMENT_TITLE = "screen.checks.improvement.title";
     private static final String PLUS = "+";
     private static final Set<String> FORWARD_BUTTONS =
@@ -74,6 +78,7 @@ public final class UiShots {
                         "the title screen",
                         () -> Minecraft.getInstance().getOverlay() == null && Minecraft.getInstance().screen != null)
                 .then(UiShots::quietOptions)
+                .then(UiShots::registerOtherModsChoice)
                 .then(UiShots::createWorld)
                 .waitFor("character creation", () -> screen() instanceof CharacterCreationScreen);
         for (CreationStep step : CreationStep.values()) {
@@ -115,7 +120,10 @@ public final class UiShots {
                 .then(() -> CharacterCreationScreen.sendToServer(StatSheetRequestPayload.INSTANCE))
                 .waitFor("the Level up! button", () -> button(LEVEL_UP).isPresent())
                 .then(() -> press(button(LEVEL_UP).orElseThrow()))
-                .waitFor("the level-up screen", () -> titled(IMPROVEMENT_TITLE))
+                .waitFor("the Level up! panel", () -> titled(LEVEL_UP));
+        shootAtEveryScale(script, camera, "level-up-panel");
+        script.then(() -> press(button(IMPROVEMENT).orElseThrow()))
+                .waitFor("the improvement screen", () -> titled(IMPROVEMENT_TITLE))
                 .then(() -> press(button(PLUS).orElseThrow()));
         shootAtEveryScale(script, camera, "level-up");
         return script.then(() -> Minecraft.getInstance().stop());
@@ -143,6 +151,12 @@ public final class UiShots {
         // A hidden window gets no frame callbacks on Wayland, and vsync would then block rendering.
         minecraft.options.enableVsync().set(false);
         minecraft.getWindow().updateVsync(false);
+    }
+
+    private static void registerOtherModsChoice() {
+        LevelUpChoices.register(
+                Checks.id("uishots_spells"),
+                () -> Optional.of(new LevelUpChoice(Component.literal("Spells"), 3, () -> {})));
     }
 
     private static void createWorld() {

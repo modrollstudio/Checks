@@ -152,7 +152,7 @@ public final class TriggerScenarios {
                     helper,
                     withExtensions(
                             new ScoresConfig.ExtensionSettings(
-                                    true, ScoresConfig.DEFAULTS.extensions().bonusSources(), false, true, true),
+                                    true, ScoresConfig.DEFAULTS.extensions().bonusSources(), false, true, true, true),
                             () -> useBlock(helper, player, WALL)),
                     "triggers off");
             expectPassed(

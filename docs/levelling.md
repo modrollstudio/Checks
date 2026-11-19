@@ -126,7 +126,9 @@ current one gave, newest first: the max health it added (all of level 1's for le
 adds up to the max health; in whole hearts, so a level can add nothing and the next a heart), a Hit
 Die, the proficiency bonus where it rose, ability score improvements, Expertise, and Extra Attack
 where it raised the attacks, e.g. `Extra Attack (2 attacks)`. Under the list are a button for each choice waiting, **Improvement (1)**
-and **Expertise (2)**, and **Back**.
+and **Expertise (2)**, one for each choice another mod adds, such as **Spells (3)**, and **Back**. A
+choice from another mod with picks waiting makes the buttons read **Level up!** too (see
+[api.md](api.md#level-up-buttons)); `level_up_choices.enabled: false` hides those buttons.
 
 ## Commands
 
@@ -141,7 +143,8 @@ All require op (permission level 2) and are refused while levelling is off.
 
 ## For other mods
 
-`ChecksApi.level(player)` and `ChecksApi.experience(player)` read a player's level and XP, and
+`ChecksApi.level(player)` and `ChecksApi.experience(player)` read a player's level and XP,
+`ChecksApi.characterClass(player)` the class these rules use, and
 `ChecksApi.attacksPerAction(entity)` the attacks one Attack action makes.
 `ChecksApi.onLevelUp(listener)` is called once per level gained. See [api.md](api.md#levels).
 

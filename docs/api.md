@@ -45,12 +45,16 @@ their level and `abilityScore` includes their chosen ability score improvements.
 
 | Method | Value |
 | --- | --- |
+| `characterClass(player)` | the id of the player's class, such as `checks:wizard`, as an `Optional<ResourceLocation>` |
 | `level(player)` | the player's character level, `1..20`; `1` while levelling is disabled |
 | `experience(player)` | the player's total character XP; `0` while levelling is disabled |
 | `attacksPerAction(entity)` | the attacks one Attack action makes: `1`, plus Extra Attack from a player's class and level |
 | `onLevelUp(listener)` | registers a `Consumer<LevelUpEvent>` |
 
-`level` and `experience` take a server-side `ServerPlayer`. `attacksPerAction` takes any server-side
+`characterClass`, `level` and `experience` take a server-side `ServerPlayer`. `characterClass` is the
+class the levelling rules use: a datapack's own class reads its own id. It is empty for a Custom class,
+before the player has made a character, and while `creation.enabled` or `creation.presets.enabled` is
+`false`; it reads the class while levelling is off too, when `level` is `1`. `attacksPerAction` takes any server-side
 `LivingEntity`: it is `1` for anything but a player, for a class without Extra Attack, and while
 `levelling.extra_attack.enabled` is `false`; a level 5 Fighter reads `2`. Checks only reports it and
 makes no attack itself: turn based fights such as Initiative's use it, and real time combat is
@@ -71,12 +75,39 @@ ChecksApi.onLevelUp(event -> {
 
 See [levelling.md](levelling.md).
 
+## Characters
+
+`onCharacterChanged(listener)` registers a `Consumer<CharacterEvent>`. A `CharacterEvent` carries the
+`player` and the `change`, a `CharacterChange`:
+
+- `CREATED` once a player's character is made and stored, after their background's starting kit is
+  given: `characterClass` reads the new class.
+- `RESET` once `/checks reset` has cleared the character, level and XP: `characterClass` is empty and
+  `level` is `1`.
+
+It fires on the server thread, once per player and change. A refused character fires nothing. A
+character's class changes only this way, by a reset and a new character. Turning presets or creation
+off changes what `characterClass` reads without an event, so read the class when you need it rather
+than keeping it. A listener that throws is logged and skipped. Register once, while your mod starts.
+
+```java
+ChecksApi.onCharacterChanged(event -> {
+    switch (event.change()) {
+        case CREATED -> offerFirstSpells(event.player());
+        case RESET -> forgetSpells(event.player());
+    }
+});
+```
+
+See [character-creation.md](character-creation.md).
+
 ## Rests
 
 | Method | Value |
 | --- | --- |
 | `hitDiceLeft(player)` | the Hit Dice the player can still spend; `0` while Hit Dice are off |
 | `addRestBlocker(predicate)` | registers a `Predicate<ServerPlayer>`; while it answers true the player can't rest |
+| `onRest(listener)` | registers a `Consumer<RestEvent>`, called when a rest is done |
 
 A blocker is asked on the server thread when a player starts a short rest and every tick while they
 rest. While it answers true, no rest starts and a rest under way breaks before any Hit Die is spent. It
@@ -84,6 +115,22 @@ is meant for Initiative's encounters. Register once, while your mod starts.
 
 ```java
 ChecksApi.addRestBlocker(player -> Encounters.isFighting(player));
+```
+
+A `RestEvent` carries the `player` and the `kind`, a `RestKind`: `SHORT` when a short rest at a
+campfire is done, after its Hit Dice are spent (also when none were needed or left, and while Hit Dice
+are off, when it spends nothing), and `LONG` after
+a night slept through has healed the player and given back their Hit Dice. It fires on the server
+thread, once per player and rest. A rest that breaks fires nothing, and neither does sleeping while
+`long_rest.enabled` is `false`. A listener that throws is logged and skipped. `events.enabled` does not
+stop it; it covers only the [check events](#check-events). Register once, while your mod starts.
+
+```java
+ChecksApi.onRest(event -> {
+    if (event.kind() == RestKind.LONG) {
+        restoreSpellSlots(event.player());
+    }
+});
 ```
 
 See [rests.md](rests.md).
@@ -224,6 +271,30 @@ StatSheetSections.register(ResourceLocation.fromNamespaceAndPath("mymod", "reput
 Checks only draws the section; the data and getting it to the client are yours. Sections appear in
 registration order; registering an id again replaces its section in place. A supplier that throws
 is logged and left out. `stat_screen_sections.enabled: false` on the server hides every section.
+
+## Level up! buttons
+
+`LevelUpChoices.register(id, choice)` adds a button to the [Level up! panel](levelling.md#the-level-up-panel),
+after Checks' own **Improvement** and **Expertise**, that opens your own screen: Spells' **Spells (3)**,
+for one. It is client side: call it from your client setup. `choice` is a `Supplier<Optional<LevelUpChoice>>`
+called on the client thread each time the panel or the stat screen opens; return empty for no button
+this time. A `LevelUpChoice` is a `label`, a `count` of picks waiting and `open`, run when the button is
+pressed.
+
+```java
+LevelUpChoices.register(ResourceLocation.fromNamespaceAndPath("mymod", "spells"), () ->
+        MyClientData.spellPicks().map(picks -> new LevelUpChoice(
+                Component.translatable("mymod.level_up.spells"),
+                picks,
+                () -> Minecraft.getInstance().setScreen(new MySpellScreen(Minecraft.getInstance().screen)))));
+```
+
+While `count` is above 0 the button reads `Spells (3)`, and the stat screen's button and the panel
+read **Level up!**, as for an improvement waiting; at 0 it reads `Spells`. Checks only draws the button;
+the count and getting it to the client are yours. Buttons appear in registration order; registering
+an id again replaces its button in place. A supplier or an `open` that throws is logged, and the
+supplier's button left out. The panel exists only while levelling is on. `level_up_choices.enabled:
+false` on the server hides every button.
 
 ## KubeJS
 
