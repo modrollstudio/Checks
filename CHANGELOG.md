@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.3 — unreleased (alpha)
+## 0.2.3 — 2026-11-19 (alpha)
 
 Requires Critfall 0.2.20 or newer.
 
